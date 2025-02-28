@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <div class="form-horizontal">
+        <h2>Чат</h2>
+        <input class="form-control" id="message" type="text" placeholder="Введите сообщение">
+        <button class="btn btn-success" onclick="sendMessage()">Отправить</button>
+        
+        <ul class="list-inline" id="messages"></ul>
+
+    </div>
+    <script>
+        var socket = new SockJS('http://localhost:8080/chat');
+        var stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+            console.log("✅ WebSocket подключён!");
+
+            stompClient.subscribe('/topic/messages', function (response) {
+                console.log("📩 Новое сообщение:", response.body);
+
+                var message = JSON.parse(response.body);
+                var li = document.createElement("li");
+                li.innerText = message.sender + ": " + message.content;
+                document.getElementById("messages").appendChild(li);
+            });
+        }, function (error) {
+            console.error("❌ Ошибка подключения WebSocket:", error);
+        });
+
+        function sendMessage() {
+            var messageContent = document.getElementById("message").value;
+            console.log("📤 Отправка сообщения:", messageContent);
+
+            stompClient.send("/app/sendMessage", {}, JSON.stringify({
+                senderName: "User1",
+                content: messageContent
+            }));
+        }
+
+    </script>
+</body>
+</html>
