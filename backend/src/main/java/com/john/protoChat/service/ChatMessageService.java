@@ -1,5 +1,7 @@
 package com.john.protoChat.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +13,10 @@ import com.john.protoChat.repository.MessageRepository;
 public class ChatMessageService {
 	
     @Autowired private MessageRepository messageRepository;
-
+    
+    public List<Message> getMessages() {
+        return messageRepository.findAll();
+    }
 	
     public ChatMessage send(ChatMessage message) {
         Message savedMessage = new Message();
