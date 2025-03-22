@@ -5,8 +5,8 @@ import { Client } from '@stomp/stompjs';
 import Messages from "./Messages.tsx";
 
 function ChatRoom() {
-  let [message, setMessage] = useState('');
-  let [messages, setMessages] = useState<string[]>([]); 
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<string[]>([]); 
   const stompClientRef = useRef<Client>(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ function ChatRoom() {
     return () => {
       stompClient.deactivate();
     };
-}, []);
+  }, []);
 
   const sendMessage = () => {
     console.log("📤 Отправка сообщения:", message);
@@ -53,7 +53,7 @@ function ChatRoom() {
       });
       setMessage('');
     } else {
-        console.error('Stomp client is not connected');
+      console.error('Stomp client is not connected');
     }
   }
 

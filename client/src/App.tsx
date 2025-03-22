@@ -1,6 +1,6 @@
 import './App.css'
-import ChatBlock from './ChatBlock'
-import ChatRoom from './ChatRoom'
+import ChatBlock from './Chat/ChatBlock'
+import ChatRoom from './Chat/ChatRoom'
 
 function App() {
   return (
