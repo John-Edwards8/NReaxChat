@@ -14,8 +14,12 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 public class AuthRouter {
     @Bean
     RouterFunction<ServerResponse> route(AuthHandler handler) {
-		return RouterFunctions
-			.route(GET("/hello").and(accept(MediaType.APPLICATION_JSON)), handler::hello);
+    	return RouterFunctions
+			.route(GET("/token").and(accept(MediaType.APPLICATION_JSON)), handler::hello)
+			.andRoute(GET("/user/{username}").and(accept(MediaType.APPLICATION_JSON)), handler::getUser)
+			.andRoute(GET("/createUser").and(accept(MediaType.APPLICATION_JSON)), handler::createUser)
+    		.andRoute(GET("/deleteUser/{del}").and(accept(MediaType.APPLICATION_JSON)), handler::deleteUser)
+    		.andRoute(GET("/updateUser/{upd}").and(accept(MediaType.APPLICATION_JSON)), handler::updateUser);
 	}
 	
 }
