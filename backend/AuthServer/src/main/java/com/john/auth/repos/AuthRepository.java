@@ -1,8 +1,8 @@
-package com.john.protoAuth.repos;
+package com.john.auth.repos;
 
 import java.math.BigInteger;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import com.john.protoAuth.model.User;
+import com.john.auth.model.User;
 import reactor.core.publisher.Mono;
 
 public interface AuthRepository extends ReactiveMongoRepository<User, BigInteger> {

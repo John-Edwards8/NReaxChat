@@ -1,12 +1,12 @@
-package com.john.protoAuth;
+package com.john.auth;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.john.protoAuth.model.User;
-import com.john.protoAuth.repos.AuthRepository;
+import com.john.auth.model.User;
+import com.john.auth.repos.AuthRepository;
 import reactor.test.StepVerifier;
 import reactor.core.publisher.Flux;
 

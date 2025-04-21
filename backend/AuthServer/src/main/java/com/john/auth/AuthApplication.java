@@ -1,13 +1,13 @@
-package com.john.protoAuth;
+package com.john.auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ProtoAuthApplication {
+public class AuthApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ProtoAuthApplication.class, args);
+		SpringApplication.run(AuthApplication.class, args);
 	}
 
 }
