@@ -1,4 +1,4 @@
-package com.john.protoAuth;
+package com.john.auth;
 
 import java.math.BigInteger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import com.john.protoAuth.model.User;
-import com.john.protoAuth.repos.AuthRepository;
+import com.john.auth.model.User;
+import com.john.auth.repos.AuthRepository;
 import reactor.core.publisher.Mono;
 
 @Component
