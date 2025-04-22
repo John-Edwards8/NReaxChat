@@ -1,8 +1,13 @@
 package com.john.auth;
 
 import java.math.BigInteger;
+
+import com.john.auth.model.AuthRequest;
+import com.john.auth.model.AuthResponse;
+import com.john.auth.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -13,48 +18,78 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class AuthHandler {
+
+	private final AuthRepository repo;
+	private final JwtUtil jwtUtil;
+	private final PasswordEncoder passwordEncoder;
+
 	@Autowired
-	private AuthRepository repo;
-	public Mono<ServerResponse> hello(ServerRequest request) {
-	    return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
-	    	  .body(BodyInserters.fromValue(new User(BigInteger.ONE, "Hello, Spring!", "How are u?")));
+	public AuthHandler(AuthRepository repo, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+		this.repo = repo;
+		this.jwtUtil = jwtUtil;
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	public Mono<ServerResponse> register(ServerRequest request) {
+		return request.bodyToMono(AuthRequest.class)
+				.flatMap(req -> repo.findByUsername(req.getUsername())
+						.flatMap(existing -> ServerResponse.badRequest().bodyValue("Username already exists"))
+						.switchIfEmpty(Mono.defer(() -> {
+							User user = new User();
+							user.setUsername(req.getUsername());
+							user.setPassword(passwordEncoder.encode(req.getPassword()));
+							return repo.save(user)
+									.flatMap(u -> ServerResponse.ok()
+											.contentType(MediaType.APPLICATION_JSON)
+											.bodyValue(new AuthResponse(jwtUtil.generateToken(u.getUsername()))));
+						}))
+				);
+	}
+
+	public Mono<ServerResponse> login(ServerRequest request) {
+		return request.bodyToMono(AuthRequest.class)
+				.flatMap(req -> repo.findByUsername(req.getUsername())
+						.filter(u -> passwordEncoder.matches(req.getPassword(), u.getPassword()))
+						.switchIfEmpty(Mono.error(new RuntimeException("Invalid credentials")))
+						.flatMap(u -> {
+							String token = jwtUtil.generateToken(u.getUsername());
+							return ServerResponse.ok()
+									.contentType(MediaType.APPLICATION_JSON)
+									.bodyValue(new AuthResponse(token));
+						})
+				)
+				.onErrorResume(e -> ServerResponse.status(401).bodyValue(e.getMessage()));
 	}
 	
 	public Mono<ServerResponse> getUser(ServerRequest request) {
 		String uname = request.pathVariable("username");
 		return repo.findByUsername(uname)
 				.flatMap(user -> ServerResponse.ok()
-								.contentType(MediaType.APPLICATION_JSON)
-								.bodyValue(user))
+						.contentType(MediaType.APPLICATION_JSON)
+						.bodyValue(user))
 				.switchIfEmpty(ServerResponse.notFound().build());
-	}
-	
-	public Mono<ServerResponse> createUser(ServerRequest request) {
-		return request.bodyToMono(User.class)
-				.flatMap(repo::save)
-				.flatMap(user ->ServerResponse.ok()
-								.contentType(MediaType.APPLICATION_JSON)
-								.bodyValue(user))
-				.onErrorResume(e -> ServerResponse.badRequest().bodyValue("Server error: " + e.getMessage()));
 	}
 	
 	public Mono<ServerResponse> deleteUser(ServerRequest request) {
-		return repo.findByUsername(request.pathVariable("del"))
-				.flatMap(user -> repo.delete(user))
+		return repo.findByUsername(request.pathVariable("username"))
+				.flatMap(repo::delete)
 					.then(ServerResponse.noContent().build())
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
-	
+
 	public Mono<ServerResponse> updateUser(ServerRequest request) {
-		return request.bodyToMono(User.class)
-				.flatMap(newData -> repo.findByUsername(request.pathVariable("upd"))
-					.flatMap(existingUser -> {
-						existingUser.setPassword(newData.getPassword());
-						return repo.save(existingUser);
-					})
-					.flatMap(updatedUser -> ServerResponse.ok()
-							.contentType(MediaType.APPLICATION_JSON)
-							.bodyValue(updatedUser))
+		String username = request.pathVariable("username");
+		return request.bodyToMono(AuthRequest.class)
+				.flatMap(req -> repo.findByUsername(username)
+						.flatMap(existingUser -> {
+							existingUser.setPassword(passwordEncoder.encode(req.getPassword()));
+							return repo.save(existingUser);
+						})
+						.flatMap(updatedUser ->
+								ServerResponse.ok()
+										.contentType(MediaType.APPLICATION_JSON)
+										.bodyValue(updatedUser)
+						)
 				)
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
