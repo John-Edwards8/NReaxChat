@@ -9,7 +9,6 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -48,7 +47,6 @@ class JwtSecurityContextRepositoryTest {
                 .header("Authorization", "Bearer goodtoken");
         var exchange = MockServerWebExchange.from(request);
         var auth = new UsernamePasswordAuthenticationToken("user", null);
-        var context = Mockito.mock(SecurityContext.class);
         Mockito.when(authManager.authenticate(Mockito.any()))
                 .thenReturn(Mono.just(auth));
 
