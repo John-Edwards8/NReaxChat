@@ -13,8 +13,12 @@ import reactor.test.StepVerifier;
 @DataMongoTest
 class RepositoryTest {
 
+	private final AuthRepository repository;
+
 	@Autowired
-	private AuthRepository repository;
+	public RepositoryTest(AuthRepository repository) {
+		this.repository = repository;
+	}
 
 	private final User testUser = User.builder()
 			.username("username")
