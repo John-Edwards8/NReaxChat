@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,8 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String base64Secret;
     private Key key;
-    private final long validityInMs = 3_600_000;
+    @Setter
+    private long validityInMs = 3_600_000;
 
     @PostConstruct
     public void init() {
