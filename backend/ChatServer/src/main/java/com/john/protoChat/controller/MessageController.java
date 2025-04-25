@@ -1,4 +1,4 @@
-package com.john.protoChat.controller;
+/* package com.john.protoChat.controller;
 
 import java.util.List;
 
@@ -43,3 +43,4 @@ public class MessageController {
 	    return message;
 	}
 }
+ */
