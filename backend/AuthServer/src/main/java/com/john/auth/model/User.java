@@ -1,4 +1,4 @@
-package com.john.protoAuth.model;
+package com.john.auth.model;
 
 import java.math.BigInteger;
 import org.springframework.data.annotation.Id;
