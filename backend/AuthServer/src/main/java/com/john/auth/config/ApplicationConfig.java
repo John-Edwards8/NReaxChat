@@ -1,4 +1,4 @@
-package com.john.protoAuth.config;
+package com.john.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 
 @Configuration
-@EnableReactiveMongoRepositories("com.john.protoAuth.repos")
+@EnableReactiveMongoRepositories("com.john.auth.repos")
 public class ApplicationConfig extends AbstractReactiveMongoConfiguration{
 	@Bean
     MongoClient mongoClient() {
