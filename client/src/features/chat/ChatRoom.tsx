@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import './ChatRoom.css'
-import HandleInput from "./HandleInput.tsx";
+import HandleInput from "../../components/HandleInput.tsx";
 import { Client } from '@stomp/stompjs';
-import Messages from "./Messages.tsx";
+import Messages from "../../components/Messages.tsx";
 
 function ChatRoom() {
   const [message, setMessage] = useState('');

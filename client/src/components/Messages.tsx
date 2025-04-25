@@ -7,6 +7,4 @@ const Messages = ({messages} : {messages:string[]}) => {
         </ul>
     )
   }
-  
   export default Messages
-          
