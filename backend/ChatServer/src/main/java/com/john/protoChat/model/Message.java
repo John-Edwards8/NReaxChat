@@ -2,6 +2,7 @@ package com.john.protoChat.model;
 
 import java.time.LocalDateTime;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Document(collection ="messages")
 public class Message {
 	@Id
-    private Long id;
+    private ObjectId id;
 
     private String sender;
     private String content;

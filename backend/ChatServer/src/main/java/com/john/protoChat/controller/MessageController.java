@@ -1,46 +1,28 @@
-/* package com.john.protoChat.controller;
-
-import java.util.List;
+ package com.john.protoChat.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.john.protoChat.model.ChatMessage;
+import org.springframework.stereotype.Controller;
+import com.john.protoChat.repository.MessageRepository;
 import com.john.protoChat.model.Message;
-import com.john.protoChat.service.ChatMessageService;
-
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
-@RestController
-@RequestMapping("/api/messages")
+@Controller
 @RequiredArgsConstructor
 public class MessageController {
-	@Autowired private ChatMessageService cms;
+	@Autowired private MessageRepository messageRepository;
 
-    @GetMapping
-    public List<Message> getMessages() {
-        return cms.getMessages();
-    }
-    
     @MessageMapping("/sendMessage")
     @SendTo("/topic/messages")
-	public Message sendMessage(@Payload ChatMessage cm) {
-//		var chatId = chatRoomService
-//	            .getChatId(chatMessage.getSenderId(), chatMessage.getRecipientId(), true);
-//	    chatMessage.setChatId(chatId.get());
+    public Mono<Message> handleMessageReactive(Message message) {
+    	Message savedMessage = new Message();
+        savedMessage.setSender(message.getSender());
+        savedMessage.setContent(message.getContent());
+        savedMessage.setTimestamp(message.getTimestamp());
 
-	    ChatMessage saved = cms.send(cm);
-		Message message = Message.builder()
-							     .sender(saved.getSenderName())
-							     .content(saved.getContent())
-							     .timestamp(saved.getTimestamp())
-							     .build();
-	    return message;
-	}
+        return messageRepository.save(message);
+    }
 }
- */
+ 

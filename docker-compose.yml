@@ -11,9 +11,11 @@ services:
     build: ./backend/ChatServer
     ports:
       - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: ${MONGODB_URI}
+      SPRING_DATA_MONGODB_DATABASE: ${MONGODB_DATABASE}
     networks:
       - backend
-
   frontend:
     build: ./client
     ports:
