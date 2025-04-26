@@ -218,4 +218,10 @@ psd
 thumb
 sketch
 
+<<<<<<< HEAD
 # End of https://www.toptal.com/developers/gitignore/api/intellij,eclipse,react,java
+=======
+.env
+.vscode/*
+# End of https://www.toptal.com/developers/gitignore/api/intellij,eclipse,react,java,maven
+>>>>>>> 225a74a (Connected to MongoDB Atlas)

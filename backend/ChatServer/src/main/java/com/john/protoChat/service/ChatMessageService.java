@@ -1,3 +1,4 @@
+/*
 package com.john.protoChat.service;
 
 import com.john.protoChat.model.ChatMessage;
@@ -5,7 +6,6 @@ import com.john.protoChat.model.Message;
 import com.john.protoChat.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -13,10 +13,6 @@ public class ChatMessageService {
 
     @Autowired
     private MessageRepository messageRepository;
-
-    public Flux<Message> getMessages() {
-        return messageRepository.findAll();
-    }
 
     public Mono<ChatMessage> send(ChatMessage message) {
         Message savedMessage = new Message();
@@ -28,3 +24,4 @@ public class ChatMessageService {
                 .thenReturn(message);
     }
 }
+*/
