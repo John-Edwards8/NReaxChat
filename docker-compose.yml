@@ -1,14 +1,14 @@
 services:
-  auth-server:
-    build: ./backend/AuthServer
+  auth-service:
+    build: ./backend/auth-service
     ports:
       - "8081:8080"
     environment:
       - JWT_SECRET=${JWT_SECRET}
     networks:
       - backend
-  chat-server:
-    build: ./backend/ChatServer
+  chat-service:
+    build: ./backend/chat-service
     ports:
       - "8080:8080"
     environment:
@@ -21,8 +21,8 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - chat-server
-      - auth-server
+      - chat-service
+      - auth-service
 networks:
   backend:
     driver: bridge
