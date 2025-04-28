@@ -1,4 +1,4 @@
-FROM node:23-alpine AS development
+FROM node:slim AS development
 
 WORKDIR /code
 COPY package.json /code/package.json
@@ -7,8 +7,11 @@ COPY package-lock.json /code/package-lock.json
 RUN npm ci
 COPY . /code
 
+ARG VITE_WEBSOCKET_URL
+
 ENV CI=true
 ENV PORT=3000
+ENV VITE_WEBSOCKET_URL=${VITE_WEBSOCKET_URL}
 
 CMD [ "npm", "start" ]
 
@@ -31,5 +34,5 @@ FROM development AS build
 
 RUN ["npm", "run", "build"]
 
-FROM nginx:1.27.5-alpine-slim
+FROM nginx:1.28.0-alpine
 COPY --from=build /code/dist /usr/share/nginx/html
