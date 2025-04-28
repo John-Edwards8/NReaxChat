@@ -9,13 +9,14 @@ function ChatRoom() {
       text: string;
       sender: 'me' | 'other';
     };
+    const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]); 
     const stompClientRef = useRef<Client>(null);
 
     useEffect(() => {
         const stompClient = new Client({
-            webSocketFactory: () => new WebSocket('ws://localhost:8080/chat'),
+            webSocketFactory: () => new WebSocket(WEBSOCKET_URL),
             reconnectDelay: 5000,
             debug: (str) => {
                 console.log("DEBUG: ", str);
