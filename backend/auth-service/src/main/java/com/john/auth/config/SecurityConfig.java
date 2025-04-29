@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .securityMatcher(ServerWebExchangeMatchers.anyExchange())
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers(HttpMethod.POST, "/login", "/register").permitAll()
+                        .pathMatchers("/user/**").hasAuthority("ROLE_USER")
                         .anyExchange().authenticated()
                 )
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)

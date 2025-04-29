@@ -8,41 +8,54 @@ import org.mockito.Mockito;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import reactor.test.StepVerifier;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 class AuthenticationManagerTest {
     private AuthenticationManager manager;
     private JwtUtil jwtUtil;
-    private ReactiveUserDetailsService uds;
 
     @BeforeEach
     void init() {
         jwtUtil = Mockito.mock(JwtUtil.class);
-        uds = Mockito.mock(ReactiveUserDetailsService.class);
-        manager = new AuthenticationManager(jwtUtil, uds);
+        manager = new AuthenticationManager(jwtUtil);
     }
 
     @Test
     void authenticate_shouldError_whenInvalidToken() {
-        Mockito.when(jwtUtil.validateToken("bad")).thenReturn(false);
-        Mono<?> m = manager.authenticate(new UsernamePasswordAuthenticationToken("bad", "bad"));
-        StepVerifier.create(m).expectError(BadCredentialsException.class).verify();
+        when(jwtUtil.validateToken("badToken")).thenReturn(false);
+
+        Mono<Authentication> result = manager.authenticate(
+                new UsernamePasswordAuthenticationToken(null, "badToken")
+        );
+
+        StepVerifier.create(result)
+                .expectError(BadCredentialsException.class)
+                .verify();
     }
 
     @Test
     void authenticate_shouldAuthenticate_whenValidToken() {
-        Mockito.when(jwtUtil.validateToken("good")).thenReturn(true);
-        Mockito.when(jwtUtil.getUsernameFromToken("good")).thenReturn("user1");
-        UserDetails userDetails = User.withUsername("user1").password("x").roles("USER").build();
-        Mockito.when(uds.findByUsername("user1")).thenReturn(Mono.just(userDetails));
+        when(jwtUtil.validateToken("goodToken")).thenReturn(true);
+        when(jwtUtil.getUsernameFromToken("goodToken")).thenReturn("user1");
+        when(jwtUtil.getRoleFromToken("goodToken")).thenReturn("ROLE_USER");
 
-        Mono<Authentication> m = manager.authenticate(new UsernamePasswordAuthenticationToken("good", "good"));
-        StepVerifier.create(m)
-                .expectNextMatches(auth -> auth.getPrincipal().equals(userDetails))
+        Mono<Authentication> result = manager.authenticate(
+                new UsernamePasswordAuthenticationToken(null, "goodToken")
+        );
+
+        StepVerifier.create(result)
+                .assertNext(auth -> {
+                    assertEquals("user1", auth.getPrincipal());
+                    assertEquals(1, auth.getAuthorities().size());
+                    assertTrue(auth.getAuthorities().contains(
+                            new SimpleGrantedAuthority("ROLE_USER")
+                    ));
+                })
                 .verifyComplete();
     }
 }

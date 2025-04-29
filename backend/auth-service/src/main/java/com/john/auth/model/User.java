@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,18 +18,15 @@ public class User {
 	private BigInteger id;
 	private String username;
 	private String password;
+	private String role;
 
 	@Override
 	public String toString() {
-		return "{" +
-				"id='" + id + '\'' + ",\n" +
-				"username='" + username + '\'' + ",\n" +
-				"password='" + password + '\'' +
-				"}";
-	}
-
-	public User(Object name, Object pass) {
-		this.username = name.toString();
-		this.password = pass.toString();
+		return "User{" +
+				"id=" + id +
+				", username='" + username + '\'' +
+				", password='" + password + '\'' +
+				", role='" + role + '\'' +
+				'}';
 	}
 }
