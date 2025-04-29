@@ -15,8 +15,8 @@ public class AuthRouter {
 	@Bean
 	public RouterFunction<ServerResponse> route(AuthHandler handler) {
 		return RouterFunctions
-				.route(POST("/register").and(accept(MediaType.APPLICATION_JSON)), handler::register)
-				.andRoute(POST("/login").and(accept(MediaType.APPLICATION_JSON)), handler::login)
+				.route(POST("/api/register").and(accept(MediaType.APPLICATION_JSON)), handler::register)
+				.andRoute(POST("/api/login").and(accept(MediaType.APPLICATION_JSON)), handler::login)
 				.andRoute(GET("/user/{username}").and(accept(MediaType.APPLICATION_JSON)), handler::getUser)
 				.andRoute(PUT("/updateUser/{username}").and(accept(MediaType.APPLICATION_JSON)), handler::updateUser)
 				.andRoute(DELETE("/deleteUser/{username}").and(accept(MediaType.APPLICATION_JSON)), handler::deleteUser);
