@@ -1,35 +1,41 @@
 package com.john.auth.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Component
 public class AuthenticationManager implements ReactiveAuthenticationManager {
-    private final JwtUtil jwtUtil;
-    private final ReactiveUserDetailsService userDetailsService;
 
-    @Autowired
-    public AuthenticationManager(JwtUtil jwtUtil, ReactiveUserDetailsService userDetailsService) {
+    private final JwtUtil jwtUtil;
+
+    public AuthenticationManager(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        String authToken = authentication.getCredentials().toString();
-        if (!jwtUtil.validateToken(authToken)) {
+        String token = authentication.getCredentials().toString();
+
+        if (!jwtUtil.validateToken(token)) {
             return Mono.error(new BadCredentialsException("Invalid token"));
         }
-        String username = jwtUtil.getUsernameFromToken(authToken);
-        return userDetailsService.findByUsername(username)
-                .map(userDetails -> new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                ));
+
+        String username = jwtUtil.getUsernameFromToken(token);
+        String role     = jwtUtil.getRoleFromToken(token);
+
+        var auth = new UsernamePasswordAuthenticationToken(
+                username,
+                null,
+                List.of(new SimpleGrantedAuthority(role))
+        );
+
+        return Mono.just(auth);
     }
 }

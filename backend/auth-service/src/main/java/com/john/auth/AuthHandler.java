@@ -1,7 +1,5 @@
 package com.john.auth;
 
-import java.math.BigInteger;
-
 import com.john.auth.model.AuthRequest;
 import com.john.auth.model.AuthResponse;
 import com.john.auth.security.JwtUtil;
@@ -9,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import com.john.auth.model.User;
@@ -38,10 +35,14 @@ public class AuthHandler {
 							User user = new User();
 							user.setUsername(req.getUsername());
 							user.setPassword(passwordEncoder.encode(req.getPassword()));
+							user.setRole("ROLE_USER");
 							return repo.save(user)
-									.flatMap(u -> ServerResponse.ok()
-											.contentType(MediaType.APPLICATION_JSON)
-											.bodyValue(new AuthResponse(jwtUtil.generateToken(u.getUsername()))));
+									.flatMap(u -> {
+										String token = jwtUtil.generateToken(u.getUsername(), u.getRole());
+										return ServerResponse.ok()
+												.contentType(MediaType.APPLICATION_JSON)
+												.bodyValue(new AuthResponse(token, u.getRole()));
+									});
 						}))
 				);
 	}
@@ -52,10 +53,11 @@ public class AuthHandler {
 						.filter(u -> passwordEncoder.matches(req.getPassword(), u.getPassword()))
 						.switchIfEmpty(Mono.error(new RuntimeException("Invalid credentials")))
 						.flatMap(u -> {
-							String token = jwtUtil.generateToken(u.getUsername());
+							String role = u.getRole();
+							String token = jwtUtil.generateToken(u.getUsername(), role);
 							return ServerResponse.ok()
 									.contentType(MediaType.APPLICATION_JSON)
-									.bodyValue(new AuthResponse(token));
+									.bodyValue(new AuthResponse(token, role));
 						})
 				)
 				.onErrorResume(e -> ServerResponse.status(401).bodyValue(e.getMessage()));
@@ -69,11 +71,14 @@ public class AuthHandler {
 						.bodyValue(user))
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
-	
+
 	public Mono<ServerResponse> deleteUser(ServerRequest request) {
-		return repo.findByUsername(request.pathVariable("username"))
-				.flatMap(repo::delete)
-					.then(ServerResponse.noContent().build())
+		String username = request.pathVariable("username");
+		return repo.findByUsername(username)
+				.flatMap(user ->
+						repo.delete(user)
+								.then(ServerResponse.noContent().build())
+				)
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
