@@ -17,6 +17,7 @@ public class AuthRouter {
 		return RouterFunctions
 				.route(POST("/api/register").and(accept(MediaType.APPLICATION_JSON)), handler::register)
 				.andRoute(POST("/api/login").and(accept(MediaType.APPLICATION_JSON)), handler::login)
+				.andRoute(POST("/api/refresh") .and(accept(MediaType.APPLICATION_JSON)), handler::refresh)
 				.andRoute(GET("/user/{username}").and(accept(MediaType.APPLICATION_JSON)), handler::getUser)
 				.andRoute(PUT("/updateUser/{username}").and(accept(MediaType.APPLICATION_JSON)), handler::updateUser)
 				.andRoute(DELETE("/deleteUser/{username}").and(accept(MediaType.APPLICATION_JSON)), handler::deleteUser);

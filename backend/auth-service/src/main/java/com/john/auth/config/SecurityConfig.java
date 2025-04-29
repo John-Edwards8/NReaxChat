@@ -30,7 +30,7 @@ public class SecurityConfig {
         return http
                 .securityMatcher(ServerWebExchangeMatchers.anyExchange())
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers(HttpMethod.POST, "/api/login", "/api/register").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/login", "/api/register", "/api/refresh").permitAll()
                         .pathMatchers("/user/**", "/updateUser/**", "/deleteUser/**").hasAuthority("ROLE_USER")
                         .anyExchange().authenticated()
                 )
