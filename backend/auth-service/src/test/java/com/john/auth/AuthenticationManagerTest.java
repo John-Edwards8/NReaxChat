@@ -26,11 +26,12 @@ class AuthenticationManagerTest {
     }
 
     @Test
-    void authenticate_shouldError_whenInvalidToken() {
-        when(jwtUtil.validateToken("badToken")).thenReturn(false);
+    void authenticate_shouldError_whenInvalidAccessToken() {
+        String token = "badToken";
+        when(jwtUtil.validateToken(token, "access")).thenReturn(false);
 
         Mono<Authentication> result = manager.authenticate(
-                new UsernamePasswordAuthenticationToken(null, "badToken")
+                new UsernamePasswordAuthenticationToken(null, token)
         );
 
         StepVerifier.create(result)
@@ -39,22 +40,20 @@ class AuthenticationManagerTest {
     }
 
     @Test
-    void authenticate_shouldAuthenticate_whenValidToken() {
-        when(jwtUtil.validateToken("goodToken")).thenReturn(true);
-        when(jwtUtil.getUsernameFromToken("goodToken")).thenReturn("user1");
-        when(jwtUtil.getRoleFromToken("goodToken")).thenReturn("ROLE_USER");
+    void authenticate_shouldAuthenticate_whenValidAccessToken() {
+        String token = "goodToken";
+        when(jwtUtil.validateToken(token, "access")).thenReturn(true);
+        when(jwtUtil.getUsernameFromToken(token)).thenReturn("user1");
+        when(jwtUtil.getRoleFromToken(token)).thenReturn("ROLE_USER");
 
         Mono<Authentication> result = manager.authenticate(
-                new UsernamePasswordAuthenticationToken(null, "goodToken")
+                new UsernamePasswordAuthenticationToken(null, token)
         );
 
         StepVerifier.create(result)
                 .assertNext(auth -> {
-                    assertEquals("user1", auth.getPrincipal());
-                    assertEquals(1, auth.getAuthorities().size());
-                    assertTrue(auth.getAuthorities().contains(
-                            new SimpleGrantedAuthority("ROLE_USER")
-                    ));
+                    assert auth.getPrincipal().equals("user1");
+                    assert auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"));
                 })
                 .verifyComplete();
     }
