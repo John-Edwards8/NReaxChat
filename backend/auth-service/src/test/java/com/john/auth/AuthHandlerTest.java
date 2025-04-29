@@ -57,7 +57,7 @@ class AuthHandlerTest {
         Mockito.when(repository.save(any(User.class))).thenReturn(Mono.just(saved));
         Mockito.when(jwtUtil.generateToken("u1", "ROLE_USER")).thenReturn("tok");
 
-        client.post().uri("/register")
+        client.post().uri("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(req)
                 .exchange()
@@ -78,7 +78,7 @@ class AuthHandlerTest {
         Mockito.when(repository.findByUsername("u2")).thenReturn(Mono.just(new User(null, "u2", "wrongHash", null)));
         Mockito.when(passwordEncoder.matches("pw", "wrongHash")).thenReturn(false);
 
-        client.post().uri("/login")
+        client.post().uri("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(req)
                 .exchange()
@@ -97,7 +97,7 @@ class AuthHandlerTest {
                 .thenReturn("tok3");
         Mockito.when(passwordEncoder.matches("pw", "hash3")).thenReturn(true);
 
-        client.post().uri("/login")
+        client.post().uri("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(req)
                 .exchange()
