@@ -1,7 +1,5 @@
 package com.john.auth;
 
-import java.math.BigInteger;
-
 import com.john.auth.model.AuthRequest;
 import com.john.auth.model.AuthResponse;
 import com.john.auth.security.JwtUtil;
@@ -9,12 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
 import reactor.core.publisher.Mono;
+
+import java.util.Collections;
 
 @Component
 public class AuthHandler {
@@ -30,37 +29,66 @@ public class AuthHandler {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public Mono<ServerResponse> register(ServerRequest request) {
-		return request.bodyToMono(AuthRequest.class)
-				.flatMap(req -> repo.findByUsername(req.getUsername())
-						.flatMap(existing -> ServerResponse.badRequest().bodyValue("Username already exists"))
+	public Mono<ServerResponse> register(ServerRequest req) {
+		return req.bodyToMono(AuthRequest.class)
+				.flatMap(r -> repo.findByUsername(r.getUsername())
+						.flatMap(u -> ServerResponse.badRequest().bodyValue("Exists"))
 						.switchIfEmpty(Mono.defer(() -> {
-							User user = new User();
-							user.setUsername(req.getUsername());
-							user.setPassword(passwordEncoder.encode(req.getPassword()));
-							return repo.save(user)
-									.flatMap(u -> ServerResponse.ok()
-											.contentType(MediaType.APPLICATION_JSON)
-											.bodyValue(new AuthResponse(jwtUtil.generateToken(u.getUsername()))));
+							User u = new User();
+							u.setUsername(r.getUsername());
+							u.setPassword(passwordEncoder.encode(r.getPassword()));
+							u.setRole("ROLE_USER");
+							return repo.save(u)
+									.flatMap(saved -> {
+										String role = saved.getRole();
+										String at = jwtUtil.generateAccessToken(saved.getUsername(), role);
+										String rt = jwtUtil.generateRefreshToken(saved.getUsername(), role);
+										return ServerResponse.ok()
+												.contentType(MediaType.APPLICATION_JSON)
+												.bodyValue(new AuthResponse(at, rt, role));
+									});
 						}))
 				);
 	}
 
-	public Mono<ServerResponse> login(ServerRequest request) {
-		return request.bodyToMono(AuthRequest.class)
-				.flatMap(req -> repo.findByUsername(req.getUsername())
-						.filter(u -> passwordEncoder.matches(req.getPassword(), u.getPassword()))
+	public Mono<ServerResponse> login(ServerRequest req) {
+		return req.bodyToMono(AuthRequest.class)
+				.flatMap(r -> repo.findByUsername(r.getUsername())
+						.filter(u -> passwordEncoder.matches(r.getPassword(), u.getPassword()))
 						.switchIfEmpty(Mono.error(new RuntimeException("Invalid credentials")))
 						.flatMap(u -> {
-							String token = jwtUtil.generateToken(u.getUsername());
+							String role = u.getRole();
+							String at = jwtUtil.generateAccessToken(u.getUsername(), role);
+							String rt = jwtUtil.generateRefreshToken(u.getUsername(), role);
 							return ServerResponse.ok()
 									.contentType(MediaType.APPLICATION_JSON)
-									.bodyValue(new AuthResponse(token));
+									.bodyValue(new AuthResponse(at, rt, role));
 						})
 				)
 				.onErrorResume(e -> ServerResponse.status(401).bodyValue(e.getMessage()));
 	}
-	
+
+	public Mono<ServerResponse> refresh(ServerRequest req) {
+		return Mono.justOrEmpty(req.headers().firstHeader("Authorization"))
+				.filter(h -> h.startsWith("Bearer "))
+				.map(h -> h.substring(7))
+				.flatMap(refreshToken -> {
+					if (!jwtUtil.validateToken(refreshToken, "refresh")) {
+						return ServerResponse.status(401).bodyValue("Invalid refresh token");
+					}
+
+					String user = jwtUtil.getUsernameFromToken(refreshToken);
+					String role = jwtUtil.getRoleFromToken(refreshToken);
+					String newAccess = jwtUtil.generateAccessToken(user, role);
+
+					return ServerResponse.ok()
+							.contentType(MediaType.APPLICATION_JSON)
+							.bodyValue(Collections.singletonMap("accessToken", newAccess));
+				})
+				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing or invalid Authorization header"));
+	}
+
+
 	public Mono<ServerResponse> getUser(ServerRequest request) {
 		String uname = request.pathVariable("username");
 		return repo.findByUsername(uname)
@@ -69,11 +97,14 @@ public class AuthHandler {
 						.bodyValue(user))
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
-	
+
 	public Mono<ServerResponse> deleteUser(ServerRequest request) {
-		return repo.findByUsername(request.pathVariable("username"))
-				.flatMap(repo::delete)
-					.then(ServerResponse.noContent().build())
+		String username = request.pathVariable("username");
+		return repo.findByUsername(username)
+				.flatMap(user ->
+						repo.delete(user)
+								.then(ServerResponse.noContent().build())
+				)
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
