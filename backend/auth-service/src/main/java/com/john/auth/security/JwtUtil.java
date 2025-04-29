@@ -19,8 +19,10 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String base64Secret;
     private Key key;
-    @Setter
-    private long validityInMs = 3_600_000;
+
+    @Setter private long accessValidityMs  = 15 * 60_000;
+    @Setter private long refreshValidityMs = 7 * 24 * 60 * 60_000L;
+
 
     @PostConstruct
     public void init() {
@@ -28,29 +30,30 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username, String role) {
-        Date now = new Date();
-        Date exp = new Date(now.getTime() + validityInMs);
-
-        Claims claims = Jwts.claims().setSubject(username);
-        claims.put("role", role);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(exp)
-                .signWith(key)
-                .compact();
+    public String generateAccessToken(String username, String role) {
+        return buildToken(username, role, accessValidityMs, "access");
+    }
+    public String generateRefreshToken(String username, String role) {
+        return buildToken(username, role, refreshValidityMs, "refresh");
     }
 
-    public boolean validateToken(String token) {
+    private String buildToken(String username, String role, long validity, String type) {
+        Date now = new Date(), exp = new Date(now.getTime() + validity);
+        Claims claims = Jwts.claims().setSubject(username);
+        claims.put("role", role);
+        claims.put("type", type);
+        return Jwts.builder()
+                .setClaims(claims).setIssuedAt(now).setExpiration(exp)
+                .signWith(key).compact();
+    }
+
+    public boolean validateToken(String token, String expectedType) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
+            var body = Jwts.parserBuilder().setSigningKey(key).build()
+                    .parseClaimsJws(token).getBody();
+            return expectedType.equals(body.get("type", String.class))
+                    && body.getExpiration().after(new Date());
+        } catch (JwtException|IllegalArgumentException e) {
             return false;
         }
     }

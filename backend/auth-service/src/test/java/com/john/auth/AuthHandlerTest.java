@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @WebFluxTest
 @Import({AuthHandler.class, AuthRouter.class, TestConfig.class})
@@ -46,16 +47,17 @@ class AuthHandlerTest {
     }
 
     @Test
-    void register_shouldReturnTokenAndRole_whenNewUser() {
+    void register_shouldReturnAccessAndRefreshTokens_whenNewUser() {
         AuthRequest req = new AuthRequest();
         req.setUsername("u1");
         req.setPassword("p1");
 
-        Mockito.when(repository.findByUsername("u1")).thenReturn(Mono.empty());
-        Mockito.when(passwordEncoder.encode("p1")).thenReturn("hashed");
+        when(repository.findByUsername("u1")).thenReturn(Mono.empty());
+        when(passwordEncoder.encode("p1")).thenReturn("hashed");
         User saved = new User(null, "u1", "hashed", "ROLE_USER");
-        Mockito.when(repository.save(any(User.class))).thenReturn(Mono.just(saved));
-        Mockito.when(jwtUtil.generateToken("u1", "ROLE_USER")).thenReturn("tok");
+        when(repository.save(any(User.class))).thenReturn(Mono.just(saved));
+        when(jwtUtil.generateAccessToken("u1", "ROLE_USER")).thenReturn("accessTok");
+        when(jwtUtil.generateRefreshToken("u1", "ROLE_USER")).thenReturn("refreshTok");
 
         client.post().uri("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +66,8 @@ class AuthHandlerTest {
                 .expectStatus().isOk()
                 .expectBody(AuthResponse.class)
                 .value(r -> {
-                    assertThat(r.getToken()).isEqualTo("tok");
+                    assertThat(r.getAccessToken()).isEqualTo("accessTok");
+                    assertThat(r.getRefreshToken()).isEqualTo("refreshTok");
                     assertThat(r.getRole()).isEqualTo("ROLE_USER");
                 });
     }
@@ -75,8 +78,8 @@ class AuthHandlerTest {
         req.setUsername("u2");
         req.setPassword("pw");
 
-        Mockito.when(repository.findByUsername("u2")).thenReturn(Mono.just(new User(null, "u2", "wrongHash", null)));
-        Mockito.when(passwordEncoder.matches("pw", "wrongHash")).thenReturn(false);
+        when(repository.findByUsername("u2")).thenReturn(Mono.just(new User(null, "u2", "wrongHash", "ROLE_USER")));
+        when(passwordEncoder.matches("pw", "wrongHash")).thenReturn(false);
 
         client.post().uri("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -86,16 +89,14 @@ class AuthHandlerTest {
     }
 
     @Test
-    void login_shouldReturnTokenAndRole_whenGoodCredentials() {
+    void login_shouldReturnAccessAndRefresh_whenGoodCredentials() {
         AuthRequest req = new AuthRequest();
-        req.setUsername("u3");
-        req.setPassword("pw");
-
-        Mockito.when(repository.findByUsername("u3"))
-                .thenReturn(Mono.just(new User(null, "u3", "hash3", "ROLE_USER")));
-        Mockito.when(jwtUtil.generateToken("u3", "ROLE_USER"))
-                .thenReturn("tok3");
-        Mockito.when(passwordEncoder.matches("pw", "hash3")).thenReturn(true);
+        req.setUsername("u3"); req.setPassword("pw");
+        User user = new User(null, "u3", "hash3", "ROLE_USER");
+        when(repository.findByUsername("u3")).thenReturn(Mono.just(user));
+        when(passwordEncoder.matches("pw", "hash3")).thenReturn(true);
+        when(jwtUtil.generateAccessToken("u3", "ROLE_USER")).thenReturn("access3");
+        when(jwtUtil.generateRefreshToken("u3", "ROLE_USER")).thenReturn("refresh3");
 
         client.post().uri("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -104,14 +105,15 @@ class AuthHandlerTest {
                 .expectStatus().isOk()
                 .expectBody(AuthResponse.class)
                 .value(r -> {
-                    assertThat(r.getToken()).isEqualTo("tok3");
+                    assertThat(r.getAccessToken()).isEqualTo("access3");
+                    assertThat(r.getRefreshToken()).isEqualTo("refresh3");
                     assertThat(r.getRole()).isEqualTo("ROLE_USER");
                 });
     }
 
     @Test
     void getUser_shouldReturnUser_whenExists() {
-        Mockito.when(repository.findByUsername("zz")).thenReturn(Mono.just(new User(null, "zz", "h", "ROLE_USER")));
+        when(repository.findByUsername("zz")).thenReturn(Mono.just(new User(null, "zz", "h", "ROLE_USER")));
 
         client.get().uri("/user/zz")
                 .exchange()
@@ -122,7 +124,7 @@ class AuthHandlerTest {
 
     @Test
     void getUser_shouldReturn404_whenNotFound() {
-        Mockito.when(repository.findByUsername("xx")).thenReturn(Mono.empty());
+        when(repository.findByUsername("xx")).thenReturn(Mono.empty());
 
         client.get().uri("/user/xx")
                 .exchange()
@@ -137,9 +139,9 @@ class AuthHandlerTest {
         User existing = new User(null, "u4", "oldhash", "ROLE_USER");
         User updated = new User(null, "u4", "newhash", "ROLE_USER");
 
-        Mockito.when(repository.findByUsername("u4")).thenReturn(Mono.just(existing));
-        Mockito.when(passwordEncoder.encode("newpw")).thenReturn("newhash");
-        Mockito.when(repository.save(any(User.class))).thenReturn(Mono.just(updated));
+        when(repository.findByUsername("u4")).thenReturn(Mono.just(existing));
+        when(passwordEncoder.encode("newpw")).thenReturn("newhash");
+        when(repository.save(any(User.class))).thenReturn(Mono.just(updated));
 
         client.put().uri("/updateUser/u4")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -153,8 +155,8 @@ class AuthHandlerTest {
     @Test
     void deleteUser_shouldReturnNoContent_whenExists() {
         User existing = new User(null, "u5", "h", "ROLE_USER");
-        Mockito.when(repository.findByUsername("u5")).thenReturn(Mono.just(existing));
-        Mockito.when(repository.delete(existing)).thenReturn(Mono.empty());
+        when(repository.findByUsername("u5")).thenReturn(Mono.just(existing));
+        when(repository.delete(existing)).thenReturn(Mono.empty());
 
         client.delete().uri("/deleteUser/u5")
                 .exchange()
@@ -163,10 +165,44 @@ class AuthHandlerTest {
 
     @Test
     void deleteUser_shouldReturnNotFound_whenMissing() {
-        Mockito.when(repository.findByUsername("none")).thenReturn(Mono.empty());
+        when(repository.findByUsername("none")).thenReturn(Mono.empty());
 
         client.delete().uri("/deleteUser/none")
                 .exchange()
                 .expectStatus().isNotFound();
+    }
+
+    @Test
+    void refresh_shouldReturnNewAccessToken_whenValidRefresh() {
+        String refreshToken = "validRefresh";
+        Mockito.when(jwtUtil.validateToken(refreshToken, "refresh")).thenReturn(true);
+        Mockito.when(jwtUtil.getUsernameFromToken(refreshToken)).thenReturn("u1");
+        Mockito.when(jwtUtil.getRoleFromToken(refreshToken)).thenReturn("ROLE_USER");
+        Mockito.when(jwtUtil.generateAccessToken("u1", "ROLE_USER")).thenReturn("newAccess");
+
+        client.post().uri("/api/refresh")
+                .header("Authorization", "Bearer " + refreshToken)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.accessToken").isEqualTo("newAccess");
+    }
+
+    @Test
+    void refresh_shouldReturn401_whenInvalidRefresh() {
+        String badRefresh = "badRefresh";
+        Mockito.when(jwtUtil.validateToken(badRefresh, "refresh")).thenReturn(false);
+
+        client.post().uri("/api/refresh")
+                .header("Authorization", "Bearer " + badRefresh)
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void refresh_shouldReturn400_whenNoHeader() {
+        client.post().uri("/api/refresh")
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 }

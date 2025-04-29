@@ -23,7 +23,7 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
     public Mono<Authentication> authenticate(Authentication authentication) {
         String token = authentication.getCredentials().toString();
 
-        if (!jwtUtil.validateToken(token)) {
+        if (!jwtUtil.validateToken(token, "access")) {
             return Mono.error(new BadCredentialsException("Invalid token"));
         }
 
