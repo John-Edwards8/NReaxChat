@@ -1,8 +1,7 @@
-//import { useState } from 'react';
-import ChatSidebarLeft from './features/chat/SidebarLeft/ChatSidebarLeft'
-//import ChatRoom from './features/chat/ChatRoom'
-import ChatRoom from './features/chat/ChatRoom/ChatRoom.tsx'
-import ChatSidebarRight from "./features/chat/SidebarRight/ChatSidebarRight.tsx";
+import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
+import GuestPage from './pages/GuestPage.tsx';
+import ChatPage from "./pages/ChatPage.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
 
 //import LoginPage from './LoginPage';
 
@@ -14,13 +13,14 @@ function App() {
     // }
 
     return (
-        <>
-            <div className="flex h-screen overflow-hidden">
-                <ChatSidebarLeft/>
-                <ChatRoom/>
-                <ChatSidebarRight />
-            </div>
-        </>
+        <Router>
+            <Routes>
+                <Route path="*" element={<Navigate to="/guest" replace />} />
+                <Route path="/guest" element={<GuestPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/chat" element={<ChatPage />} />
+            </Routes>
+        </Router>
     )
 }
 

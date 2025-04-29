@@ -10,14 +10,10 @@ body {
 }
 
 @layer utilities {
+    /* --- Фони елементів --- */
     /*bg-chat-base  СТАРА НАЗВА */
     .bg-blue-base {
         background-color: #1E75BC;
-    }
-
-    /* Використовується в SidebarRight -> Settings*/
-    .text-blue-base {
-        color: #1E75BC;
     }
 
     .bg-chat-active {
@@ -28,12 +24,26 @@ body {
         background-color: #5693C4;
     }
 
+    /* --- Тексти --- */
+    /* Використовується в SidebarRight -> Settings*/
+    .text-blue-base {
+        color: #1E75BC;
+    }
+
+    /* --- Тіні --- */
     .shadow-chat {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 
+    /* --- Заокруглення --- */
     .rounded-22 {
         border-radius: 22px;
+    }
+
+    /* --- Анімації --- */
+    .hover-scale {
+        /* Збільшує кнопку при наведенні */
+        @apply hover:scale-105 transition-transform;
     }
 }
 
