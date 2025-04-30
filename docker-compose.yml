@@ -37,7 +37,7 @@ services:
       context: ./client
       args:
         VITE_WEBSOCKET_URL: ${VITE_WEBSOCKET_URL}
-        GATEWAY_URL: ${GATEWAY_URL}
+        VITE_GATEWAY_URL: ${VITE_GATEWAY_URL}
     ports:
       - "3000:80"
     depends_on:

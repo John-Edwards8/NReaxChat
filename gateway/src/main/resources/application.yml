@@ -33,5 +33,6 @@ spring:
           predicates:
             - Path=/chat/**
           filters:
+            - StripPrefix=1
             - PreserveHostHeader
 
