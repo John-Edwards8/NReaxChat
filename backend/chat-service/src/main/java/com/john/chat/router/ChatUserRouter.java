@@ -1,6 +1,6 @@
 package main.java.com.john.chat.router;
 
-import com.john.chat.handler.UserHandler;
+import main.java.com.john.chat.handler.ChatUserHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -10,10 +10,10 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
 @Configuration
-public class UserRouter {
+public class ChatUserRouter {
 
     @Bean
-    public RouterFunction<ServerResponse> route(UserHandler userHandler) {
+    public RouterFunction<ServerResponse> route(ChatUserHandler userHandler) {
         return RouterFunctions
             .route(POST("/register"), userHandler::register)
             .andRoute(GET("/user/{username}"), userHandler::getUser)

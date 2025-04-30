@@ -1,7 +1,7 @@
 package main.java.com.john.chat.handler;
 
-import com.john.chat.model.User;
-import com.john.chat.repository.UserRepository;
+import main.java.com.john.chat.model.ChatUser;
+import main.java.com.john.chat.repository.ChatUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -10,14 +10,15 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 @Component
-public class UserHandler {
+public class ChatUserHandler {
 
-    @Autowired private UserRepository userRepository;
+    @Autowired
+    private ChatUserRepository userRepository;
 
     public Mono<ServerResponse> getUsers(ServerRequest request) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(userRepository.findAll(), User.class);
+                .body(userRepository.findAll(), ChatUser.class);
     }
 
     public Mono<ServerResponse> getUser(ServerRequest request) {
@@ -30,28 +31,25 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> register(ServerRequest request) {
-        return request.bodyToMono(User.class)
+        return request.bodyToMono(ChatUser.class)
                 .flatMap(r -> userRepository.findByUsername(r.getUsername())
                         .flatMap(u -> ServerResponse.badRequest().bodyValue("User already exists"))
-                        .switchIfEmpty(Mono.defer(() -> {
-                            r.setRole("ROLE_USER");
-                            return userRepository.save(r)
-                                    .flatMap(savedUser -> ServerResponse.ok()
-                                            .contentType(MediaType.APPLICATION_JSON)
-                                            .bodyValue(savedUser)
-                                    );
-                        }))
+                        .switchIfEmpty(userRepository.save(r)
+                                .flatMap(savedUser -> ServerResponse.ok()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .bodyValue(savedUser)
+                                ))
                 );
     }
 
     public Mono<ServerResponse> updateUser(ServerRequest request) {
         String username = request.pathVariable("username");
-        return request.bodyToMono(User.class)
+        return request.bodyToMono(ChatUser.class)
                 .flatMap(r -> userRepository.findByUsername(username)
                         .flatMap(existingUser -> {
-                            if (r.getUsername() != null) existingUser.setUsername(r.getUsername());
-                            if (r.getPassword() != null) existingUser.setPassword(r.getPassword());
-                            if (r.getRole() != null) existingUser.setRole(r.getRole());
+                            if (r.getUsername() != null) {
+                                existingUser.setUsername(r.getUsername());
+                            }
                             return userRepository.save(existingUser);
                         })
                         .flatMap(updatedUser -> ServerResponse.ok()
