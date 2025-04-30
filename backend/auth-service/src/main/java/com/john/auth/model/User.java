@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users") 
+@Document(collection = "user")
 public class User {
 	@Id
 	private BigInteger id;
