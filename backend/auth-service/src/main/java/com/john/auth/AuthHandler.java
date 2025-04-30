@@ -32,7 +32,7 @@ public class AuthHandler {
 	public Mono<ServerResponse> register(ServerRequest req) {
 		return req.bodyToMono(AuthRequest.class)
 				.flatMap(r -> repo.findByUsername(r.getUsername())
-						.flatMap(u -> ServerResponse.badRequest().bodyValue("Exists"))
+						.flatMap(u -> ServerResponse.badRequest().bodyValue("User already exists"))
 						.switchIfEmpty(Mono.defer(() -> {
 							User u = new User();
 							u.setUsername(r.getUsername());
@@ -66,6 +66,18 @@ public class AuthHandler {
 						})
 				)
 				.onErrorResume(e -> ServerResponse.status(401).bodyValue(e.getMessage()));
+	}
+
+	public Mono<ServerResponse> logout(ServerRequest req) {
+		return Mono.justOrEmpty(req.headers().firstHeader("Authorization"))
+				.filter(h -> h.startsWith("Bearer "))
+				.map(h -> h.substring(7))
+				.flatMap(refreshToken -> {
+					jwtUtil.blacklistRefreshToken(refreshToken);
+
+					return ServerResponse.noContent().build();
+				})
+				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing Bearer refresh token"));
 	}
 
 	public Mono<ServerResponse> refresh(ServerRequest req) {
