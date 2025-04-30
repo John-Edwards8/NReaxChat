@@ -25,7 +25,7 @@ public class UserDetailsService implements ReactiveUserDetailsService {
                 .switchIfEmpty(Mono.error(new UsernameNotFoundException("User not found: " + username)))
                 .map(u -> User.withUsername(u.getUsername())
                         .password(u.getPassword())
-                        .roles("USER")
+                        .roles("ROLE_USER")
                         .build());
     }
 }
