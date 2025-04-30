@@ -9,17 +9,18 @@ import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.john.chat.model.ChatMessage;
+import com.john.chat.model.Message;
 import com.john.chat.repository.MessageRepository;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-//TODO: Sending messages
 @Service
 public class MessageHandler implements WebSocketHandler {
     @Autowired private MessageRepository messageRepository;
-
+    @Autowired private ObjectMapper objectMapper;
     public Mono<ServerResponse> getMessages(ServerRequest request) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -27,11 +28,27 @@ public class MessageHandler implements WebSocketHandler {
     }
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
-        Flux<WebSocketMessage> stringFlux = webSocketSession.receive()
+        Flux<WebSocketMessage> incomingMessages = webSocketSession.receive()
                 .map(WebSocketMessage::getPayloadAsText)
-                .map(String::toUpperCase)
-                .map(webSocketSession::textMessage);
-        return webSocketSession.send(stringFlux);
+                .flatMap(raw -> {
+                    try {
+                        Message mess = objectMapper.readValue(raw, Message.class);
+                        return messageRepository.save(mess)
+                                                .thenReturn(mess);
+                    } catch (Exception e) {
+                        return Mono.empty();
+                    }
+                    
+                })
+                .map(savedMessage -> {
+                    try {
+                        String json = objectMapper.writeValueAsString(savedMessage);
+                        return webSocketSession.textMessage(json);
+                    } catch (Exception e) {
+                        return webSocketSession.textMessage("Invalid format");
+                    }
+                });
+        return webSocketSession.send(incomingMessages);
     }
 
 }

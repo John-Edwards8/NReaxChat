@@ -62,7 +62,6 @@ function ChatRoom() {
           content: message,
         });
         ws.send(payload);
-        setMessages(prevMessages => [...prevMessages, { text: message, sender: 'me' }]);
         setMessage('');
       } else {
         console.error("WebSocket is not connected.");
