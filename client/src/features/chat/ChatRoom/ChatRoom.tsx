@@ -1,8 +1,8 @@
 import ChatHeader from "./ChatHeader.tsx";
 import MessagesList from "./MessagesList.tsx";
 import ChatInput from "./ChatInput.tsx";
-import { useState, useEffect, useRef } from 'react';
-import { Client } from '@stomp/stompjs';
+import { useState, useEffect } from 'react';
+import axios from "axios";
 
 function ChatRoom() {
     type Message = {
@@ -10,62 +10,63 @@ function ChatRoom() {
       sender: 'me' | 'other';
     };
     const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
+    const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL;
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]); 
-    const stompClientRef = useRef<Client>(null);
+    const [ws, setWs] = useState<WebSocket | null>(null);
 
     useEffect(() => {
-        const stompClient = new Client({
-            webSocketFactory: () => new WebSocket(WEBSOCKET_URL),
-            reconnectDelay: 5000,
-            debug: (str) => {
-                console.log("DEBUG: ", str);
-            },
-            onConnect: () => {
-                console.log('Connected to WebSocket');
-                stompClient.subscribe('/topic/messages', (response) => {
-                    console.log('Received message:', response.body);
-                    const data = JSON.parse(response.body);
-                    if (data.sender && data.content) {
-                      setMessages((prevMessages) => [
-                        ...prevMessages,
-                        {
-                          text: data.content,
-                          sender: data.sender === 'User1' ? 'me' : 'other'
-                        }
-                      ]);
-                    }
-                });
-            },
-            onStompError: (frame) => {
-                console.error('Broker reported error: ' + frame.headers['message']);
-                console.error('Additional details: ' + frame.body);
-            },
-        });
+      axios.get(GATEWAY_URL + "/chat/messages").then(response => {
+        setMessages(
+          response.data.map((msg: any) => ({
+            text: msg.content || msg.text || msg,
+            sender: msg.sender === 'User1' ? 'me' : 'other',
+          }))
+        );
+      });
 
-        stompClient.activate();
-        stompClientRef.current = stompClient;
+      const socket = new WebSocket(WEBSOCKET_URL);
+      setWs(socket);
 
-        return () => {
-          stompClient.deactivate();
-        };
+      socket.onmessage = (event) => {
+        console.log("📩 Получено сообщение:", event.data);
+        try {
+          const data = JSON.parse(event.data);
+          const newMessage: Message = {
+            text: data.content || data.text || String(data),
+            sender: data.sender === 'User1' ? 'me' : 'other',
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        } catch (e) {
+          setMessages(prevMessages => [...prevMessages, {
+            text: event.data,
+            sender: 'other'
+          }]);
+        }
+      }
+
+      socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      return () => {
+        socket.close();
+      };
     }, []);
 
     const sendMessage = () => {
-        console.log("📤 Отправка сообщения:", message);
-        const stompClient = stompClientRef.current;
-        if (stompClient && stompClient.connected) {
-          stompClient.publish({
-            destination: "/app/sendMessage",
-            body: JSON.stringify({
-              senderName: "User1",
-              content: message
-            }),
-          });
-          setMessage('');
-        } else {
-          console.error('Stomp client is not connected');
-        }
+      console.log("📤 Отправка сообщения:", message);
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        const payload = JSON.stringify({
+          sender: 'User1',
+          content: message,
+        });
+        ws.send(payload);
+        setMessages(prevMessages => [...prevMessages, { text: message, sender: 'me' }]);
+        setMessage('');
+      } else {
+        console.error("WebSocket is not connected.");
+      }
     }
 
     return(
