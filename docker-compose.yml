@@ -1,28 +1,51 @@
 services:
-  auth-service:
-    build: ./backend/auth-service
+  gateway:
+    build:
+      context: ./gateway
     ports:
-      - "8081:8080"
+      - "8080:8080"
+    environment:
+      - FRONTEND_URL=${FRONTEND_URL}
+      - CHAT_URL=${CHAT_URL}
+      - AUTH_URL=${AUTH_URL}
+    depends_on:
+      - auth-service
+      - chat-service
+    networks:
+      - backend
+  auth-service:
+    build:
+      context: ./backend/auth-service
+    ports:
+      - "8081:8081"
     environment:
       - JWT_SECRET=${JWT_SECRET}
     networks:
       - backend
   chat-service:
-    build: ./backend/chat-service
+    build:
+      context: ./backend/chat-service
     ports:
-      - "8080:8080"
+      - "8082:8082"
     environment:
       SPRING_DATA_MONGODB_URI: ${MONGODB_URI}
       SPRING_DATA_MONGODB_DATABASE: ${MONGODB_DATABASE}
     networks:
       - backend
   frontend:
-    build: ./client
+    build:
+      context: ./client
+      args:
+        VITE_WEBSOCKET_URL: ${VITE_WEBSOCKET_URL}
+        VITE_GATEWAY_URL: ${VITE_GATEWAY_URL}
     ports:
       - "3000:80"
     depends_on:
       - chat-service
       - auth-service
+      - gateway
+    networks:
+      - backend
 networks:
   backend:
     driver: bridge
