@@ -1,6 +1,6 @@
 package com.john.auth.model;
 
-import java.math.BigInteger;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "user")
+@Document(collection = "users")
 public class User {
 	@Id
-	private BigInteger id;
+	private ObjectId id;
 	private String username;
 	private String password;
 	private String role;
