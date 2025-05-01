@@ -1,4 +1,4 @@
-package com.john.chat.model;
+package main.java.com.john.chat.model;
 
 import java.math.BigInteger;
 import org.springframework.data.annotation.Id;
