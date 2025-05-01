@@ -1,4 +1,4 @@
-package main.java.com.john.chat.router;
+package com.john.chat.router;
 
 import com.john.chat.handler.UserHandler;
 import org.springframework.context.annotation.Bean;

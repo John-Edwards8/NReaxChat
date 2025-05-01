@@ -1,4 +1,4 @@
-package main.java.com.john.chat.repository;
+package com.john.chat.repository;
 
 import com.john.chat.model.User;
 import org.bson.types.ObjectId;
