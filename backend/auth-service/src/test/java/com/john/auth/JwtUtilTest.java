@@ -15,7 +15,7 @@ class JwtUtilTest {
     private JwtUtil jwtUtil;
     private static final String SECRET = Base64.getEncoder()
             .encodeToString("super-secret-key-which-should-be-very-long".getBytes());
-    private static final String ROLE = "ROLE_USER";
+    private static final String ROLE = "USER";
 
     @BeforeEach
     void setUp() {

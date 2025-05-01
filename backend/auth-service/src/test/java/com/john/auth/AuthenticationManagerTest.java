@@ -43,7 +43,7 @@ class AuthenticationManagerTest {
         String token = "goodToken";
         when(jwtUtil.validateToken(token, "access")).thenReturn(true);
         when(jwtUtil.getUsernameFromToken(token)).thenReturn("user1");
-        when(jwtUtil.getRoleFromToken(token)).thenReturn("ROLE_USER");
+        when(jwtUtil.getRoleFromToken(token)).thenReturn("USER");
 
         Mono<Authentication> result = manager.authenticate(
                 new UsernamePasswordAuthenticationToken(null, token)
@@ -52,7 +52,7 @@ class AuthenticationManagerTest {
         StepVerifier.create(result)
                 .assertNext(auth -> {
                     assert auth.getPrincipal().equals("user1");
-                    assert auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"));
+                    assert auth.getAuthorities().contains(new SimpleGrantedAuthority("USER"));
                 })
                 .verifyComplete();
     }
