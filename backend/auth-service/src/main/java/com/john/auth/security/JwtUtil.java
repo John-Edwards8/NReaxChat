@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class JwtUtil {
@@ -23,6 +26,7 @@ public class JwtUtil {
     @Setter private long accessValidityMs  = 15 * 60_000;
     @Setter private long refreshValidityMs = 7 * 24 * 60 * 60_000L;
 
+    private final Set<String> blacklistedRefresh = Collections.synchronizedSet(new HashSet<>());
 
     @PostConstruct
     public void init() {
@@ -49,11 +53,29 @@ public class JwtUtil {
 
     public boolean validateToken(String token, String expectedType) {
         try {
-            var body = Jwts.parserBuilder().setSigningKey(key).build()
-                    .parseClaimsJws(token).getBody();
-            return expectedType.equals(body.get("type", String.class))
-                    && body.getExpiration().after(new Date());
-        } catch (JwtException|IllegalArgumentException e) {
+            Claims body = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            String type = body.get("type", String.class);
+            Date expiration = body.getExpiration();
+
+            if (!expectedType.equals(type)) {
+                return false;
+            }
+
+            if (expiration.before(new Date())) {
+                return false;
+            }
+
+            if (expectedType.equals("refresh") && blacklistedRefresh.contains(token)) {
+                return false;
+            }
+
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
@@ -74,5 +96,9 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("role", String.class);
+    }
+
+    public void blacklistRefreshToken(String refreshToken) {
+        blacklistedRefresh.add(refreshToken);
     }
 }
