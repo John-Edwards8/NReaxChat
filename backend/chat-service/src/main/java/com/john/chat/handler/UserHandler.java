@@ -1,4 +1,4 @@
-package main.java.com.john.chat.handler;
+package com.john.chat.handler;
 
 import com.john.chat.model.User;
 import com.john.chat.repository.UserRepository;
