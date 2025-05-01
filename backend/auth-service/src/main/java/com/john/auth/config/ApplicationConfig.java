@@ -21,5 +21,4 @@ public class ApplicationConfig {
     ReactiveMongoTemplate reactiveMongoTemplate(MongoClient mongoClient) {
         return new ReactiveMongoTemplate(mongoClient, "chat");
     }
-
 }
