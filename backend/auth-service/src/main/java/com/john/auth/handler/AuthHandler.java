@@ -2,18 +2,22 @@ package com.john.auth.handler;
 
 import com.john.auth.dto.AuthRequest;
 import com.john.auth.dto.AuthResponse;
+import com.john.auth.dto.CreateUserRequest;
+import com.john.auth.dto.UserDTO;
 import com.john.auth.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Component
 public class AuthHandler {
@@ -37,14 +41,14 @@ public class AuthHandler {
 							User u = new User();
 							u.setUsername(r.getUsername());
 							u.setPassword(passwordEncoder.encode(r.getPassword()));
-							u.setRole("ROLE_USER");
+							u.setRole("USER");
 							return repo.save(u)
 									.flatMap(saved -> {
 										String role = saved.getRole();
 										String at = jwtUtil.generateAccessToken(saved.getUsername(), role);
 										String rt = jwtUtil.generateRefreshToken(saved.getUsername(), role);
 										return ServerResponse.ok()
-												.contentType(MediaType.APPLICATION_JSON)
+												.contentType(APPLICATION_JSON)
 												.bodyValue(new AuthResponse(at, rt, role));
 									});
 						}))
@@ -61,7 +65,7 @@ public class AuthHandler {
 							String at = jwtUtil.generateAccessToken(u.getUsername(), role);
 							String rt = jwtUtil.generateRefreshToken(u.getUsername(), role);
 							return ServerResponse.ok()
-									.contentType(MediaType.APPLICATION_JSON)
+									.contentType(APPLICATION_JSON)
 									.bodyValue(new AuthResponse(at, rt, role));
 						})
 				)
@@ -80,8 +84,8 @@ public class AuthHandler {
 				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing Bearer refresh token"));
 	}
 
-	public Mono<ServerResponse> refresh(ServerRequest req) {
-		return Mono.justOrEmpty(req.headers().firstHeader("Authorization"))
+	public Mono<ServerResponse> refresh(ServerRequest request) {
+		return Mono.justOrEmpty(request.headers().firstHeader("Authorization"))
 				.filter(h -> h.startsWith("Bearer "))
 				.map(h -> h.substring(7))
 				.flatMap(refreshToken -> {
@@ -94,20 +98,54 @@ public class AuthHandler {
 					String newAccess = jwtUtil.generateAccessToken(user, role);
 
 					return ServerResponse.ok()
-							.contentType(MediaType.APPLICATION_JSON)
+							.contentType(APPLICATION_JSON)
 							.bodyValue(Collections.singletonMap("accessToken", newAccess));
 				})
 				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing or invalid Authorization header"));
 	}
 
+	private UserDTO toDTO(User u) {
+		return new UserDTO(u.getId(), u.getUsername(), u.getRole());
+	}
+
+	public Mono<ServerResponse> getAllUsers(ServerRequest request) {
+		Flux<UserDTO> all = repo.findAll()
+				.map(this::toDTO);
+		return ServerResponse.ok()
+				.contentType(APPLICATION_JSON)
+				.body(all, UserDTO.class);
+	}
 
 	public Mono<ServerResponse> getUser(ServerRequest request) {
-		String uname = request.pathVariable("username");
-		return repo.findByUsername(uname)
+		String username = request.pathVariable("username");
+		return repo.findByUsername(username)
+				.map(this::toDTO)
 				.flatMap(user -> ServerResponse.ok()
-						.contentType(MediaType.APPLICATION_JSON)
+						.contentType(APPLICATION_JSON)
 						.bodyValue(user))
 				.switchIfEmpty(ServerResponse.notFound().build());
+	}
+
+	public Mono<ServerResponse> createUser(ServerRequest request) {
+		return request.bodyToMono(CreateUserRequest.class)
+				.flatMap(req -> repo.findByUsername(req.getUsername())
+						.flatMap(existing ->
+								ServerResponse.badRequest().bodyValue("Username already exists"))
+						.switchIfEmpty(Mono.defer(() -> {
+							User user = new User();
+							user.setUsername(req.getUsername());
+							user.setPassword(passwordEncoder.encode(req.getPassword()));
+							user.setRole(req.getRole());
+							return repo.save(user)
+									.flatMap(saved -> ServerResponse
+											.created(request.uriBuilder()
+													.path("/api/users/{username}")
+													.build(saved.getUsername()))
+											.contentType(APPLICATION_JSON)
+											.bodyValue(saved)
+									);
+						}))
+				);
 	}
 
 	public Mono<ServerResponse> deleteUser(ServerRequest request) {
@@ -125,15 +163,15 @@ public class AuthHandler {
 		return request.bodyToMono(AuthRequest.class)
 				.flatMap(req -> repo.findByUsername(username)
 						.flatMap(existingUser -> {
-							existingUser.setPassword(passwordEncoder.encode(req.getPassword()));
+							if(req.getPassword() != null) existingUser.setPassword(passwordEncoder.encode(req.getPassword()));
+
 							return repo.save(existingUser);
-						})
-						.flatMap(updatedUser ->
-								ServerResponse.ok()
-										.contentType(MediaType.APPLICATION_JSON)
-										.bodyValue(updatedUser)
-						)
-				)
+						}))
+				.map(this::toDTO)
+				.flatMap(updatedUser ->
+						ServerResponse.ok()
+						.contentType(APPLICATION_JSON)
+						.bodyValue(updatedUser))
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 }
