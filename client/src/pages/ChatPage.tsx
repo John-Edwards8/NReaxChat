@@ -1,6 +1,6 @@
-import ChatSidebarLeft from '../features/chat/SidebarLeft/ChatSidebarLeft'
-import ChatRoom from '../features/chat/ChatRoom/ChatRoom.tsx'
-import ChatSidebarRight from "../features/chat/SidebarRight/ChatSidebarRight.tsx";
+import ChatSidebarLeft from '../components/chat/SidebarLeft/ChatSidebarLeft'
+import ChatRoom from '../components/chat/ChatRoom/ChatRoom.tsx'
+import ChatSidebarRight from "../components/chat/SidebarRight/ChatSidebarRight.tsx";
 
 function ChatPage() {
     return(
