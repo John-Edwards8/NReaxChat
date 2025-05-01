@@ -1,4 +1,4 @@
-import logo from '../../../assets/NReaxChat_logo.png'
+import logo from '../../../assets/nreax.svg'
 
 const AppLogo = () => {
     return (
