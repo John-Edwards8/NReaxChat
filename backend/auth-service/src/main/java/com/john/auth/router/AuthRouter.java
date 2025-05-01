@@ -1,5 +1,6 @@
-package com.john.auth;
+package com.john.auth.router;
 
+import com.john.auth.handler.AuthHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;

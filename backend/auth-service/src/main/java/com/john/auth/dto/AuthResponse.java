@@ -1,4 +1,4 @@
-package com.john.auth.model;
+package com.john.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

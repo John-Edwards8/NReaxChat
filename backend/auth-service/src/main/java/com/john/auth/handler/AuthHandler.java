@@ -1,7 +1,7 @@
-package com.john.auth;
+package com.john.auth.handler;
 
-import com.john.auth.model.AuthRequest;
-import com.john.auth.model.AuthResponse;
+import com.john.auth.dto.AuthRequest;
+import com.john.auth.dto.AuthResponse;
 import com.john.auth.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
