@@ -1,9 +1,6 @@
-type MessageProps = {
-    text: string;
-    sender: 'me' | 'other';
-}
+import { Message } from "../../../types/Message";
 
-const MessageBubble = ({text, sender}: MessageProps) => {
+const MessageBubble = ({text, sender}: Message) => {
     const isMe = sender === 'me';
 
     return (
