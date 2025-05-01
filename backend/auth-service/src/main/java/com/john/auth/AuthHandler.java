@@ -32,7 +32,7 @@ public class AuthHandler {
 	public Mono<ServerResponse> register(ServerRequest req) {
 		return req.bodyToMono(AuthRequest.class)
 				.flatMap(r -> repo.findByUsername(r.getUsername())
-						.flatMap(u -> ServerResponse.badRequest().bodyValue("User already exists"))
+						.flatMap(u -> ServerResponse.badRequest().bodyValue("Exists"))
 						.switchIfEmpty(Mono.defer(() -> {
 							User u = new User();
 							u.setUsername(r.getUsername());
