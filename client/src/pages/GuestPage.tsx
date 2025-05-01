@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/NReaxChat_logo.png";
+import logo from "../assets/nreax.svg";
 
 function GuestPage() {
     const navigate = useNavigate();
