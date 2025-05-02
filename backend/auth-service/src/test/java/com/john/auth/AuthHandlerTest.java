@@ -9,6 +9,7 @@ import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
 import com.john.auth.router.AuthRouter;
 import com.john.auth.security.JwtUtil;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -118,10 +119,10 @@ class AuthHandlerTest {
 
     @Test
     void getAllUsers_shouldReturnListOfUserDTOs() {
-        User u1 = new User(BigInteger.valueOf(1), "alice", "hash", "ROLE_USER");
-        User u2 = new User(BigInteger.valueOf(2), "bob",   "hash", "ROLE_ADMIN");
-        UserDTO d1 = new UserDTO(u1.getId(), u1.getUsername(), u1.getRole());
-        UserDTO d2 = new UserDTO(u2.getId(), u2.getUsername(), u2.getRole());
+        User u1 = new User(ObjectId.get(), "alice", "hash", "ROLE_USER");
+        User u2 = new User(ObjectId.get(), "bob",   "hash", "ROLE_ADMIN");
+        UserDTO d1 = new UserDTO(u1.getUsername(), u1.getRole());
+        UserDTO d2 = new UserDTO(u2.getUsername(), u2.getRole());
 
         when(repository.findAll()).thenReturn(Flux.just(u1, u2));
 

@@ -105,7 +105,7 @@ public class AuthHandler {
 	}
 
 	private UserDTO toDTO(User u) {
-		return new UserDTO(u.getId(), u.getUsername(), u.getRole());
+		return new UserDTO(u.getUsername(), u.getRole());
 	}
 
 	public Mono<ServerResponse> getAllUsers(ServerRequest request) {
