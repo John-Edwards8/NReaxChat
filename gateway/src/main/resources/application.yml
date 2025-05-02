@@ -27,6 +27,9 @@ spring:
           uri: ${AUTH_URL}
           predicates:
             - Path=/auth/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
 
         - id: chat-service
           uri: ${CHAT_URL}
