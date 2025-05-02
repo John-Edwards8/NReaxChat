@@ -1,56 +1,35 @@
-// import React, { useState } from "react";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-/*
-type Credentials = {
-    username: string,
-    password: string,
-};
- */
-
-/*
-interface Props {
-    setToken: (token: string) => void;
-}
- */
-
-/*
-async function loginUser(credentials:Credentials) {
-    return fetch('http://localhost:8081/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
-    })
-    .then(data => data.json())
-}
-*/
+import { login } from "../api/auth";
+import Button from '../components/ui/Button';
 
 const words = ["Type your username...", "Start chatting instantly!", "Enter your nickname..."];
 
-// function LoginPage({ setToken }: Props) {
 function LoginPage() {
-    //          СТАРА ЛОГІКА
-    // const [username, setUsername] = useState('');
-    // const [password, setPassword] = useState('');
-    //
-    // const submit = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-    //     const token = await loginUser({ username, password });
-    //     setToken(token);
-    // }
-
-    // Навігація
     const navigate = useNavigate();
 
-    // Анімація placeholder
     const [placeholder, setPlaceholder] = useState('');
     const [currentWord, setCurrentWord] = useState(0);
     const [currentLetter, setCurrentLetter] = useState(0);
 
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const [error, setError] = useState<string | null>(null);
+
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
-        navigate('/chat');
+        try {
+            const credentials = { username, password };
+            const { role } = await login(credentials);
+
+            localStorage.setItem('role', role);
+            console.log(role);
+            navigate('/chat');
+        } catch (err) {
+            console.log(err);
+            setError("Invalid credentials")
+        }
     }
 
     useEffect(() => {
@@ -61,13 +40,13 @@ function LoginPage() {
                 setPlaceholder(word.slice(0, currentLetter + 1));
                 setCurrentLetter((prev) => prev + 1);
             } else {
-                // Переходимо до наступного слова через маленьку паузу
+                // Go to the next word after a short pause
                 setTimeout(() => {
                     setCurrentWord((prev) => (prev + 1) % words.length);
                     setCurrentLetter(0);
                     setPlaceholder('');
-                }, 1000); // 1 секунда пауза після завершення слова
-                clearInterval(interval); // Зупинити інтервал тимчасово
+                }, 1000); // 1 second pause after word completion
+                clearInterval(interval); // Stop the interval temporarily
             }
         }, 150);
 
@@ -80,7 +59,6 @@ function LoginPage() {
             <h1 className="text-3xl font-bold mb-6">Login to NReaxChat</h1>
 
             <form onSubmit={submit} className="bg-[#0F172A]/50 rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6">
-                {/* Username */}
                 <div className="flex flex-col space-y-1">
                     <label htmlFor="username" className="font-medium">
                         Username
@@ -88,15 +66,13 @@ function LoginPage() {
                     <input
                         id="username"
                         type="text"
-                        // required
-                        // placeholder="Type your username..."
+                        required
                         placeholder={placeholder}
                         className="w-full bg-blue-base rounded-22 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-chat-active placeholder-white"
-                        //onChange={(e) => setUsername(e.target.value)}
+                        onChange={(e) => setUsername(e.target.value)}
                     />
                 </div>
 
-                {/* Password */}
                 <div className="flex flex-col space-y-1">
                     <label htmlFor="password" className="font-medium">
                         Password
@@ -104,44 +80,21 @@ function LoginPage() {
                     <input
                         id="password"
                         type="password"
-                        // required
+                        required
                         placeholder="Type your password..."
                         className="w-full bg-blue-base rounded-22 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-chat-active placeholder-white"
-                        //onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
 
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    className="bg-chat-active hover-scale w-full py-2 rounded-22 font-semibold"
-                >
-                    Login
-                </button>
+                {error && (
+                    <div className="text-red-500 text-sm text-center">{error}</div>
+                )}
+
+                <Button type="submit" value="Login" className="bg-chat-active" />
             </form>
         </div>
     );
-
-    // return (
-    //     <div className="login-card">
-    //         <div className="card-header">
-    //             <div className="log">LoginPage</div>
-    //         </div>
-    //         <form onSubmit={submit} >
-    //             <div className="form-group">
-    //                 <label htmlFor="username">Username:</label>
-    //                 <input required name="username" id="username" type="text" onChange={e => setUsername(e.target.value)}/>
-    //             </div>
-    //             <div className="form-group">
-    //                 <label htmlFor="password">Password:</label>
-    //                 <input required name="password" id="password" type="password" onChange={e => setPassword(e.target.value)}/>
-    //             </div>
-    //             <div className="form-group">
-    //                 <input value="LoginPage" type="submit" />
-    //             </div>
-    //         </form>
-    //     </div>
-    // );
 }
 
 export default LoginPage;

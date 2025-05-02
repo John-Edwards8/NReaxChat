@@ -3,15 +3,7 @@ import GuestPage from './pages/GuestPage.tsx';
 import ChatPage from "./pages/ChatPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 
-//import LoginPage from './LoginPage';
-
 function App() {
-    // const [token, setToken] = useState(null);
-
-    // if (!token) {
-    //   return <LoginPage setToken={setToken}/>
-    // }
-
     return (
         <Router>
             <Routes>
