@@ -47,8 +47,16 @@ cp .env.example .env
 
 3. **Запустить приложение**
 
+Режим разработки:
+
 ```bash
 docker compose up --build
+```
+
+Режим prodaction:
+
+```bash
+docker compose -f docker-compose.yml up --build
 ```
 
 Откроется по адресу:
