@@ -6,6 +6,7 @@ services:
       - "8080:8080"
     environment:
       - FRONTEND_URL=${FRONTEND_URL}
+      - FRONTEND_URL_DEV=${FRONTEND_URL_DEV}
       - CHAT_URL=${CHAT_URL}
       - AUTH_URL=${AUTH_URL}
     depends_on:
