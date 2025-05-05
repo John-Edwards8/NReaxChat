@@ -5,7 +5,8 @@ import com.john.auth.dto.AuthResponse;
 import com.john.auth.dto.CreateUserRequest;
 import com.john.auth.dto.UserDTO;
 import com.john.auth.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -14,24 +15,16 @@ import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import java.util.Collections;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Component
+@AllArgsConstructor
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Used safely")
 public class AuthHandler {
-
 	private final AuthRepository repo;
 	private final JwtUtil jwtUtil;
 	private final PasswordEncoder passwordEncoder;
-
-	@Autowired
-	public AuthHandler(AuthRepository repo, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
-		this.repo = repo;
-		this.jwtUtil = jwtUtil;
-		this.passwordEncoder = passwordEncoder;
-	}
 
 	public Mono<ServerResponse> register(ServerRequest req) {
 		return req.bodyToMono(AuthRequest.class)

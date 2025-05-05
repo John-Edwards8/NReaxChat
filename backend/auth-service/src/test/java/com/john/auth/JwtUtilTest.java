@@ -5,9 +5,8 @@ import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
-
 import java.util.Base64;
-
+import java.util.concurrent.atomic.AtomicLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -38,7 +37,7 @@ class JwtUtilTest {
 
     @Test
     void expiredAccessTokenShouldBeInvalid() throws InterruptedException {
-        jwtUtil.setAccessValidityMs(10L);
+        jwtUtil.setAccessValidityMs(new AtomicLong(10L));
         String at = jwtUtil.generateAccessToken("user", ROLE);
         Thread.sleep(20);
         assertThat(jwtUtil.validateToken(at, "access")).isFalse();
@@ -46,7 +45,7 @@ class JwtUtilTest {
 
     @Test
     void expiredRefreshTokenShouldBeInvalid() throws InterruptedException {
-        jwtUtil.setRefreshValidityMs(10L);
+        jwtUtil.setRefreshValidityMs(new AtomicLong(10L));
         String rt = jwtUtil.generateRefreshToken("user", ROLE);
         Thread.sleep(20);
         assertThat(jwtUtil.validateToken(rt, "refresh")).isFalse();
