@@ -1,0 +1,17 @@
+name: Notify Linter Fail
+description: Sends Telegram notification about linter failure
+
+inputs:
+  service:
+    required: true
+  message:
+    default: "Run `mvn spotbugs:gui` locally for details."
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text="*Linter failed* for *${{ inputs.service }}*\n\n${{ inputs.message }}" \
+          -d parse_mode=Markdown
