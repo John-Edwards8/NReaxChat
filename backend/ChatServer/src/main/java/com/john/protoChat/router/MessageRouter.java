@@ -16,7 +16,13 @@ public class MessageRouter {
     @Bean
     public RouterFunction<ServerResponse> route(MessageHandler messageHandler) {
         return RouterFunctions
+<<<<<<< Updated upstream:backend/ChatServer/src/main/java/com/john/protoChat/router/MessageRouter.java
             .route(GET("/messages"), messageHandler::getMessages)  // Для отримання повідомлень
             .andRoute(POST("/messages"), messageHandler::sendMessage); // Для додавання нового повідомлення
+=======
+            .route(GET("/messages"), messageHandler::getMessages)
+            .andRoute(GET("/messages/room/{roomId}"), messageHandler::getMessagesByRoomId);
+>>>>>>> Stashed changes:backend/chat-service/src/main/java/com/john/chat/router/MessageRouter.java
     }
+
 }

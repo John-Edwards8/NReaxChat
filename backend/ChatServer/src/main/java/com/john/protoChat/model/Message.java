@@ -19,6 +19,7 @@ public class Message {
 	@Id
     private Long id;
 
+    private ObjectId roomId;
     private String sender;
     private String content;
     
