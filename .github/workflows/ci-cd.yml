@@ -141,12 +141,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
+      
+      - name: Install frontend dependencies
+        working-directory: ./client
+        run: npm ci
+      
       - name: Lint frontend
         id: lint-front
-        working-directory: ${{ env.FRONTEND_WD }}
+        working-directory: ./client
         continue-on-error: true
         run: npm run lint
 
