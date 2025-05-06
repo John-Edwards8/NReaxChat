@@ -11,7 +11,7 @@ export function useChat() {
     useEffect(() => {
         api.get('/chat/messages').then(response => {
             setMessages(
-                response.data.map((msg: any) => formatMessage(msg))
+                response.data.map((msg: Message) => formatMessage(msg))
         );
     });
 
@@ -23,7 +23,7 @@ export function useChat() {
             const data = JSON.parse(event.data);
             const newMessage = formatMessage(data);
             setMessages(prevMessages => [...prevMessages, newMessage]);
-        } catch (e) {
+        } catch {
             setMessages(prevMessages => [...prevMessages, {
                 text: event.data,
                 sender: 'other'
@@ -38,7 +38,7 @@ export function useChat() {
     return () => {
         ws.current?.close();
     };
-    }, []);
+    });
 
     const sendMessage = (message: string) => {
         console.log("📤 Отправка сообщения:", message);

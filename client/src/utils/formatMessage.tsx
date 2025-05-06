@@ -1,8 +1,8 @@
 import { Message } from '../types/Message';
 
-export function formatMessage(raw: any, /*currentUser: string*/): Message {
+export function formatMessage(raw: Message, /*currentUser: string*/) {
   return {
-    text: raw.content || raw.text || String(raw),
+    text: raw.text,
     sender: raw.sender === 'User1' ? 'me' : 'other',
     // sender: raw.sender === currentUser ? 'me' : 'other',
   };
