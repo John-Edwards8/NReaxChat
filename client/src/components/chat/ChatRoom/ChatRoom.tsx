@@ -5,11 +5,8 @@ import { useState } from 'react';
 import { useChat } from "../../../hooks/useChat";
 
 function ChatRoom() {
-  const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
-  const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL;
   const [message, setMessage] = useState('');
-  
-  const { messages, sendMessage } = useChat(GATEWAY_URL, WEBSOCKET_URL);
+  const { messages, sendMessage } = useChat();
 
   const handleSend = () => {
     if (message.trim()) {

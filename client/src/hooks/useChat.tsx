@@ -1,20 +1,21 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { Message } from "../types/Message";
 import { formatMessage } from "../utils/formatMessage";
 
-export function useChat(gatewayUrl: string, websocketUrl: string) {
+export function useChat() {
+    const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
     const [messages, setMessages] = useState<Message[]>([]); 
     const ws = useRef<WebSocket | null>(null);
 
     useEffect(() => {
-        axios.get(`${gatewayUrl}/chat/messages`).then(response => {
+        api.get('/chat/messages').then(response => {
             setMessages(
                 response.data.map((msg: any) => formatMessage(msg))
         );
     });
 
-    ws.current = new WebSocket(websocketUrl);
+    ws.current = new WebSocket(WEBSOCKET_URL);
 
     ws.current.onmessage = (event) => {
         console.log("📩 Получено сообщение:", event.data);
@@ -37,7 +38,7 @@ export function useChat(gatewayUrl: string, websocketUrl: string) {
     return () => {
         ws.current?.close();
     };
-    }, [gatewayUrl, websocketUrl]);
+    }, []);
 
     const sendMessage = (message: string) => {
         console.log("📤 Отправка сообщения:", message);

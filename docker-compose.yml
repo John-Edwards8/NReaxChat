@@ -2,10 +2,12 @@ services:
   gateway:
     build:
       context: ./gateway
+      dockerfile: Dockerfile.prod
     ports:
       - "8080:8080"
     environment:
       - FRONTEND_URL=${FRONTEND_URL}
+      - FRONTEND_URL_DEV=${FRONTEND_URL_DEV}
       - CHAT_URL=${CHAT_URL}
       - AUTH_URL=${AUTH_URL}
     depends_on:
@@ -16,6 +18,7 @@ services:
   auth-service:
     build:
       context: ./backend/auth-service
+      dockerfile: Dockerfile.prod
     ports:
       - "8081:8081"
     environment:
@@ -27,6 +30,7 @@ services:
   chat-service:
     build:
       context: ./backend/chat-service
+      dockerfile: Dockerfile.prod
     ports:
       - "8082:8082"
     environment:

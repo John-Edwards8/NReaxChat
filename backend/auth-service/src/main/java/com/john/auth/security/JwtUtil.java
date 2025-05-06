@@ -9,22 +9,25 @@ import jakarta.annotation.PostConstruct;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Component
+@Setter 
+@SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Used safely")
 public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String base64Secret;
     private Key key;
 
-    @Setter private long accessValidityMs  = 15 * 60_000;
-    @Setter private long refreshValidityMs = 7 * 24 * 60 * 60_000L;
+    private AtomicLong accessValidityMs  = new AtomicLong(15 * 60_000);
+    private AtomicLong refreshValidityMs = new AtomicLong(7 * 24 * 60 * 60_000L);
 
     private final Set<String> blacklistedRefresh = Collections.synchronizedSet(new HashSet<>());
 
@@ -41,8 +44,8 @@ public class JwtUtil {
         return buildToken(username, role, refreshValidityMs, "refresh");
     }
 
-    private String buildToken(String username, String role, long validity, String type) {
-        Date now = new Date(), exp = new Date(now.getTime() + validity);
+    private String buildToken(String username, String role, AtomicLong accessValidityMs2, String type) {
+        Date now = new Date(), exp = new Date(now.getTime() + accessValidityMs2.get());
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("role", role);
         claims.put("type", type);

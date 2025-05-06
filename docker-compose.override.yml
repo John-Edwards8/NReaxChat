@@ -1,0 +1,70 @@
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    volumes:
+      - ./gateway:/app
+      - ./gateway/src:/app/src
+      - ./gateway/target/classes:/app/target/classes
+      - ~/.m2:/root/.m2
+    command: ["mvn", "spring-boot:run", "-Dspring-boot.run.fork=false"]
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL}
+      FRONTEND_URL_DEV: ${FRONTEND_URL_DEV}
+      CHAT_URL: ${CHAT_URL}
+      AUTH_URL: ${AUTH_URL}
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+    ports:
+      - "8080:8080"
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/auth-service:/app
+      - ./backend/auth-service/src:/app/src
+      - ./backend/auth-service/target/classes:/app/target/classes
+      - ~/.m2:/root/.m2
+    command: ["mvn", "spring-boot:run", "-Dspring-boot.run.fork=false"]
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      MONGOAUTH_URI: ${MONGODB_URI}
+      MONGOAUTH_DATABASE: ${MONGODB_DATABASE}
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+    ports:
+      - "8081:8081"
+  chat-service:
+    build:
+      context: ./backend/chat-service
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/chat-service:/app
+      - ./backend/chat-service/src:/app/src
+      - ./backend/chat-service/target/classes:/app/target/classes
+      - ~/.m2:/root/.m2
+    environment:
+      SPRING_DATA_MONGODB_URI: ${MONGODB_URI}
+      SPRING_DATA_MONGODB_DATABASE: ${MONGODB_DATABASE}
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+    ports:
+      - "8082:8082"
+  frontend:
+    build:
+      context: ./client
+      target: development
+      args:
+        VITE_WEBSOCKET_URL: ${VITE_WEBSOCKET_URL}
+        VITE_GATEWAY_URL: ${VITE_GATEWAY_URL}
+    ports:
+      - "3001:5173"
+    depends_on:
+      - chat-service
+      - auth-service
+      - gateway
+    volumes:
+      - ./client:/code
+      - /code/node_modules
+    command: ["npm", "run", "dev"]
+    networks:
+      - backend
