@@ -1,5 +1,5 @@
-import AppLogo from './AppLogo.tsx'
-import Settings from './Settings.tsx'
+import AppLogo from './AppLogo'
+import Settings from './Settings'
 
 function ChatSidebarRight() {
     return (

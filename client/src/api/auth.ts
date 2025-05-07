@@ -1,6 +1,6 @@
-import api from '../api/axios'
-import { AuthRequest} from "../types/AuthRequest.ts";
-import { AuthResponse} from "../types/AuthResponse.ts";
+import api from '../api/axios.ts'
+import { AuthRequest } from "../types/AuthRequest";
+import { AuthResponse } from "../types/AuthResponse";
 
 export const login = async (credentials: AuthRequest): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('auth/api/login', credentials);

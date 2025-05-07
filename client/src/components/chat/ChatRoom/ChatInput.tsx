@@ -1,4 +1,4 @@
-import {FaPaperPlane} from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
 import Input from "../../ui/Input";
 
 type HandleInputProps = {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { placeholderWords } from '../constants/placeholdersWords.ts'
+import { placeholderWords } from '../constants/placeholdersWords'
 
 export const usePlaceholder = (key: keyof typeof placeholderWords, enabled: boolean = true) => {
     const words = placeholderWords[key];

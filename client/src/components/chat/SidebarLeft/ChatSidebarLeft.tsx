@@ -1,6 +1,6 @@
 import ChatSearchBar from './ChatSearchBar'
 import ChatSectionHeader from './ChatSectionHeader'
-import ChatListItem from "./ChatListItem.tsx";
+import ChatListItem from "./ChatListItem";
 
 function ChatSidebarLeft() {
     return (
