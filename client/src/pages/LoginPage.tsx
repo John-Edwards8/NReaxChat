@@ -21,10 +21,7 @@ function LoginPage() {
         e.preventDefault();
         try {
             const credentials = { username, password };
-            const { role } = await login(credentials);
-
-            localStorage.setItem('role', role);
-            console.log(role);
+            await login(credentials);
             navigate('/chat');
         } catch (err) {
             console.log(err);
