@@ -1,8 +1,8 @@
-import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
-import GuestPage from './pages/GuestPage.tsx';
-import ChatPage from "./pages/ChatPage.tsx";
-import LoginPage from "./pages/LoginPage.tsx";
-import ProtectedRoute from "./components/routes/ProtectedRoute.tsx";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import GuestPage from './pages/GuestPage';
+import ChatPage from "./pages/ChatPage";
+import LoginPage from "./pages/LoginPage";
+import ProtectedRoute from "./components/routes/ProtectedRoute";
 
 function App() {
     return (

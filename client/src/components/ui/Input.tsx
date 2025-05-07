@@ -1,6 +1,6 @@
 import React from "react";
-import {InputProps} from '../../types/Input';
-import {usePlaceholder} from "../../hooks/usePlaceholder";
+import { InputProps } from '../../types/Input';
+import { usePlaceholder } from "../../hooks/usePlaceholder";
 
 const getInputClasses = (variant: InputProps['variant'] = 'login') => {
     switch (variant) {

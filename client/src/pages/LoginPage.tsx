@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/auth";
 import Button from '../components/ui/Button';
-import Input from "../components/ui/Input.tsx";
+import Input from "../components/ui/Input";
 
 function LoginPage() {
     const navigate = useNavigate();

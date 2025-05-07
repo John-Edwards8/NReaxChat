@@ -1,5 +1,5 @@
 import React from "react";
-import {placeholderWords} from "../constants/placeholdersWords.ts";
+import { placeholderWords } from "../constants/placeholdersWords";
 
 export interface InputProps {
     id: string;
