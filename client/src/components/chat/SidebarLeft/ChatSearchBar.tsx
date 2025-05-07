@@ -1,11 +1,19 @@
+import Input from "../../ui/Input";
+import { useState } from "react";
+
 const ChatSearchBar = () => {
+    const [search, setSearch] = useState('');
+
     return (
         <div className="px-4 pt-4">
             <div className="relative">
-                <input
-                    type="text"
-                    placeholder="Search..."
-                    className="w-full rounded-22 bg-[#1E75BC] placeholder-white px-4 py-2 pl-10 outline-none"
+                <Input
+                    id="chat-search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholderKey="search"
+                    variant="search"
+                    placeholderAnimated="onFocus"
                 />
                 <svg
                     className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
