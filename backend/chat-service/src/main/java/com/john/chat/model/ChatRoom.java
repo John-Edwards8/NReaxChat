@@ -1,5 +1,7 @@
 package com.john.chat.model;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -7,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-//import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -19,8 +20,7 @@ public class ChatRoom {
     @Id
     private ObjectId id;
 
-    private ObjectId user1;
-    private ObjectId user2;
-
-    //private LocalDateTime createdAt;
+    private String name;
+    private boolean isGroup;
+    private List<ObjectId> members;
 }

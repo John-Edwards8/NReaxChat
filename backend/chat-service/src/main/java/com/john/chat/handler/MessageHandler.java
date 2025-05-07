@@ -1,9 +1,6 @@
 package com.john.chat.handler;
 
-<<<<<<< HEAD
 import org.bson.types.ObjectId;
-=======
->>>>>>> dev
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -54,14 +51,12 @@ public class MessageHandler implements WebSocketHandler {
                 });
         return webSocketSession.send(incomingMessages);
     }
-<<<<<<< HEAD
+
     public Mono<ServerResponse> getMessagesByRoomId(ServerRequest request) {
         String roomId = request.pathVariable("roomId");
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(messageRepository.findAllByRoomId(new ObjectId(roomId)), Message.class);
     }
-=======
->>>>>>> dev
 
 }
