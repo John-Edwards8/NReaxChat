@@ -81,9 +81,9 @@ jobs:
           fetch-depth: 0
 
       - uses: ./.github/actions/java-prepare
-      # - name: Test Chat
-      #   working-directory: ${{ env.CHAT_WD }}
-      #   run: mvn clean '-Dtest=com.john.chat.*Test' test
+      - name: Test Chat
+        working-directory: ${{ env.CHAT_WD }}
+        run: mvn clean '-Dtest=com.john.chat.*Test' test
 
       - name: Chat Linter Check
         id: lint-chat
@@ -114,11 +114,14 @@ jobs:
     needs: build-gateway
     runs-on: ubuntu-latest
     steps:
-      # - uses: ./.github/actions/java-prepare
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/java-prepare
       - name: Test Gateway
-        run: echo "Everything is fine :)"
-      #   working-directory: ${{ env.GATEWAY_WD }}
-      #   run: mvn clean '-Dtest=com.john.gateway.*Test' test
+        working-directory: ${{ env.GATEWAY_WD }}
+        run: mvn clean '-Dtest=com.john.gateway.*Test' test
 
   build-front:
     runs-on: ubuntu-latest
