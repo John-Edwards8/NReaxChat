@@ -1,4 +1,5 @@
 import {FaPaperPlane} from "react-icons/fa";
+import Input from "../../ui/Input";
 
 type HandleInputProps = {
     message: string;
@@ -15,13 +16,15 @@ const ChatInput = ({ message, setMessage, sendMessage }: HandleInputProps) => {
       };
     return (
         <div className="flex items-center bg-blue-base px-4 py-2">
-            <input
-                type="text"
+            <Input
+                id="chat-message"
                 value={message}
-                className="flex-1 bg-transparent outline-none placeholder-white"
-                placeholder="Type a message..."
+                placeholderKey="message"
                 onKeyDown={handleKeyDown}
+                wrapperClassName="flex-1"
                 onChange={(e) => setMessage(e.target.value)}
+                variant="chat"
+                placeholderAnimated="onFocus"
             />
             <button
                 type="button"
