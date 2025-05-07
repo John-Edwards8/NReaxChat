@@ -5,4 +5,45 @@ const api = axios.create({
     withCredentials: true,
 });
 
+async function refreshToken() {
+    const refresh = localStorage.getItem('refreshToken');
+    if (!refresh) {
+        throw new Error('Missing refresh token');
+    }
+    const response = await api.post('auth/api/refresh', null, {
+        headers: {Authorization: `Bearer ${refresh}`,},
+    });
+    localStorage.setItem('accessToken', response.data.accessToken);
+    return response.data.accessToken;
+}
+
+const EXCLUDED_PATHS = ['/auth/api/login', '/auth/api/register'];
+
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('accessToken');
+    const isExcluded = EXCLUDED_PATHS.some(path => config.url?.includes(path));
+    if (!isExcluded && token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+api.interceptors.response.use((res) => res, async (error) => {
+        const originalRequest = error.config;
+        if (error.response?.status === 401 && !originalRequest._retry && localStorage.getItem('refreshToken')) {
+            originalRequest._retry = true;
+            try {
+                const newToken = await refreshToken();
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return api(originalRequest);
+            } catch (e) {
+                localStorage.clear();
+                window.location.href = '/login';
+                return Promise.reject(e);
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;
