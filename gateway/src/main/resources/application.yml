@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - ${FRONTEND_URL}
+              - ${FRONTEND_URL_DEV}
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+      routes:
+        - id: auth-service
+          uri: ${AUTH_URL}
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+
+        - id: chat-service
+          uri: ${CHAT_URL}
+          predicates:
+            - Path=/chat/**
+          filters:
+            - StripPrefix=1
+            - PreserveHostHeader
+

@@ -1,35 +1,22 @@
-FROM node:23-alpine AS development
+FROM node:slim AS development
+
+ARG VITE_WEBSOCKET_URL
+ARG VITE_GATEWAY_URL
+
+ENV VITE_WEBSOCKET_URL=${VITE_WEBSOCKET_URL}
+ENV VITE_GATEWAY_URL=${VITE_GATEWAY_URL}
 
 WORKDIR /code
-COPY package.json /code/package.json
-COPY package-lock.json /code/package-lock.json
-
+COPY package*.json .
 RUN npm ci
-COPY . /code
 
-ENV CI=true
-ENV PORT=3000
+COPY . .
 
-CMD [ "npm", "start" ]
-
-FROM development AS dev-envs
-RUN <<EOF
-apt-get update
-apt-get install -y git
-EOF
-
-RUN <<EOF
-useradd -s /bin/bash -m vscode
-groupadd docker
-usermod -aG docker vscode
-EOF
-
-COPY --from=gloursdocker/docker / /
-CMD [ "npm", "start" ]
+CMD ["npm", "run", "dev"]
 
 FROM development AS build
+RUN npm run build
 
-RUN ["npm", "run", "build"]
-
-FROM nginx:1.27.5-alpine-slim
+FROM nginx:1.28.0-alpine
 COPY --from=build /code/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf

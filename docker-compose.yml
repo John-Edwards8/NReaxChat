@@ -1,39 +1,58 @@
 services:
-  db:
-    image: mysql:8
-    environment:
-      MYSQL_DATABASE: messages
-      MYSQL_ROOT_PASSWORD: 1111
-    ports:
-      - "3006:3306"
-    networks:
-    - backend
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  chat-server:
-    build: ./backend/ChatServer
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile.prod
     ports:
       - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/messages
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 1111
+      - FRONTEND_URL=${FRONTEND_URL}
+      - FRONTEND_URL_DEV=${FRONTEND_URL_DEV}
+      - CHAT_URL=${CHAT_URL}
+      - AUTH_URL=${AUTH_URL}
+    depends_on:
+      - auth-service
+      - chat-service
     networks:
       - backend
-
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8081:8081"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      MONGOAUTH_URI: ${MONGODB_URI}
+      MONGOAUTH_DATABASE: ${MONGODB_DATABASE}
+    networks:
+      - backend
+  chat-service:
+    build:
+      context: ./backend/chat-service
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8082:8082"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      SPRING_DATA_MONGODB_URI: ${MONGODB_URI}
+      SPRING_DATA_MONGODB_DATABASE: ${MONGODB_DATABASE}
+    networks:
+      - backend
   frontend:
-    build: ./client
+    build:
+      context: ./client
+      args:
+        VITE_WEBSOCKET_URL: ${VITE_WEBSOCKET_URL}
+        VITE_GATEWAY_URL: ${VITE_GATEWAY_URL}
     ports:
       - "3000:80"
     depends_on:
-      - chat-server
+      - chat-service
+      - auth-service
+      - gateway
+    networks:
+      - backend
 networks:
   backend:
     driver: bridge

@@ -1,7 +1,77 @@
 # NReaxChat
-NReaxChat — це веб-додаток для обміну повідомленнями в режимі реального часу, натхненний інтерфейсом Telegram Web. Проєкт реалізований з використанням Java Spring з реактивним підходом (Reactive Programming), що забезпечує швидку та асинхронну роботу з даними. Фронтенд створений на React з використанням готових UI-компонентів, які будуть надалі адаптовані та кастомізовані під потреби проєкту. Система підтримує збереження даних у MySQL та MongoDB.
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/John-Edwards8/NReaxChat/blob/main/README.en.md)
+[![ua](https://img.shields.io/badge/lang-ua-blue.svg)](https://github.com/John-Edwards8/NReaxChat/blob/main/README.ua.md)
+[![de](https://img.shields.io/badge/lang-de-yellow.svg)](https://github.com/John-Edwards8/NReaxChat/blob/main/README.de.md)
 
+Это веб-приложение для обмена сообщениями в режиме реального времени, вдохновленное интерфейсом Telegram Web. Проект реализован с использованием Java Spring с реактивным подходом (Reactive Programming), что обеспечивает быструю и асинхронную работу с данными. Фронтенд создан на React. Система поддерживает сохранность данных в MongoDB. 
+Архитектура построена на микросервисной модели.
 
+---
 
-# NReaxChat
-NReaxChat is a real-time messaging web application inspired by the Telegram Web interface. The project is implemented using Java Spring with a reactive approach (Reactive Programming), which provides fast and asynchronous work with data. The frontend is created on React using ready-made UI components, which will be further adapted and customized to the needs of the project. The system supports data storage in MySQL and MongoDB.
+## Стек технологий
+
+- **Backend**: Java (Reactive Spring Boot + Project Reactor)
+- **Frontend**: ReactJS (Vite)
+- **База данных**: MongoDB
+- **Контейнеризация**: Docker, Docker Compose
+- **Оркестрация конфигураций**: `.env` файлы
+- **Вебсокеты / API Gateway**: STOMP
+
+---
+
+## Архитектура проекта
+
+- `auth-service`: сервис аутентификации и авторизации
+- `chat-service`: сервис управления чатами и сообщениями
+- `client`: клиентская часть на React
+
+Все сервисы упакованы в контейнеры и взаимодействуют друг с другом через внутреннюю docker-сеть.
+
+---
+
+## Как запустить проект локально
+
+1. **Клонировать репозиторий**
+
+```bash
+git clone https://github.com/John-Edwards8/NReaxChat.git
+cd NReaxChat
+```
+
+2. **Создать `.env` файл**
+
+Скопировать пример и настроить переменные окружения:
+```bash
+cp .env.example .env
+```
+
+3. **Запустить приложение**
+
+Режим разработки:
+
+```bash
+docker compose up --build
+```
+
+Режим prodaction:
+
+```bash
+docker compose -f docker-compose.yml up --build
+```
+
+Откроется по адресу:
+
+- Frontend: `http://localhost:3000`
+- API сервисы: `http://localhost:8080`, `http://localhost:8081` (или как укажете)
+
+---
+
+## Скриншоты
+
+(Будут добавлены)
+
+---
+
+## Лицензия
+
+Этот проект распространяется под лицензией MIT. Подробнее в файле LICENSE.
