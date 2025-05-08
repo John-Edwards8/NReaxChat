@@ -39,7 +39,7 @@ function LoginPage() {
                         label="Username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        // required
+                        required
                         placeholderKey="username"
                         variant="login"
                         placeholderAnimated={true}
@@ -51,9 +51,7 @@ function LoginPage() {
                         id="password"
                         label="Password"
                         type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        // required
+                        required
                         placeholderKey="password"
                         variant="login"
                         placeholderAnimated={true}
