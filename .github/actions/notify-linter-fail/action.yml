@@ -11,10 +11,17 @@ runs:
   using: "composite"
   steps:
     - run: |
+        SERVICE_ESCAPED=$(echo "${{ inputs.service }}" | sed 's/[][*_()~`>#+=|{}.!-]/\\&/g')
+        MESSAGE_ESCAPED=$(echo "${{ inputs.message }}" | sed 's/[][*_()~`>#+=|{}.!-]/\\&/g')
+
+        TEXT="*Linter failed* for *${SERVICE_ESCAPED}*\\n\\n${MESSAGE_ESCAPED}"
+
+        TEXT_WITH_NEWLINES=$(echo -e "$TEXT")
+
         curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage \
           -d chat_id=${TELEGRAM_CHAT_ID} \
-          -d text="*Linter failed* for *${{ inputs.service }}*\n\n${{ inputs.message }}" \
-          -d parse_mode=Markdown
+          -d text="$TEXT_WITH_NEWLINES" \
+          -d parse_mode=MarkdownV2
       shell: bash
       env:
         TELEGRAM_BOT_TOKEN: ${{ env.TELEGRAM_BOT_TOKEN }}
