@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../api/auth";
 import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
+import ErrorMessage from "../components/ui/ErrorMessage";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -12,7 +13,13 @@ function LoginPage() {
 
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!username.trim() || !password.trim()) {
+            console.log('Please enter both username and password');
+            setError('Please enter both username and password');
+            return;
+        }
         try {
+            setError(null);
             const credentials = { username, password };
             await login(credentials);
             navigate('/chat');
@@ -32,7 +39,7 @@ function LoginPage() {
                         label="Username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        required
+                        // required
                         placeholderKey="username"
                         variant="login"
                         placeholderAnimated={true}
@@ -43,18 +50,17 @@ function LoginPage() {
                     <Input
                         id="password"
                         label="Password"
+                        type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
+                        // required
                         placeholderKey="password"
                         variant="login"
                         placeholderAnimated={true}
                     />
                 </div>
 
-                {error && (
-                    <div className="text-red-500 text-sm text-center">{error}</div>
-                )}
+                <ErrorMessage message={error} variant="toast" onClose={() => setError(null)} />
 
                 <Button type="submit" value="Login" className="bg-chat-active" />
             </form>
