@@ -4,6 +4,7 @@ import { login } from "../api/auth";
 import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
 import ErrorMessage from "../components/ui/ErrorMessage";
+import {logger } from "../utils/logger";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -14,17 +15,19 @@ function LoginPage() {
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!username.trim() || !password.trim()) {
-            console.log('Please enter both username and password');
+            logger.warn('Username or password missing');
             setError('Please enter both username and password');
             return;
         }
         try {
+            logger.info('Attempting login with:', username);
             setError(null);
             const credentials = { username, password };
             await login(credentials);
+            logger.info('Login successful');
             navigate('/chat');
         } catch (err) {
-            console.log(err);
+            logger.error('Login failed', err);
             setError("Invalid credentials")
         }
     }
@@ -39,7 +42,6 @@ function LoginPage() {
                         label="Username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        required
                         placeholderKey="username"
                         variant="login"
                         placeholderAnimated={true}
@@ -53,7 +55,6 @@ function LoginPage() {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        //required
                         placeholderKey="password"
                         variant="login"
                         placeholderAnimated={true}
