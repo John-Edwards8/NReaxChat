@@ -51,7 +51,9 @@ function LoginPage() {
                         id="password"
                         label="Password"
                         type="password"
-                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        //required
                         placeholderKey="password"
                         variant="login"
                         placeholderAnimated={true}
