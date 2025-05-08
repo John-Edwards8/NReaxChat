@@ -11,9 +11,8 @@ const ChatSearchBar = () => {
                     id="chat-search"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholderKey="search"
+                    placeholder="Search..."
                     variant="search"
-                    placeholderAnimated="onFocus"
                 />
                 <svg
                     className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"

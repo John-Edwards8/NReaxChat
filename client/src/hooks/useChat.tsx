@@ -38,7 +38,7 @@ export function useChat() {
     return () => {
         ws.current?.close();
     };
-    }, []);
+    });
 
     const sendMessage = (message: string) => {
         console.log("📤 Отправка сообщения:", message);
