@@ -22,5 +22,5 @@ public class ChatRoom {
 
     private String name;
     private boolean isGroup;
-    private List<ObjectId> members;
+    private List<String> members;
 }

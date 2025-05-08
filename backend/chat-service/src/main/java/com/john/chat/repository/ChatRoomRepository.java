@@ -7,6 +7,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ChatRoomRepository extends ReactiveCrudRepository<ChatRoom, ObjectId> {
-    Flux<ChatRoom> findByMembersContaining(ObjectId member);
+    Flux<ChatRoom> findByMembersContaining(String member);
     Mono<ChatRoom> findByName(String name);
 }
