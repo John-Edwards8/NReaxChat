@@ -19,12 +19,11 @@ const ChatInput = ({ message, setMessage, sendMessage }: HandleInputProps) => {
             <Input
                 id="chat-message"
                 value={message}
-                placeholderKey="message"
+                placeholder="Type a message..."
                 onKeyDown={handleKeyDown}
                 wrapperClassName="flex-1"
                 onChange={(e) => setMessage(e.target.value)}
                 variant="chat"
-                placeholderAnimated="onFocus"
             />
             <button
                 type="button"
