@@ -1,14 +1,19 @@
 import { useChatRooms } from "../../../hooks/useChatRooms";
 import { useState } from "react";
+import { ChatTabProps} from "../../../types/ChatTabs";
 
-const ChatListItem = () => {
+const ChatListItem = ({ activeTab }: Pick<ChatTabProps, 'activeTab'>) => {
     const chatRooms = useChatRooms();
     const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+
+    const filteredRooms = chatRooms.filter(room =>
+        activeTab === 'groups' ? room.group : true
+    );
 
     return (
         <div className="flex-1 overflow-y-auto p-2 m-1">
             <ul className="space-y-2">
-                {chatRooms.map((room) => (
+                {filteredRooms.map((room) => (
                     <li
                         key={room.name}
                         onClick={() => setActiveRoomId(room.name)}
