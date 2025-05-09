@@ -12,3 +12,13 @@ export const login = async (credentials: AuthRequest): Promise<AuthResponse> => 
 
     return response.data;
 }
+
+export const register = async (credentials: AuthRequest): Promise<AuthResponse> => {
+    try {
+        const response = await api.post<AuthResponse>('auth/api/register', credentials);
+        return response.data;
+    } catch (error: any) {
+        const message = error.response.data || "Registration failed";
+        throw new Error(message);
+    }
+}

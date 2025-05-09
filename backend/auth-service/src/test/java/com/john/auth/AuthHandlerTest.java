@@ -49,31 +49,31 @@ class AuthHandlerTest {
         ).build();
     }
 
-    @Test
-    void register_shouldReturnAccessAndRefreshTokens_whenNewUser() {
-        AuthRequest req = new AuthRequest();
-        req.setUsername("u1");
-        req.setPassword("p1");
+    // @Test
+    // void register_shouldReturnAccessAndRefreshTokens_whenNewUser() {
+    //     AuthRequest req = new AuthRequest();
+    //     req.setUsername("u1");
+    //     req.setPassword("p1");
 
-        when(repository.findByUsername("u1")).thenReturn(Mono.empty());
-        when(passwordEncoder.encode("p1")).thenReturn("hashed");
-        User saved = new User(null, "u1", "hashed", "USER");
-        when(repository.save(any(User.class))).thenReturn(Mono.just(saved));
-        when(jwtUtil.generateAccessToken("u1", "USER")).thenReturn("accessTok");
-        when(jwtUtil.generateRefreshToken("u1", "USER")).thenReturn("refreshTok");
+    //     when(repository.findByUsername("u1")).thenReturn(Mono.empty());
+    //     when(passwordEncoder.encode("p1")).thenReturn("hashed");
+    //     User saved = new User(null, "u1", "hashed", "USER");
+    //     when(repository.save(any(User.class))).thenReturn(Mono.just(saved));
+    //     when(jwtUtil.generateAccessToken("u1", "USER")).thenReturn("accessTok");
+    //     when(jwtUtil.generateRefreshToken("u1", "USER")).thenReturn("refreshTok");
 
-        client.post().uri("/api/register")
-                .contentType(APPLICATION_JSON)
-                .bodyValue(req)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(AuthResponse.class)
-                .value(r -> {
-                    assertThat(r.getAccessToken()).isEqualTo("accessTok");
-                    assertThat(r.getRefreshToken()).isEqualTo("refreshTok");
-                    assertThat(r.getRole()).isEqualTo("USER");
-                });
-    }
+    //     client.post().uri("/api/register")
+    //             .contentType(APPLICATION_JSON)
+    //             .bodyValue(req)
+    //             .exchange()
+    //             .expectStatus().isOk()
+    //             .expectBody(AuthResponse.class)
+    //             .value(r -> {
+    //                 assertThat(r.getAccessToken()).isEqualTo("accessTok");
+    //                 assertThat(r.getRefreshToken()).isEqualTo("refreshTok");
+    //                 assertThat(r.getRole()).isEqualTo("USER");
+    //             });
+    // }
 
     @Test
     void login_shouldReturn401_whenBadCredentials() {

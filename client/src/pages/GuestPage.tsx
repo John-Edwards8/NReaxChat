@@ -19,7 +19,7 @@ function GuestPage() {
 
                 <div className="flex justify-center gap-4">
                     <Button type="submit" onClick={() => navigate('/login')} value="Login" />
-                    <Button type="submit" value="Sign Up" />
+                    <Button type="submit" onClick={() => navigate('/register')} value="Sign Up" />
                 </div>
 
                 <div className="space-y-1">
