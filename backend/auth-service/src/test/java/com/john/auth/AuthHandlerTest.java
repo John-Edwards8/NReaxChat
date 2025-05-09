@@ -166,7 +166,7 @@ class AuthHandlerTest {
         when(passwordEncoder.encode("newpw")).thenReturn("newhash");
         when(repository.save(any(User.class))).thenReturn(Mono.just(updated));
 
-        client.put().uri("/api/users/u4")
+        client.patch().uri("/api/users/u4")
                 .contentType(APPLICATION_JSON)
                 .bodyValue(req)
                 .exchange()
