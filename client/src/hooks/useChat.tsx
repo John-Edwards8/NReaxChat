@@ -38,15 +38,15 @@ export function useChat() {
     return () => {
         ws.current?.close();
     };
-    });
+    }, []);
 
     const sendMessage = (message: string) => {
-        console.log("📤 Отправка сообщения:", message);
         if (ws.current?.readyState === WebSocket.OPEN) {
             const payload = JSON.stringify({
                 sender: 'User1',
                 content: message,
             });
+            console.log("📤 Отправка сообщения:", payload);
             ws.current.send(payload);
         } else {
             console.error("WebSocket is not connected.");
