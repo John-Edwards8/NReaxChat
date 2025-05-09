@@ -33,12 +33,9 @@ public class AuthHandler {
 		return req.bodyToMono(AuthRequest.class)
 				.flatMap(r -> createUser(r, "USER"))
 				.flatMap(saved -> {
-					String role = saved.getRole();
-					String at = jwtUtil.generateAccessToken(saved.getUsername(), role);
-					String rt = jwtUtil.generateRefreshToken(saved.getUsername(), role);
 					return ServerResponse.ok()
 							.contentType(APPLICATION_JSON)
-							.bodyValue(new AuthResponse(at, rt, role));
+							.bodyValue(saved);
 				})
 				.onErrorResume(e -> ServerResponse.badRequest().bodyValue(e.getMessage()));
 	}

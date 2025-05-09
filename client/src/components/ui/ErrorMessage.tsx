@@ -14,6 +14,8 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({message, variant = 'inline',
 
     if (variant === 'toast') {
         baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md ${className}`;
+    } else if (variant === 'nonError') {
+        baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md ${className}`;
     }
 
     return (
