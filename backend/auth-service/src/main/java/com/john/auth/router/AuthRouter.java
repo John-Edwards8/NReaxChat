@@ -19,11 +19,9 @@ public class AuthRouter {
 				.andRoute(POST("/api/login").and(accept(APPLICATION_JSON)), handler::login)
 				.andRoute(POST("/api/logout").and(accept(APPLICATION_JSON)), handler::logout)
 				.andRoute(POST("/api/refresh") .and(accept(APPLICATION_JSON)), handler::refresh)
-
-				.andRoute(POST("/api/users").and(accept(APPLICATION_JSON)), handler::createUser)
 				.andRoute(GET("/api/users").and(accept(APPLICATION_JSON)), handler::getAllUsers)
 				.andRoute(GET("/api/users/{username}").and(accept(APPLICATION_JSON)), handler::getUser)
-				.andRoute(PUT("/api/users/{username}").and(accept(APPLICATION_JSON)), handler::updateUser)
+				.andRoute(PATCH("/api/users/{username}").and(accept(APPLICATION_JSON)), handler::updateUser)
 				.andRoute(DELETE("/api/users/{username}"), handler::deleteUser);
 	}
 }

@@ -1,22 +1,25 @@
 package com.john.auth.handler;
 
-import com.john.auth.dto.AuthRequest;
-import com.john.auth.dto.AuthResponse;
-import com.john.auth.dto.CreateUserRequest;
-import com.john.auth.dto.UserDTO;
-import com.john.auth.security.JwtUtil;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import lombok.AllArgsConstructor;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
+import java.util.Collections;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+
+import com.john.auth.dto.AuthRequest;
+import com.john.auth.dto.AuthResponse;
+import com.john.auth.dto.UserDTO;
 import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
+import com.john.auth.security.JwtUtil;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import java.util.Collections;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @Component
 @AllArgsConstructor
@@ -28,24 +31,16 @@ public class AuthHandler {
 
 	public Mono<ServerResponse> register(ServerRequest req) {
 		return req.bodyToMono(AuthRequest.class)
-				.flatMap(r -> repo.findByUsername(r.getUsername())
-						.flatMap(u -> ServerResponse.badRequest().bodyValue("Exists"))
-						.switchIfEmpty(Mono.defer(() -> {
-							User u = new User();
-							u.setUsername(r.getUsername());
-							u.setPassword(passwordEncoder.encode(r.getPassword()));
-							u.setRole("USER");
-							return repo.save(u)
-									.flatMap(saved -> {
-										String role = saved.getRole();
-										String at = jwtUtil.generateAccessToken(saved.getUsername(), role);
-										String rt = jwtUtil.generateRefreshToken(saved.getUsername(), role);
-										return ServerResponse.ok()
-												.contentType(APPLICATION_JSON)
-												.bodyValue(new AuthResponse(at, rt, role));
-									});
-						}))
-				);
+				.flatMap(r -> createUser(r, "USER"))
+				.flatMap(saved -> {
+					String role = saved.getRole();
+					String at = jwtUtil.generateAccessToken(saved.getUsername(), role);
+					String rt = jwtUtil.generateRefreshToken(saved.getUsername(), role);
+					return ServerResponse.ok()
+							.contentType(APPLICATION_JSON)
+							.bodyValue(new AuthResponse(at, rt, role));
+				})
+				.onErrorResume(e -> ServerResponse.badRequest().bodyValue(e.getMessage()));
 	}
 
 	public Mono<ServerResponse> login(ServerRequest req) {
@@ -119,26 +114,28 @@ public class AuthHandler {
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
-	public Mono<ServerResponse> createUser(ServerRequest request) {
-		return request.bodyToMono(CreateUserRequest.class)
-				.flatMap(req -> repo.findByUsername(req.getUsername())
-						.flatMap(existing ->
-								ServerResponse.badRequest().bodyValue("Username already exists"))
-						.switchIfEmpty(Mono.defer(() -> {
-							User user = new User();
-							user.setUsername(req.getUsername());
-							user.setPassword(passwordEncoder.encode(req.getPassword()));
-							user.setRole(req.getRole());
-							return repo.save(user)
-									.flatMap(saved -> ServerResponse
-											.created(request.uriBuilder()
-													.path("/api/users/{username}")
-													.build(saved.getUsername()))
-											.contentType(APPLICATION_JSON)
-											.bodyValue(saved)
-									);
-						}))
-				);
+	private Mono<User> createUser(AuthRequest req, String role) {
+		return repo.findByUsername(req.getUsername())
+				.flatMap(existing -> Mono.<User>error(new IllegalStateException("User exists")))
+				.switchIfEmpty(Mono.defer(() -> {
+					User user = User.builder()
+									.username(req.getUsername())
+									.password(passwordEncoder.encode(req.getPassword()))
+									.role(role)
+									.build();
+					return repo.save(user);
+				}));
+	}
+
+	public Mono<ServerResponse> createAdmin(ServerRequest request) {
+		return request.bodyToMono(AuthRequest.class)
+				.flatMap(req -> createUser(req, "ADMIN"))
+				.flatMap(saved -> {
+					return ServerResponse.ok()
+							.contentType(APPLICATION_JSON)
+							.bodyValue(saved);
+				})				
+				.onErrorResume(e -> ServerResponse.badRequest().bodyValue(e.getMessage()));
 	}
 
 	public Mono<ServerResponse> deleteUser(ServerRequest request) {
