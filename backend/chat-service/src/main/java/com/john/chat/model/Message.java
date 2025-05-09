@@ -23,6 +23,7 @@ public class Message {
 	@Id
     private ObjectId id;
 
+    private ObjectId roomId;
     private String sender;
     private String content;
     

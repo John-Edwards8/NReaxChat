@@ -15,6 +15,9 @@ public class MessageRouter {
     @Bean
     public RouterFunction<ServerResponse> route(MessageHandler messageHandler) {
         return RouterFunctions
-            .route(GET("/messages"), messageHandler::getMessages);
+            .route(GET("/messages"), messageHandler::getMessages)
+            .andRoute(GET("/messages/room/{roomId}"), messageHandler::getMessagesByRoomId);
+
     }
+
 }
