@@ -2,45 +2,34 @@ package com.john.chat.config;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.john.chat.handler.ChatHandler;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
-import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.server.WebSocketService;
 import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
 import org.springframework.web.reactive.socket.server.upgrade.TomcatRequestUpgradeStrategy;
 
-import com.john.chat.handler.MessageHandler;
-
-import reactor.core.publisher.Mono;
-
 @Configuration
+@AllArgsConstructor
 public class WebSocketConfig {
-    @Autowired
-    private MessageHandler handler;
 
-	@Bean
-    public WebSocketHandler webSocketHandler() {
-        return new WebSocketHandler() {
-            @Override
-            public Mono<Void> handle(WebSocketSession session) {
-                return session.send(Mono.just(session.textMessage("Hello from WebSocket")));
-            }
-        };
-    }
+    private ChatHandler privateChatHandler;
 
     @Bean
-	public HandlerMapping handlerMapping(){
-		Map<String, WebSocketHandler> handlerMap = Map.of(
-				"/chat", handler
-		);
-		return new SimpleUrlHandlerMapping(handlerMap, 1);
-	}
-
+    public HandlerMapping webSocketMapping() {
+        Map<String, WebSocketHandler> map = Map.of(
+                "/chat/room/{roomId}", privateChatHandler
+        );
+        SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
+        mapping.setUrlMap(map);
+        mapping.setOrder(10);
+        return mapping;
+    }
 
     @Bean
     public WebSocketHandlerAdapter handlerAdapter(WebSocketService webSocketService) {
