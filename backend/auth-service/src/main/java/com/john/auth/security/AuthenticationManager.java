@@ -17,7 +17,6 @@ import java.util.List;
 public class AuthenticationManager implements ReactiveAuthenticationManager {
     private final JwtUtil jwtUtil;
 
-
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
         String token = authentication.getCredentials().toString();

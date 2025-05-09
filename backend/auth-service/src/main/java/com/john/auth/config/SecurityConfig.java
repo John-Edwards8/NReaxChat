@@ -1,7 +1,7 @@
 package com.john.auth.config;
 
 import com.john.auth.security.JwtSecurityContextRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,16 +14,11 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 @Configuration
+@RequiredArgsConstructor
 @EnableWebFluxSecurity
 public class SecurityConfig {
     private final ReactiveAuthenticationManager authManager;
     private final JwtSecurityContextRepository securityContextRepository;
-
-    @Autowired
-    public SecurityConfig(ReactiveAuthenticationManager authManager, JwtSecurityContextRepository securityContextRepository) {
-        this.authManager = authManager;
-        this.securityContextRepository = securityContextRepository;
-    }
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {

@@ -9,11 +9,11 @@ import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
 import com.john.auth.router.AuthRouter;
 import com.john.auth.security.JwtUtil;
+import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @WebFluxTest
+@AllArgsConstructor
 @Import({AuthHandler.class, AuthRouter.class, TestConfig.class})
 class AuthHandlerTest {
 
@@ -33,13 +34,6 @@ class AuthHandlerTest {
     AuthRepository repository;
     JwtUtil jwtUtil;
     PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public AuthHandlerTest(AuthRepository repository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
-        this.repository = repository;
-        this.jwtUtil = jwtUtil;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @BeforeEach
     void setup() {

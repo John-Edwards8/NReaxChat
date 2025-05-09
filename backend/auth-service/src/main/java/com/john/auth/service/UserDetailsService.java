@@ -1,7 +1,7 @@
 package com.john.auth.service;
 
 import com.john.auth.repos.AuthRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,14 +10,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
+@AllArgsConstructor
 public class UserDetailsService implements ReactiveUserDetailsService {
-
     private final AuthRepository authRepository;
-
-    @Autowired
-    public UserDetailsService(AuthRepository authRepository) {
-        this.authRepository = authRepository;
-    }
 
     @Override
     public Mono<UserDetails> findByUsername(String username) {
