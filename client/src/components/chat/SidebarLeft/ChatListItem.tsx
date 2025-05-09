@@ -1,25 +1,29 @@
+import { useChatRooms } from "../../../hooks/useChatRooms";
+import { useState } from "react";
+
 const ChatListItem = () => {
+    const chatRooms = useChatRooms();
+    const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+
     return (
         <div className="flex-1 overflow-y-auto p-2 m-1">
             <ul className="space-y-2">
-                {Array.from({length: 9}).map((_, i) => (
+                {chatRooms.map((room) => (
                     <li
-                        key={i}
-                        className={`flex items-start gap-3 p-3 rounded-22
-                          ${i === 0 ? 'bg-chat-active' : 'bg-blue-base'} 
-                          hover:opacity-90 transition cursor-pointer`}
+                        key={room.name}
+                        onClick={() => setActiveRoomId(room.name)}
+                        className={`flex items-start gap-3 p-3 rounded-22 cursor-pointer transition hover:opacity-90
+                          ${room.name === activeRoomId ? 'bg-chat-active' : 'bg-blue-base'}`}
                     >
                         <div className="w-12 h-12 rounded-full bg-blue-avatar flex items-center justify-center font-bold">
-                            FL
+                            {room.name.slice(0, 2).toUpperCase()}
                         </div>
                         <div className="flex flex-col items-start">
-                            <div className="font-semibold">Firstname Lastname</div>
-                            <div className="text-sm">message</div>
+                            <div className="font-semibold">{room.name}</div>
+                            <div className="text-sm text-gray-300">
+                                {room.group ? 'Group Chat' : 'Private Chat'}
+                            </div>
                         </div>
-                        {/*<div className="flex flex-col items-start" style={{ background: 'red' }}>*/}
-                        {/*    <div className="font-semibold">Firstname Lastname</div>*/}
-                        {/*    <div className="text-sm" style={{ background: 'green' }}>message</div>*/}
-                        {/*</div>*/}
                     </li>
                 ))}
             </ul>
