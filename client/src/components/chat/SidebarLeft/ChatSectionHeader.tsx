@@ -1,28 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef } from 'react';
+import { useTabIndicator } from '../../../hooks/useTabIndicator';
+import { ChatTab, ChatTabProps } from '../../../types/ChatTabs';
 
-const ChatSectionHeader = () => {
-    const tabs = [
+const ChatSectionHeader = ({ activeTab, setActiveTab}: ChatTabProps) => {
+    const tabs: {key: ChatTab, label: string}[] = [
         { key: 'all', label: 'All Chats' },
         { key: 'groups', label: 'Groups' }
     ];
 
-    const [activeTab, setActiveTab] = useState('all');
-    const [indicatorStyle, setIndicatorStyle] = useState({ width: '0px', left: '0px' });
     const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-    useEffect(() => {
-        const activeButton = tabRefs.current[activeTab];
-        if (activeButton) {
-            const rect = activeButton.getBoundingClientRect();
-            const parentRect = activeButton.parentElement?.getBoundingClientRect();
-            if (parentRect) {
-                setIndicatorStyle({
-                    width: `${rect.width}px`,
-                    left: `${rect.left - parentRect.left}px`,
-                });
-            }
-        }
-    }, [activeTab, tabs.length]);
+    const indicatorStyle = useTabIndicator(activeTab, tabRefs);
 
     return (
         <div className="text-center m-1">
