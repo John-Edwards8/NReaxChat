@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import { logger } from '../../utils/logger';
 import { ModalProps } from '../../types/Modal';
 import Button from '../ui/Button';
+import { useChatRoomStore } from '../../stores/chatRoomStore';
+import { useUserStore } from '../../stores/userStore';
+
 
 const AddRoomModal: React.FC<ModalProps> = (props) => {
+    const { fetchRooms, addRoom } = useChatRoomStore();
+    const { users, fetchUsers } = useUserStore();
     const [roomName, setRoomName] = useState('');
-    const [users] = useState<string[]>(['alice_smith', 'bob_jones', 'carol_davis', 'dave_wilson', 'eva_martin', 'frank_white', 'grace_lee', 'hank_kim', 'iris_owens', 'jack_clark']);
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
 
-    const filteredUsers = users.filter(user => user.toLowerCase().includes(searchQuery.toLowerCase()));
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+    
+    const filteredUsers = users.filter(user =>
+        user.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const toggleUser = (username: string) => {
         setSelectedMembers(prev =>
@@ -21,25 +30,51 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
         );
     };
 
-    const handleSave = () => {
-        const isGroup = selectedMembers.length > 2;
-        logger.info('Create room:', { name: roomName, isGroup, members: selectedMembers });
+    const handleSave = async () => {
+        const currentUser = localStorage.getItem("currentUser");
+        if (!currentUser) return;
+
+        const members = selectedMembers.includes(currentUser)
+            ? selectedMembers
+            : [...selectedMembers, currentUser];
+
+        if (members.length === 1) return;
+        
+        const isGroup = members.length > 2;
+
+        if (isGroup && !roomName) return;
+
+        const name = members.length === 2
+            ? members.find(m => m !== currentUser) || currentUser
+            : roomName;
+        
+        await addRoom({ name, group: isGroup, members });
+        await fetchRooms();
+        
+        handleClose();
+    };
+
+    const handleClose = () => {
+        setRoomName('');
+        setSearchQuery('');
+        setSelectedMembers([]);
         props.onClose();
     };
 
     return (
-        <Modal {...props} title="Create Chat Room" onSave={handleSave}>
+        <Modal {...props} title="Create Chat Room" onSave={handleSave} onClose={handleClose}>
             <div className="space-y-4">
-                <Input
+                {selectedMembers.length >= 2 && <Input
                     id="roomName"
                     label="Room Name"
                     value={roomName}
+                    required
                     onChange={(e) => setRoomName(e.target.value)}
                     variant="login"
                     placeholder="Enter room name..."
                     wrapperClassName="flex-row items-center gap-2 space-y-0"
                     className="flex-1"
-                />
+                />}
 
                 <Input
                     id="search"
@@ -67,13 +102,13 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
                 </div>
             </div>
 
-            {selectedMembers.length > 0 && (
+            {selectedMembers && (
                 <p className="text-sm text-center">
-                    {selectedMembers.length > 2
+                    {selectedMembers.length >= 2
                         ? 'A group chat will be created.'
-                        : selectedMembers.length === 2
+                        : selectedMembers.length === 1
                             ? 'A private chat will be created.'
-                            : 'Select at least 2 users to create a chat.'}
+                            : 'Select at least 1 user to create a chat.'}
                 </p>
             )}
         </Modal>

@@ -1,14 +1,18 @@
-import { useChatRooms } from "../../../hooks/useChatRooms";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatTabProps} from "../../../types/ChatTabs";
+import { useChatRoomStore } from "../../../stores/chatRoomStore";
 
 const ChatListItem = ({ activeTab }: Pick<ChatTabProps, 'activeTab'>) => {
-    const chatRooms = useChatRooms();
+    const { rooms, fetchRooms } = useChatRoomStore();
     const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
 
-    const filteredRooms = chatRooms.filter(room =>
+    const filteredRooms = rooms.filter(room =>
         activeTab === 'groups' ? room.group : true
     );
+
+    useEffect(() => {
+        fetchRooms();
+    }, []);
 
     return (
         <div className="flex-1 overflow-y-auto p-2 m-1">
