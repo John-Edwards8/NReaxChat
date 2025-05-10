@@ -4,12 +4,21 @@ import api from '../api/axios';
 
 interface ChatRoomStore {
     rooms: ChatRoom[];
+    activeRoom: ChatRoom | null;
     fetchRooms: () => Promise<void>;
     addRoom: (room: Omit<ChatRoom, 'id'>) => Promise<void>;
+    setActiveRoom: (id: string | null) => void;
 }
 
-export const useChatRoomStore = create<ChatRoomStore>((set) => ({
+export const useChatRoomStore = create<ChatRoomStore>((set, get) => ({
     rooms: [],
+    activeRoom: null,
+
+    setActiveRoom: (name) => {
+        const room = get().rooms.find(r => r.name === name) || null;
+        set({ activeRoom: room });
+    },
+
     fetchRooms: async () => {
         try {
             const response = await api.get('/chat/api/chatrooms');

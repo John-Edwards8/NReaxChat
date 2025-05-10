@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ChatTabProps} from "../../../types/ChatTabs";
 import { useChatRoomStore } from "../../../stores/chatRoomStore";
 
 const ChatListItem = ({ activeTab }: Pick<ChatTabProps, 'activeTab'>) => {
-    const { rooms, fetchRooms } = useChatRoomStore();
-    const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+    const { rooms, activeRoom, fetchRooms, setActiveRoom } = useChatRoomStore();
 
     const filteredRooms = rooms.filter(room =>
         activeTab === 'groups' ? room.group : true
@@ -20,9 +19,9 @@ const ChatListItem = ({ activeTab }: Pick<ChatTabProps, 'activeTab'>) => {
                 {filteredRooms.map((room) => (
                     <li
                         key={room.name}
-                        onClick={() => setActiveRoomId(room.name)}
+                        onClick={() => setActiveRoom(room.name)}
                         className={`flex items-start gap-3 p-3 rounded-22 cursor-pointer transition hover:opacity-90
-                          ${room.name === activeRoomId ? 'bg-chat-active' : 'bg-blue-base'}`}
+                          ${room.name === activeRoom?.name ? 'bg-chat-active' : 'bg-blue-base'}`}
                     >
                         <div className="w-12 h-12 rounded-full bg-blue-avatar flex items-center justify-center font-bold">
                             {room.name.slice(0, 2).toUpperCase()}
