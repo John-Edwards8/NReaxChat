@@ -5,6 +5,7 @@ import { ModalProps } from '../../types/Modal';
 import Button from '../ui/Button';
 import { useChatRoomStore } from '../../stores/chatRoomStore';
 import { useUserStore } from '../../stores/userStore';
+import { useAuthStore } from '../../stores/authStore';
 
 
 const AddRoomModal: React.FC<ModalProps> = (props) => {
@@ -31,7 +32,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
     };
 
     const handleSave = async () => {
-        const currentUser = localStorage.getItem("currentUser");
+        const { currentUser } = useAuthStore.getState();
         if (!currentUser) return;
 
         const members = selectedMembers.includes(currentUser)

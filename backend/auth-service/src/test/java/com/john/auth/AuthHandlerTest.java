@@ -4,7 +4,6 @@ import com.john.auth.config.TestConfig;
 import com.john.auth.dto.UserDTO;
 import com.john.auth.handler.AuthHandler;
 import com.john.auth.dto.AuthRequest;
-import com.john.auth.dto.AuthResponse;
 import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
 import com.john.auth.router.AuthRouter;
@@ -49,32 +48,6 @@ class AuthHandlerTest {
         ).build();
     }
 
-    // @Test
-    // void register_shouldReturnAccessAndRefreshTokens_whenNewUser() {
-    //     AuthRequest req = new AuthRequest();
-    //     req.setUsername("u1");
-    //     req.setPassword("p1");
-
-    //     when(repository.findByUsername("u1")).thenReturn(Mono.empty());
-    //     when(passwordEncoder.encode("p1")).thenReturn("hashed");
-    //     User saved = new User(null, "u1", "hashed", "USER");
-    //     when(repository.save(any(User.class))).thenReturn(Mono.just(saved));
-    //     when(jwtUtil.generateAccessToken("u1", "USER")).thenReturn("accessTok");
-    //     when(jwtUtil.generateRefreshToken("u1", "USER")).thenReturn("refreshTok");
-
-    //     client.post().uri("/api/register")
-    //             .contentType(APPLICATION_JSON)
-    //             .bodyValue(req)
-    //             .exchange()
-    //             .expectStatus().isOk()
-    //             .expectBody(AuthResponse.class)
-    //             .value(r -> {
-    //                 assertThat(r.getAccessToken()).isEqualTo("accessTok");
-    //                 assertThat(r.getRefreshToken()).isEqualTo("refreshTok");
-    //                 assertThat(r.getRole()).isEqualTo("USER");
-    //             });
-    // }
-
     @Test
     void login_shouldReturn401_whenBadCredentials() {
         AuthRequest req = new AuthRequest();
@@ -106,12 +79,11 @@ class AuthHandlerTest {
                 .bodyValue(req)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(AuthResponse.class)
-                .value(r -> {
-                    assertThat(r.getAccessToken()).isEqualTo("access3");
-                    assertThat(r.getRefreshToken()).isEqualTo("refresh3");
-                    assertThat(r.getRole()).isEqualTo("USER");
-                });
+                .expectCookie().value("refreshToken", value -> assertThat(value).isEqualTo("refresh3"))
+                .expectBody()
+                .jsonPath("$.accessToken").isEqualTo("access3")
+                .jsonPath("$.role").isEqualTo("USER")
+                .jsonPath("$.username").isEqualTo("u3");
     }
 
     @Test
@@ -208,7 +180,7 @@ class AuthHandlerTest {
         Mockito.when(jwtUtil.generateAccessToken("u1", "USER")).thenReturn("newAccess");
 
         client.post().uri("/api/refresh")
-                .header("Authorization", "Bearer " + refreshToken)
+                .cookie("refreshToken", refreshToken)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -221,13 +193,13 @@ class AuthHandlerTest {
         Mockito.when(jwtUtil.validateToken(badRefresh, "refresh")).thenReturn(false);
 
         client.post().uri("/api/refresh")
-                .header("Authorization", "Bearer " + badRefresh)
+                .cookie("refreshToken", badRefresh)
                 .exchange()
                 .expectStatus().isUnauthorized();
     }
 
     @Test
-    void refresh_shouldReturn400_whenNoHeader() {
+    void refresh_shouldReturn400_whenNoCookie() {
         client.post().uri("/api/refresh")
                 .exchange()
                 .expectStatus().isBadRequest();

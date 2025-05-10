@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import api from '../api/axios';
 import { User } from '../types/User';
+import { useAuthStore } from './authStore';
 
 interface UserStore {
     users: string[];
@@ -15,7 +16,7 @@ export const useUserStore = create<UserStore>((set) => ({
             const nonAdminUsernames = response.data
                 .filter(user => user.role !== 'ADMIN')
                 .map(user => user.username)
-                .filter(user => user !== localStorage.getItem("currentUser"));
+                .filter(user => user !== useAuthStore.getState().currentUser);
             set({ users: nonAdminUsernames });
         } catch (err) {
             console.error('Failed to fetch users:', err);

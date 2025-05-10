@@ -2,20 +2,20 @@ package com.john.auth.handler;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+import java.time.Duration;
 import java.util.Collections;
-
+import java.util.Map;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-
 import com.john.auth.dto.AuthRequest;
-import com.john.auth.dto.AuthResponse;
 import com.john.auth.dto.UserDTO;
 import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
 import com.john.auth.security.JwtUtil;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -49,45 +49,57 @@ public class AuthHandler {
 							String role = u.getRole();
 							String at = jwtUtil.generateAccessToken(u.getUsername(), role);
 							String rt = jwtUtil.generateRefreshToken(u.getUsername(), role);
+
+							ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", rt)
+									.httpOnly(true)
+									.path("/auth/api")
+									.sameSite("Strict")
+									.maxAge(Duration.ofDays(7))
+									.build();
+
 							return ServerResponse.ok()
 									.contentType(APPLICATION_JSON)
-									.bodyValue(new AuthResponse(at, rt, role));
+									.cookie(refreshCookie)
+									.bodyValue(Map.of(
+											"accessToken", at,
+											"role", role,
+											"username", u.getUsername()
+									));
 						})
 				)
 				.onErrorResume(e -> ServerResponse.status(401).bodyValue(e.getMessage()));
 	}
 
 	public Mono<ServerResponse> logout(ServerRequest req) {
-		return Mono.justOrEmpty(req.headers().firstHeader("Authorization"))
-				.filter(h -> h.startsWith("Bearer "))
-				.map(h -> h.substring(7))
-				.flatMap(refreshToken -> {
-					jwtUtil.blacklistRefreshToken(refreshToken);
-
-					return ServerResponse.noContent().build();
-				})
-				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing Bearer refresh token"));
+		ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+				.httpOnly(true)
+				.path("/auth/api")
+				.maxAge(Duration.ZERO)
+				.build();
+	
+		return ServerResponse.noContent()
+				.cookie(deleteCookie)
+				.build();
 	}
 
 	public Mono<ServerResponse> refresh(ServerRequest request) {
-		return Mono.justOrEmpty(request.headers().firstHeader("Authorization"))
-				.filter(h -> h.startsWith("Bearer "))
-				.map(h -> h.substring(7))
+		return Mono.justOrEmpty(request.cookies().getFirst("refreshToken"))
+				.map(HttpCookie::getValue)
 				.flatMap(refreshToken -> {
 					if (!jwtUtil.validateToken(refreshToken, "refresh")) {
 						return ServerResponse.status(401).bodyValue("Invalid refresh token");
 					}
-
+	
 					String user = jwtUtil.getUsernameFromToken(refreshToken);
 					String role = jwtUtil.getRoleFromToken(refreshToken);
 					String newAccess = jwtUtil.generateAccessToken(user, role);
-
+	
 					return ServerResponse.ok()
 							.contentType(APPLICATION_JSON)
 							.bodyValue(Collections.singletonMap("accessToken", newAccess));
 				})
-				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing or invalid Authorization header"));
-	}
+				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing refreshToken cookie"));
+	}	
 
 	private UserDTO toDTO(User u) {
 		return new UserDTO(u.getUsername(), u.getRole());

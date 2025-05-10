@@ -1,16 +1,16 @@
 import api from '../api/axios.ts'
 import { AuthRequest } from "../types/AuthRequest";
 import { AuthResponse } from "../types/AuthResponse";
+import { useAuthStore } from "../stores/authStore";
 
 export const login = async (credentials: AuthRequest): Promise<AuthResponse> => {
     try {
         const response = await api.post<AuthResponse>('auth/api/login', credentials);
-        const {accessToken, refreshToken, role} = response.data;
-    
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('role', role);
-        localStorage.setItem('currentUser', credentials.username);
+        const { accessToken, role } = response.data;
+        
+        useAuthStore.getState().setAccessToken(accessToken);
+        useAuthStore.getState().setRole(role);
+        useAuthStore.getState().setCurrentUser(credentials.username);
     
         return response.data;
     } catch (error: any) {
