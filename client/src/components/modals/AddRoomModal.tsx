@@ -16,7 +16,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
 
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [fetchUsers]);
     
     const filteredUsers = users.filter(user =>
         user.toLowerCase().includes(searchQuery.toLowerCase())

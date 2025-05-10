@@ -38,7 +38,7 @@ export function useChat() {
     return () => {
         ws.current?.close();
     };
-    }, []);
+    }, [WEBSOCKET_URL]);
 
     const sendMessage = (message: string) => {
         if (ws.current?.readyState === WebSocket.OPEN) {

@@ -12,7 +12,7 @@ const ChatListItem = ({ activeTab }: Pick<ChatTabProps, 'activeTab'>) => {
 
     useEffect(() => {
         fetchRooms();
-    }, []);
+    }, [fetchRooms]);
 
     return (
         <div className="flex-1 overflow-y-auto p-2 m-1">
