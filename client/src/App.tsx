@@ -4,26 +4,8 @@ import ChatPage from "./pages/ChatPage";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import RegisterPage from './pages/RegisterPage';
-import { useEffect } from 'react';
-import { useAuthStore } from './stores/authStore';
-import api from './api/axios';
 
-function App() {
-    useEffect(() => {
-        const handleFocus = async () => {
-            try {
-                const response = await api.post('/auth/api/refresh');
-                useAuthStore.getState().setAccessToken(response.data.accessToken);
-            } catch (err) {
-                useAuthStore.getState().clearTokens();
-                window.location.href = '/login';
-            }
-        };
-    
-        window.addEventListener('focus', handleFocus);
-        return () => window.removeEventListener('focus', handleFocus);
-    }, []);
-    
+function App() {    
     return (
         <Router>
             <Routes>

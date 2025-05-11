@@ -7,7 +7,7 @@ interface AuthStore {
     setAccessToken: (token: string) => void;
     setCurrentUser: (user: string) => void;
     setRole: (role: string) => void;
-    clearTokens: () => void;
+    clearAuth: () => void;
 }
 
 export const useAuthStore = create<AuthStore>()((set) => ({
@@ -16,6 +16,6 @@ export const useAuthStore = create<AuthStore>()((set) => ({
     currentUser: null,
     setAccessToken: (token) => set({ accessToken: token }),
     setCurrentUser: (user) => set({ currentUser: user }),
-    setRole: (role) => set({ role: role }),
-    clearTokens: () => set({ accessToken: null }),
+    setRole: (role) => set({ role }),
+    clearAuth: () => set({ accessToken: null, role: null, currentUser: null }),
 }));
