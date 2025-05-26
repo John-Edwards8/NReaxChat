@@ -15,7 +15,8 @@ public class ChatRoomRouter {
     @Bean
     public RouterFunction<ServerResponse> chatRoomRoutes(ChatRoomHandler chatRoomHandler) {
         return RouterFunctions
-            .route(GET("/api/chatrooms"), chatRoomHandler::getAllChatRooms) 
+            .route(GET("/api/chatrooms"), chatRoomHandler::getAllChatRooms)
+            .andRoute(GET("/api/chatrooms/me"), chatRoomHandler::getMyChatRooms)
             .andRoute(GET("/api/chatrooms/{id}"), chatRoomHandler::getChatRoom) 
             .andRoute(POST("/api/chatrooms").and(accept(APPLICATION_JSON)), chatRoomHandler::createChatRoom) 
             .andRoute(PUT("/api/chatrooms/{id}").and(accept(APPLICATION_JSON)), chatRoomHandler::updateChatRoom)
