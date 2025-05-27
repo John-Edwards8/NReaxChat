@@ -5,6 +5,7 @@ import { ChatTab, ChatTabProps } from '../../../types/ChatTabs';
 const ChatSectionHeader = ({ activeTab, setActiveTab}: ChatTabProps) => {
     const tabs: {key: ChatTab, label: string}[] = [
         { key: 'all', label: 'All Chats' },
+        { key: 'private', label: 'Private' },
         { key: 'groups', label: 'Groups' }
     ];
 

@@ -91,7 +91,7 @@ public class ChatRoomHandler {
                 .flatMap(req -> chatRoomRepository.findByName(req.getName())
                         .flatMap(existingRoom ->
                                 ServerResponse.badRequest().bodyValue("Chat room name already exists"))
-                        .switchIfEmpty(Mono.defer(() -> {
+                        .switchIfEmpty((Mono<? extends ServerResponse>) Mono.defer(() -> {
                             ChatRoom newRoom = new ChatRoom();
                             newRoom.setName(req.getName());
                             newRoom.setMembers(req.getMembers());

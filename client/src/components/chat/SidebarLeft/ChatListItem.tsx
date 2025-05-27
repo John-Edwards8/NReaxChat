@@ -5,9 +5,17 @@ import { useChatRoomStore } from "../../../stores/chatRoomStore";
 const ChatListItem = ({ activeTab }: Pick<ChatTabProps, 'activeTab'>) => {
     const { rooms, activeRoom, fetchRooms, setActiveRoom } = useChatRoomStore();
 
-    const filteredRooms = rooms.filter(room =>
-        activeTab === 'groups' ? room.group : true
-    );
+    const filteredRooms = rooms.filter(room => {
+        switch (activeTab) {
+            case 'groups':
+                return room.group;
+            case 'private':
+                return !room.group;
+            case 'all':
+            default:
+                return true;
+        }
+    });
 
     useEffect(() => {
         fetchRooms();
