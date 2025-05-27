@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: CI/CD Pipeline
 
 on:
@@ -7,12 +8,22 @@ on:
   pull_request:
     branches:
       - main
+=======
+name: Build and Lint
+
+on:
+  push:
+    branches: [ dev, main ]
+  pull_request:
+    branches: [ dev, main ]
+>>>>>>> dev
 
 env:
   REGISTRY: docker.io
   IMAGE_BACKEND_AUTH: ${{ secrets.DOCKER_USERNAME }}/nreaxchat-auth-service
   IMAGE_BACKEND_CHAT: ${{ secrets.DOCKER_USERNAME }}/nreaxchat-chat-service
   IMAGE_FRONTEND: ${{ secrets.DOCKER_USERNAME }}/nreaxchat-frontend
+<<<<<<< HEAD
 
 jobs:
   build-and-push:
@@ -42,6 +53,173 @@ jobs:
           ./mvnw clean package -DskipTests
 
 
+=======
+  IMAGE_GATEWAY: ${{ secrets.DOCKER_USERNAME }}/nreaxchat-gateway
+  AUTH_WD: ./backend/auth-service
+  CHAT_WD: ./backend/chat-service
+  GATEWAY_WD: ./gateway
+  FRONTEND_WD: ./client
+
+jobs:
+  build-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/java-prepare
+      
+      - name: Build Auth
+        working-directory: ${{ env.AUTH_WD }}
+        run: mvn clean package -DskipTests
+  test-auth:
+    needs: build-auth
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/java-prepare
+
+      - name: Test Auth
+        working-directory: ${{ env.AUTH_WD }}
+        run: mvn clean '-Dtest=com.john.auth.*Test' test
+
+      - name: Auth Linter Check
+        id: lint-auth
+        working-directory: ${{ env.AUTH_WD }}
+        continue-on-error: true
+        run: mvn clean package spotbugs:spotbugs spotbugs:check
+        
+      - name: Linter Auth Fail
+        if: steps.lint-auth.outcome == 'failure'
+        uses: ./.github/actions/notify-linter-fail
+        with:
+          service: "Auth Service"
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+  build-chat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/java-prepare
+
+      - name: Build Chat
+        working-directory: ${{ env.CHAT_WD }}
+        run: mvn clean package -DskipTests
+  test-chat:
+    needs: build-chat
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/java-prepare
+      - name: Test Chat
+        working-directory: ${{ env.CHAT_WD }}
+        run: mvn clean '-Dtest=com.john.chat.*Test' test
+
+      - name: Chat Linter Check
+        id: lint-chat
+        working-directory: ${{ env.CHAT_WD }}
+        continue-on-error: true
+        run: mvn clean package spotbugs:spotbugs spotbugs:check
+
+      - name: Linter Chat Fail
+        if: steps.lint-chat.outcome == 'failure'
+        uses: ./.github/actions/notify-linter-fail
+        with:
+          service: "Chat Service"
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+  build-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/java-prepare
+
+      - name: Build Gateway
+        working-directory: ${{ env.GATEWAY_WD }}
+        run: mvn clean package -DskipTests
+  test-gateway:
+    needs: build-gateway
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/java-prepare
+      - name: Test Gateway
+        working-directory: ${{ env.GATEWAY_WD }}
+        run: mvn clean '-Dtest=com.john.gateway.*Test' test
+
+  build-front:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install deps
+        working-directory: ${{ env.FRONTEND_WD }}
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ${{ env.FRONTEND_WD }}
+        run: npm run build
+  test-front:
+    needs: build-front
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install frontend dependencies
+        working-directory: ./client
+        run: npm ci
+      
+      - name: Lint frontend
+        id: lint-front
+        working-directory: ./client
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Linter Front Fail
+        if: steps.lint-front.outcome == 'failure'
+        uses: ./.github/actions/notify-linter-fail
+        with:
+          service: "Client"
+          message: "Run 'npm run lint' locally for details"
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+  deploy:
+    needs: [test-auth, test-chat, test-gateway, test-front]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+>>>>>>> dev
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:

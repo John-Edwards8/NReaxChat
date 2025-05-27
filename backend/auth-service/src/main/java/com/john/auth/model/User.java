@@ -1,36 +1,34 @@
 package com.john.auth.model;
 
-import java.math.BigInteger;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users") 
+@Document(collection = "users")
+@SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Used safely")
 public class User {
 	@Id
-	private BigInteger id;
+	private ObjectId id;
 	private String username;
 	private String password;
+	private String role;
 
 	@Override
 	public String toString() {
-		return "{" +
-				"id='" + id + '\'' + ",\n" +
-				"username='" + username + '\'' + ",\n" +
-				"password='" + password + '\'' +
-				"}";
-	}
-
-	public User(Object name, Object pass) {
-		this.username = name.toString();
-		this.password = pass.toString();
+		return "User{" +
+				"id=" + id +
+				", username='" + username + '\'' +
+				", password='" + password + '\'' +
+				", role='" + role + '\'' +
+				'}';
 	}
 }

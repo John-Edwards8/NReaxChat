@@ -47,8 +47,16 @@ cp .env.example .env
 
 3. **Starten Sie die Anwendung**
 
+Entwicklungsmodus:
+
 ```bash
 docker compose up --build
+```
+
+Prodaktionsmodus:
+
+```bash
+docker compose -f docker-compose.yml up --build
 ```
 
 Eröffnung:

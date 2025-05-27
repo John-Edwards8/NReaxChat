@@ -1,9 +1,4 @@
-FROM openjdk:21-slim
-
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
 WORKDIR /app
 COPY . .
-
-RUN chmod +x mvnw
-RUN ./mvnw package -DskipTests
-
-CMD ["java", "-jar", "target/gateway-0.0.1-SNAPSHOT.jar"]
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.fork=false"]

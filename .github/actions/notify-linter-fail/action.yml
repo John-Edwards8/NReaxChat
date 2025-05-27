@@ -1,0 +1,28 @@
+name: Notify Linter Fail
+description: Sends Telegram notification about linter failure
+
+inputs:
+  service:
+    required: true
+  message:
+    default: "Run `mvn spotbugs:gui` locally for details."
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        SERVICE_ESCAPED=$(echo "${{ inputs.service }}" | sed 's/[][*_()~`>#+=|{}.!-]/\\&/g')
+        MESSAGE_ESCAPED=$(echo "${{ inputs.message }}" | sed 's/[][*_()~`>#+=|{}.!-]/\\&/g')
+
+        TEXT="*Linter failed* for *${SERVICE_ESCAPED}*\\n\\n${MESSAGE_ESCAPED}"
+
+        TEXT_WITH_NEWLINES=$(echo -e "$TEXT")
+
+        curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage \
+          -d chat_id=${TELEGRAM_CHAT_ID} \
+          -d text="$TEXT_WITH_NEWLINES" \
+          -d parse_mode=MarkdownV2
+      shell: bash
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ env.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ env.TELEGRAM_CHAT_ID }}

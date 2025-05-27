@@ -2,10 +2,12 @@ services:
   gateway:
     build:
       context: ./gateway
+      dockerfile: Dockerfile.prod
     ports:
       - "8080:8080"
     environment:
       - FRONTEND_URL=${FRONTEND_URL}
+      - FRONTEND_URL_DEV=${FRONTEND_URL_DEV}
       - CHAT_URL=${CHAT_URL}
       - AUTH_URL=${AUTH_URL}
     depends_on:
@@ -16,18 +18,23 @@ services:
   auth-service:
     build:
       context: ./backend/auth-service
+      dockerfile: Dockerfile.prod
     ports:
       - "8081:8081"
     environment:
-      - JWT_SECRET=${JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      MONGOAUTH_URI: ${MONGODB_URI}
+      MONGOAUTH_DATABASE: ${MONGODB_DATABASE}
     networks:
       - backend
   chat-service:
     build:
       context: ./backend/chat-service
+      dockerfile: Dockerfile.prod
     ports:
       - "8082:8082"
     environment:
+      JWT_SECRET: ${JWT_SECRET}
       SPRING_DATA_MONGODB_URI: ${MONGODB_URI}
       SPRING_DATA_MONGODB_DATABASE: ${MONGODB_DATABASE}
     networks:
@@ -37,7 +44,7 @@ services:
       context: ./client
       args:
         VITE_WEBSOCKET_URL: ${VITE_WEBSOCKET_URL}
-        GATEWAY_URL: ${GATEWAY_URL}
+        VITE_GATEWAY_URL: ${VITE_GATEWAY_URL}
     ports:
       - "3000:80"
     depends_on:
