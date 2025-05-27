@@ -21,7 +21,7 @@ export const useChatRoomStore = create<ChatRoomStore>((set, get) => ({
 
     fetchRooms: async () => {
         try {
-            const response = await api.get('/chat/api/chatrooms');
+            const response = await api.get('/chat/api/chatrooms/me');
             set({ rooms: response.data });
         } catch (err) {
             console.error('Failed to fetch chat rooms', err);
