@@ -126,7 +126,7 @@ public class AuthHandler {
 	private Mono<User> createUser(AuthRequest req, String role) {
 		return repo.findByUsername(req.getUsername())
 				.flatMap(existing -> Mono.<User>error(new IllegalStateException("User exists")))
-				.switchIfEmpty(Mono.defer(() -> {
+				.switchIfEmpty((Mono<? extends User>) Mono.defer(() -> {
 					User user = User.builder()
 									.username(req.getUsername())
 									.password(passwordEncoder.encode(req.getPassword()))
