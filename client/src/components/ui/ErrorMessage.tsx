@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { ErrorMessageProps } from '../../types/ErrorMessage';
+import React from 'react';
+import { Props } from '../../types/ErrorMessage';
+import { useErrorStore } from '../../stores/errorStore';
 
-const ErrorMessage: React.FC<ErrorMessageProps> = ({message, variant = 'inline', className = '', onClose}) => {
-    const [visible, setVisible] = useState(true);
+const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-semibold' }) => {
+    const global = useErrorStore((s) => s.global);
+    const fields = useErrorStore((s) => s.fields);
+    const clearError = useErrorStore((s) => s.clearError);
 
-    useEffect(() => {
-        setVisible(true);
-    }, [message]);
+    const message = field ? fields[field] : global.message;
+    const variant = field ? 'inline' : global.variant;
 
-    if (!message || !visible) return null;
+    if (!message) return null;
 
     let baseClasses = 'text-red-500 text-sm font-medium';
-
     if (variant === 'toast') {
         baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md ${className}`;
     } else if (variant === 'nonError') {
@@ -24,7 +25,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({message, variant = 'inline',
                 <span className="flex-1">{message}</span>
                 <button
                     className="text-xl font-bold text-gray-800 hover:text-red-700 transition-colors"
-                    onClick={onClose}
+                    onClick={() => clearError(field)}
                 >
                     Х
                 </button>

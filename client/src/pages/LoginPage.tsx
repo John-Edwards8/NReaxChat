@@ -4,6 +4,7 @@ import { login } from "../api/auth";
 import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
 import { useErrorStore } from "../stores/errorStore";
+import ErrorMessage from "../components/ui/ErrorMessage";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -19,8 +20,14 @@ function LoginPage() {
 
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!username.trim() || !password.trim()) {
-            setError('Please enter both username and password');
+        if (!username.trim() && !password.trim()) {
+            setError('Please enter username and password', 'inline', 'all');
+            return;
+        } else if (!username.trim()) {
+            setError('Please enter username', 'inline', 'all');
+            return;
+        } else if (!password.trim()) {
+            setError('Please enter password', 'inline', 'all');
             return;
         }
         try {
@@ -28,7 +35,7 @@ function LoginPage() {
             await login(credentials);
             navigate('/chat');
         } catch (err) {
-            setError("Invalid credentials");
+            setError("Invalid credentials", 'inline', 'all');
         }
     }
 
@@ -62,6 +69,7 @@ function LoginPage() {
                 </div>
 
                 <Button type="submit" value="Login" className="bg-chat-active" />
+                <ErrorMessage field="all" />
             </form>
         </div>
     );
