@@ -5,6 +5,7 @@ import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
 import { useErrorStore } from "../stores/errorStore";
 import ErrorMessage from "../components/ui/ErrorMessage";
+import { errors } from "../constants/errors";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -21,13 +22,13 @@ function LoginPage() {
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!username.trim() && !password.trim()) {
-            setError('Please enter username and password', 'inline', 'all');
+            setError(errors.missingFields, 'inline', 'all');
             return;
         } else if (!username.trim()) {
-            setError('Please enter username', 'inline', 'all');
+            setError(errors.missingUsername, 'inline', 'all');
             return;
         } else if (!password.trim()) {
-            setError('Please enter password', 'inline', 'all');
+            setError(errors.missingPassword, 'inline', 'all');
             return;
         }
         try {
@@ -35,7 +36,7 @@ function LoginPage() {
             await login(credentials);
             navigate('/chat');
         } catch (err) {
-            setError("Invalid credentials", 'inline', 'all');
+            setError(errors.login.invalid, 'inline', 'all');
         }
     }
 
