@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { ChatRoom } from '../types/ChatRoom';
 import api from '../api/axios';
-import {useAuthStore} from "./authStore.ts";
+import { useAuthStore } from "./authStore";
 
 interface ChatRoomStore {
     rooms: ChatRoom[];
