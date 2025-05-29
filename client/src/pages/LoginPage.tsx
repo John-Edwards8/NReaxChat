@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { login } from "../api/auth";
 import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
-import { logger } from "../utils/logger";
 import { useErrorStore } from "../stores/errorStore";
 
 function LoginPage() {
@@ -15,27 +14,21 @@ function LoginPage() {
     const setError = useErrorStore((state) => state.setError);
     
     useEffect(() => {
-        if (successMessage) {
-            setError(successMessage, 'nonError');
-        }
+        if (successMessage) setError(successMessage, 'nonError');
     }, [successMessage, setError]);
 
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!username.trim() || !password.trim()) {
-            logger.warn('Username or password missing');
             setError('Please enter both username and password');
             return;
         }
         try {
-            logger.info('Attempting login with:', username);
             const credentials = { username, password };
             await login(credentials);
-            logger.info('Login successful');
             navigate('/chat');
         } catch (err) {
-            logger.error('Login failed', err);
-            setError("Invalid credentials")
+            setError("Invalid credentials");
         }
     }
 

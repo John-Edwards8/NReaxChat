@@ -14,7 +14,6 @@ function RegisterPage() {
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!username.trim() || !password.trim()) {
-            console.log('Please enter both username and password');
             setError('Please enter both username and password');
             return;
         }
@@ -23,7 +22,7 @@ function RegisterPage() {
             await register(credentials);
             navigate('/login', { state: { successMessage: `Success! Welcome ${username}!` } });
         } catch (err : any) {
-            setError(err.message)
+            setError(err.message);
         }
     }
 
