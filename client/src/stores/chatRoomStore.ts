@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { ChatRoom } from '../types/ChatRoom';
 import api from '../api/axios';
+import {useAuthStore} from "./authStore.ts";
 
 interface ChatRoomStore {
     rooms: ChatRoom[];
@@ -22,7 +23,18 @@ export const useChatRoomStore = create<ChatRoomStore>((set, get) => ({
     fetchRooms: async () => {
         try {
             const response = await api.get('/chat/api/chatrooms/me');
-            set({ rooms: response.data });
+            const currentUser = useAuthStore.getState().currentUser;
+
+            if(!currentUser) return;
+
+            const validRooms = response.data.filter((room: ChatRoom) =>
+                room.name.trim().length > 0 &&
+                Array.isArray(room.members) &&
+                room.members.length >= 2 &&
+                room.members.includes(currentUser)
+            );
+
+            set({ rooms: validRooms });
         } catch (err) {
             console.error('Failed to fetch chat rooms', err);
         }
