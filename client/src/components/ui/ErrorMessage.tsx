@@ -7,16 +7,21 @@ const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-se
     const fields = useErrorStore((s) => s.fields);
     const clearError = useErrorStore((s) => s.clearError);
 
-    const message = field ? fields[field] : global.message;
-    const variant = field ? 'inline' : global.variant;
-
+    const entry = field ? fields[field] : global;
+    const message = entry?.message;
+    const variant = entry?.variant;
+  
     if (!message) return null;
-
-    let baseClasses = 'text-red-500 text-sm font-medium';
+  
+    let baseClasses = 'text-sm font-medium';
     if (variant === 'toast') {
-        baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md ${className}`;
+      baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md ${className}`;
     } else if (variant === 'nonError') {
-        baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md ${className}`;
+      baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md ${className}`;
+    } else if (variant === 'inline') {
+      baseClasses += ' text-red-500';
+    } else if (variant === 'inlineSuccess') {
+      baseClasses += ' text-green-500';
     }
 
     return (

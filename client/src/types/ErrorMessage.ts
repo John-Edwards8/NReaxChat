@@ -1,4 +1,4 @@
-export type VariantType = 'inline' | 'modal' | 'toast' | 'nonError';
+export type VariantType = 'inline' | 'modal' | 'toast' | 'nonError' | 'inlineSuccess';
 
 export interface Props {
     field?: string;
