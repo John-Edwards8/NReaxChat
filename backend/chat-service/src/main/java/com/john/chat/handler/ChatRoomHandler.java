@@ -1,7 +1,9 @@
 package com.john.chat.handler;
 
 import com.john.chat.dto.ChatRoomDTO;
+import com.john.chat.dto.ChatRoomInfo;
 import com.john.chat.dto.CreateChatRoomRequest;
+import com.john.chat.jwt.JwtUtil;
 import com.john.chat.model.ChatRoom;
 import com.john.chat.repository.ChatRoomRepository;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -22,6 +24,7 @@ import reactor.core.publisher.Mono;
 public class ChatRoomHandler {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final JwtUtil jwtUtil;
 
     private ChatRoomDTO toChatRoomDTO(ChatRoom chatRoom) {
         ChatRoomDTO chatRoomDTO = new ChatRoomDTO();
@@ -49,7 +52,39 @@ public class ChatRoomHandler {
                         .bodyValue(chatRoom))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
-    
+
+    public Mono<ServerResponse> getMyChatRooms(ServerRequest request) {
+        String auth = request.headers()
+                .firstHeader("Authorization");
+        if (auth == null || !auth.startsWith("Bearer ")) {
+            return ServerResponse.status(401)
+                    .bodyValue("Missing or invalid Authorization header");
+        }
+
+        String token = auth.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            return ServerResponse.status(401)
+                    .bodyValue("Invalid or expired token");
+        }
+
+        String userId = jwtUtil.getUsernameFromToken(token);
+
+        Flux<ChatRoomInfo> rooms = chatRoomRepository
+                .findByMembersContaining(userId)
+                .map(room -> {
+                    ChatRoomInfo info = new ChatRoomInfo();
+                    info.setRoomId(room.getId().toHexString());
+                    info.setName(room.getName());
+                    info.setGroup(room.isGroup());
+                    info.setMembers(room.getMembers());
+
+                    return info;
+                });
+
+        return ServerResponse.ok()
+                .contentType(APPLICATION_JSON)
+                .body(rooms, ChatRoomInfo.class);
+    }
 
     public Mono<ServerResponse> createChatRoom(ServerRequest request) {
         return request.bodyToMono(CreateChatRoomRequest.class)
