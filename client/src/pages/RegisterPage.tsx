@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { register } from "../api/auth";
 import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
-import ErrorMessage from "../components/ui/ErrorMessage";
+import { useErrorStore } from "../stores/errorStore";
 
 function RegisterPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const setError = useErrorStore((state) => state.setError);
 
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,7 +19,6 @@ function RegisterPage() {
             return;
         }
         try {
-            setError(null);
             const credentials = { username, password };
             await register(credentials);
             navigate('/login', { state: { successMessage: `Success! Welcome ${username}!` } });
@@ -59,9 +58,7 @@ function RegisterPage() {
                     />
                 </div>
 
-                <ErrorMessage message={error} variant="toast" onClose={() => setError(null)} />
-
-                <Button type="submit" value="Login" className="bg-chat-active" />
+                <Button type="submit" value="Register" className="bg-chat-active" />
             </form>
         </div>
     );

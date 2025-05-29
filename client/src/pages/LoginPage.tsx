@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { login } from "../api/auth";
 import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
-import ErrorMessage from "../components/ui/ErrorMessage";
-import {logger } from "../utils/logger";
+import { logger } from "../utils/logger";
+import { useErrorStore } from "../stores/errorStore";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -12,14 +12,13 @@ function LoginPage() {
     const successMessage = location.state?.successMessage;
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null)
+    const setError = useErrorStore((state) => state.setError);
     
     useEffect(() => {
         if (successMessage) {
-            setSuccess(successMessage);
+            setError(successMessage, 'nonError');
         }
-    }, [successMessage]);
+    }, [successMessage, setError]);
 
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,7 +29,6 @@ function LoginPage() {
         }
         try {
             logger.info('Attempting login with:', username);
-            setError(null);
             const credentials = { username, password };
             await login(credentials);
             logger.info('Login successful');
@@ -70,8 +68,6 @@ function LoginPage() {
                     />
                 </div>
 
-                <ErrorMessage message={error} variant="toast" onClose={() => setError(null)} />
-                <ErrorMessage message={success} variant="nonError" onClose={() => setSuccess(null)} />
                 <Button type="submit" value="Login" className="bg-chat-active" />
             </form>
         </div>

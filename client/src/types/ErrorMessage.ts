@@ -1,6 +1,8 @@
+export type VariantType = 'inline' | 'modal' | 'toast' | 'nonError';
+
 export interface ErrorMessageProps {
     message?: string | null;
     className?: string;
-    variant?: 'inline' | 'modal' | 'toast' | 'nonError';
+    variant?: VariantType;
     onClose?: () => void;
 }
