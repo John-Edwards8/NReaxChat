@@ -16,7 +16,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
     const [roomName, setRoomName] = useState('');
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const { setError, clearAll } = useErrorStore();
+    const { setError, clearError } = useErrorStore();
     const errorMessage = useErrorStore(s => s.fields.all?.message);
 
     useEffect(() => {
@@ -78,6 +78,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
         try {
             await addRoom({ name, group: isGroup, members });
             await fetchRooms();
+            setError('Chat successfuly added!', 'nonError');
             handleClose();
         } catch {
             setError('Failed to create the chat room. Please try again', 'inline', 'all');
@@ -88,7 +89,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
         setRoomName('');
         setSearchQuery('');
         setSelectedMembers([]);
-        clearAll();
+        clearError('all');
         props.onClose();
     };
 
