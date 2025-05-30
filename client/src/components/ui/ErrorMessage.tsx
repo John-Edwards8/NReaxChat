@@ -22,10 +22,7 @@ const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-se
         className += 'fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md';
         break;
       case 'inline':
-        className += ' text-red-500';
-        break;
-      case 'inlineSuccess':
-        className += ' text-green-500';
+        className += 'text-red-500';
         break;
       default:
         break;
@@ -35,7 +32,7 @@ const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-se
         <div className={`${className}`}>
             <div className="flex items-center justify-between gap-2">
                 <span className="flex-1">{message}</span>
-                {!['inline', 'inlineSuccess'].includes(variant) && ( <Button 
+                {!'inline'.includes(variant) && ( <Button 
                   value='X'
                   className="text-xl font-bold text-gray-800 hover:text-red-700 transition-colors"
                   onClick={() => clearError(field)}

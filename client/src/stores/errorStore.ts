@@ -15,7 +15,7 @@ export const useErrorStore = create<ErrorState>((set) => ({
     fields: {},
 
     setError: (message, variant = 'toast', field) => {
-        if (variant === 'inline' || variant === 'inlineSuccess' && field) {
+        if (variant === 'inline' && field) {
             set((s) => ({ fields: { ...s.fields, [field as string]: { message, variant }}}));
         } else {
             set({ global: { message, variant } });
