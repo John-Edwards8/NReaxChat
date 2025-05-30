@@ -16,13 +16,13 @@ const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-se
   
     switch (variant) {
       case 'toast':
-        className += 'fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md';
+        className += ' fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md';
         break;
       case 'nonError':
-        className += 'fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md';
+        className += ' fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md';
         break;
       case 'inline':
-        className += 'text-red-500';
+        className += ' text-red-500';
         break;
       default:
         break;
@@ -34,7 +34,7 @@ const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-se
                 <span className="flex-1">{message}</span>
                 {!'inline'.includes(variant) && ( <Button 
                   value='X'
-                  className="text-xl font-bold text-gray-800 hover:text-red-700 transition-colors"
+                  type='xbutton'
                   onClick={() => clearError(field)}
                 />)}
             </div>
