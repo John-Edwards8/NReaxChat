@@ -90,9 +90,8 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
 
                 <div className="flex flex-wrap gap-2 max-h-[220px] overflow-y-auto overflow-x-hidden border rounded-22 p-2">
                     {filteredUsers.map(user => (
-                        <div className="inline-block">
+                        <div key={user} className="inline-block">
                         <Button
-                            key={user}
                             type="button"
                             value={user}
                             onClick={() => toggleUser(user)}
