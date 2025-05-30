@@ -13,19 +13,25 @@ const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-se
   
     if (!message) return null;
   
-    let baseClasses = 'text-sm font-medium';
-    if (variant === 'toast') {
-      baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md ${className}`;
-    } else if (variant === 'nonError') {
-      baseClasses = `fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md ${className}`;
-    } else if (variant === 'inline') {
-      baseClasses += ' text-red-500';
-    } else if (variant === 'inlineSuccess') {
-      baseClasses += ' text-green-500';
+    switch (variant) {
+      case 'toast':
+        className += 'fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-3 rounded-md';
+        break;
+      case 'nonError':
+        className += 'fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-3 rounded-md';
+        break;
+      case 'inline':
+        className += ' text-red-500';
+        break;
+      case 'inlineSuccess':
+        className += ' text-green-500';
+        break;
+      default:
+        break;
     }
 
     return (
-        <div className={`${baseClasses} ${className}`}>
+        <div className={`${className}`}>
             <div className="flex items-center justify-between gap-2">
                 <span className="flex-1">{message}</span>
                 <button
