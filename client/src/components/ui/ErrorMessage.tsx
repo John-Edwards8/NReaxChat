@@ -1,6 +1,7 @@
 import React from 'react';
 import { Props } from '../../types/ErrorMessage';
 import { useErrorStore } from '../../stores/errorStore';
+import Button from './Button';
 
 const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-semibold' }) => {
     const global = useErrorStore((s) => s.global);
@@ -34,12 +35,11 @@ const ErrorMessage: React.FC<Props> = ({ field, className = 'text-center font-se
         <div className={`${className}`}>
             <div className="flex items-center justify-between gap-2">
                 <span className="flex-1">{message}</span>
-                <button
-                    className="text-xl font-bold text-gray-800 hover:text-red-700 transition-colors"
-                    onClick={() => clearError(field)}
-                >
-                    Х
-                </button>
+                {!['inline', 'inlineSuccess'].includes(variant) && ( <Button 
+                  value='X'
+                  className="text-xl font-bold text-gray-800 hover:text-red-700 transition-colors"
+                  onClick={() => clearError(field)}
+                />)}
             </div>
         </div>
     );
