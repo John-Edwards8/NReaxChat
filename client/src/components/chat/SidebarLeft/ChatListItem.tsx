@@ -2,19 +2,28 @@ import { ChatTabProps} from "../../../types/ChatTabs";
 import { useChatRoomStore } from "../../../stores/chatRoomStore";
 import { useAuthStore } from "../../../stores/authStore";
 
-const ChatListItem = ({ activeTab }: Pick<ChatTabProps, 'activeTab'>) => {
+const ChatListItem = ({
+    activeTab,
+    search
+}: Pick<ChatTabProps, 'activeTab'> & { search: string }) => {
     const { rooms, activeRoom, setActiveRoom } = useChatRoomStore();
     const currentUser = useAuthStore(state => state.currentUser);
 
     const filteredRooms = rooms.filter(room => {
+        const name = !room.group && currentUser
+            ? room.members.find(m => m !== currentUser) || room.name
+            : room.name;
+
+        const matchesSearch = name.toLowerCase().includes(search.toLowerCase());
+
         switch (activeTab) {
             case 'groups':
-                return room.group;
+                return room.group && matchesSearch;
             case 'private':
-                return !room.group;
+                return !room.group && matchesSearch;
             case 'all':
             default:
-                return true;
+                return matchesSearch;
         }
     });
 

@@ -3,28 +3,34 @@ import { useNavigate } from "react-router-dom";
 import { register } from "../api/auth";
 import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
+import { useErrorStore } from "../stores/errorStore";
 import ErrorMessage from "../components/ui/ErrorMessage";
+import { errors } from "../constants/errors";
 
 function RegisterPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const setError = useErrorStore((state) => state.setError);
 
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!username.trim() || !password.trim()) {
-            console.log('Please enter both username and password');
-            setError('Please enter both username and password');
+        if (!username.trim() && !password.trim()) {
+            setError(errors.missingFields, 'inline', 'all');
+            return;
+        } else if (!username.trim()) {
+            setError(errors.missingUsername, 'inline', 'all');
+            return;
+        } else if (!password.trim()) {
+            setError(errors.missingPassword, 'inline', 'all');
             return;
         }
         try {
-            setError(null);
             const credentials = { username, password };
             await register(credentials);
             navigate('/login', { state: { successMessage: `Success! Welcome ${username}!` } });
-        } catch (err : any) {
-            setError(err.message)
+        } catch (err) {
+            setError(errors.register.invalid, 'inline', 'all');
         }
     }
 
@@ -38,7 +44,6 @@ function RegisterPage() {
                         label="Username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        required
                         placeholderKey="username"
                         variant="login"
                         placeholderAnimated={true}
@@ -52,16 +57,14 @@ function RegisterPage() {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        //required
                         placeholderKey="password"
                         variant="login"
                         placeholderAnimated={true}
                     />
                 </div>
 
-                <ErrorMessage message={error} variant="toast" onClose={() => setError(null)} />
-
-                <Button type="submit" value="Login" className="bg-chat-active" />
+                <Button type="submit" value="Register" className="bg-chat-active" />
+                <ErrorMessage field="all" />
             </form>
         </div>
     );

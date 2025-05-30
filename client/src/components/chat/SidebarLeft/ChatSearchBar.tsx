@@ -1,9 +1,9 @@
 import Input from "../../ui/Input";
-import { useState } from "react";
 
-const ChatSearchBar = () => {
-    const [search, setSearch] = useState('');
-
+const ChatSearchBar = ({ search, setSearch }: {
+    search: string;
+    setSearch: (value: string) => void;
+}) => {
     return (
         <div className="px-4 pt-4">
             <div className="relative">

@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { login } from "../api/auth";
 import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
+import { useErrorStore } from "../stores/errorStore";
 import ErrorMessage from "../components/ui/ErrorMessage";
-import {logger } from "../utils/logger";
+import { errors } from "../constants/errors";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -12,32 +13,30 @@ function LoginPage() {
     const successMessage = location.state?.successMessage;
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null)
+    const setError = useErrorStore((state) => state.setError);
     
     useEffect(() => {
-        if (successMessage) {
-            setSuccess(successMessage);
-        }
-    }, [successMessage]);
+        if (successMessage) setError(successMessage, 'nonError');
+    }, [successMessage, setError]);
 
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!username.trim() || !password.trim()) {
-            logger.warn('Username or password missing');
-            setError('Please enter both username and password');
+        if (!username.trim() && !password.trim()) {
+            setError(errors.missingFields, 'inline', 'all');
+            return;
+        } else if (!username.trim()) {
+            setError(errors.missingUsername, 'inline', 'all');
+            return;
+        } else if (!password.trim()) {
+            setError(errors.missingPassword, 'inline', 'all');
             return;
         }
         try {
-            logger.info('Attempting login with:', username);
-            setError(null);
             const credentials = { username, password };
             await login(credentials);
-            logger.info('Login successful');
             navigate('/chat');
         } catch (err) {
-            logger.error('Login failed', err);
-            setError("Invalid credentials")
+            setError(errors.login.invalid, 'inline', 'all');
         }
     }
 
@@ -70,9 +69,8 @@ function LoginPage() {
                     />
                 </div>
 
-                <ErrorMessage message={error} variant="toast" onClose={() => setError(null)} />
-                <ErrorMessage message={success} variant="nonError" onClose={() => setSuccess(null)} />
                 <Button type="submit" value="Login" className="bg-chat-active" />
+                <ErrorMessage field="all" />
             </form>
         </div>
     );

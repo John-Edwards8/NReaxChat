@@ -1,6 +1,6 @@
-export interface ErrorMessageProps {
-    message?: string | null;
+export type VariantType = 'inline' | 'modal' | 'toast' | 'nonError';
+
+export interface Props {
+    field?: string;
     className?: string;
-    variant?: 'inline' | 'modal' | 'toast' | 'nonError';
-    onClose?: () => void;
 }
