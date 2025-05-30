@@ -52,7 +52,7 @@ public class ChatHandler implements WebSocketHandler {
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Chat room not found")))
                 .flatMap(room -> {
                     if (room.getMembers() == null
-                            || !room.getMembers().stream().anyMatch(m -> m.equals(user))) {
+                            || room.getMembers().stream().noneMatch(m -> m.equals(user))) {
                         return Mono.error(new AccessDeniedException("No access"));
                     }
 
