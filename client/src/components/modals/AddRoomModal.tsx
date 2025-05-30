@@ -6,14 +6,18 @@ import Button from '../ui/Button';
 import { useChatRoomStore } from '../../stores/chatRoomStore';
 import { useUserStore } from '../../stores/userStore';
 import { useAuthStore } from '../../stores/authStore';
+import { useErrorStore } from '../../stores/errorStore';
+import ErrorMessage from '../ui/ErrorMessage';
 
 
 const AddRoomModal: React.FC<ModalProps> = (props) => {
-    const { fetchRooms, addRoom } = useChatRoomStore();
+    const { fetchRooms, addRoom, rooms } = useChatRoomStore();
     const { users, fetchUsers } = useUserStore();
     const [roomName, setRoomName] = useState('');
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const { setError, clearAll } = useErrorStore();
+    const errorMessage = useErrorStore(s => s.fields.all?.message);
 
     useEffect(() => {
         fetchUsers();
@@ -39,26 +43,52 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
             ? selectedMembers
             : [...selectedMembers, currentUser];
 
-        if (members.length === 1) return;
+        if (members.length === 1) {
+            setError('Please select at least one user', 'inline', 'all');
+            return;
+        }
         
         const isGroup = members.length > 2;
 
-        if (isGroup && !roomName) return;
+        if (isGroup && !roomName.trim()) {
+            setError('Please enter a name for the group chat', 'inline', 'all');
+            return;
+        }
 
         const name = members.length === 2
             ? members.find(m => m !== currentUser) || currentUser
             : roomName;
         
-        await addRoom({ name, group: isGroup, members });
-        await fetchRooms();
-        
-        handleClose();
+        if (!isGroup) {
+            const otherUser = members.find(m => m !== currentUser)!;
+
+            const duplicate = rooms.find(room =>
+                !room.group &&
+                room.members.length === 2 &&
+                room.members.includes(currentUser) &&
+                room.members.includes(otherUser)
+            );
+
+            if (duplicate) {
+                setError('Private chat with this user already exists', 'inline', 'all');
+                return;
+            }
+        }
+
+        try {
+            await addRoom({ name, group: isGroup, members });
+            await fetchRooms();
+            handleClose();
+        } catch {
+            setError('Failed to create the chat room. Please try again', 'inline', 'all');
+        }
     };
 
     const handleClose = () => {
         setRoomName('');
         setSearchQuery('');
         setSelectedMembers([]);
+        clearAll();
         props.onClose();
     };
 
@@ -103,7 +133,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
                 </div>
             </div>
 
-            {selectedMembers && (
+            {selectedMembers && !errorMessage && (
                 <p className="text-sm text-center">
                     {selectedMembers.length >= 2
                         ? 'A group chat will be created.'
@@ -112,6 +142,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
                             : 'Select at least 1 user to create a chat.'}
                 </p>
             )}
+            <ErrorMessage field="all" />
         </Modal>
     );
 };
