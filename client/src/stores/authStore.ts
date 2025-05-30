@@ -10,12 +10,32 @@ interface AuthStore {
     clearAuth: () => void;
 }
 
-export const useAuthStore = create<AuthStore>()((set) => ({
-    role: null,
-    accessToken: null,
-    currentUser: null,
-    setAccessToken: (token) => set({ accessToken: token }),
-    setCurrentUser: (user) => set({ currentUser: user }),
-    setRole: (role) => set({ role }),
-    clearAuth: () => set({ accessToken: null, role: null, currentUser: null }),
-}));
+export const useAuthStore = create<AuthStore>()((set) => {
+    const savedToken = localStorage.getItem('accessToken');
+    const savedUser = localStorage.getItem('currentUser');
+    const savedRole = localStorage.getItem('role');
+
+    return {
+        role: savedRole,
+        accessToken: savedToken,
+        currentUser: savedUser,
+        setAccessToken: (token) => {
+            localStorage.setItem('accessToken', token);
+            set({ accessToken: token });
+        },
+        setCurrentUser: (user) => {
+            localStorage.setItem('currentUser', user);
+            set({ currentUser: user });
+        },
+        setRole: (role) => {
+            localStorage.setItem('role', role);
+            set({ role });
+        },
+        clearAuth: () => {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('role');
+            set({ accessToken: null, role: null, currentUser: null });
+        },
+    };
+});
