@@ -78,7 +78,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
         try {
             await addRoom({ name, group: isGroup, members });
             await fetchRooms();
-            setError('Chat successfuly added!', 'nonError');
+            setError('Chat successfully added!', 'nonError');
             handleClose();
         } catch {
             setError('Failed to create the chat room. Please try again', 'inline', 'all');
