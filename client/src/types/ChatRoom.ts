@@ -1,5 +1,5 @@
 export interface ChatRoom {
-    id: string;
+    roomId: string;
     name: string;
     group: boolean;
     members: string[];
