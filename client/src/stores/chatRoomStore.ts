@@ -7,7 +7,7 @@ interface ChatRoomStore {
     rooms: ChatRoom[];
     activeRoom: ChatRoom | null;
     fetchRooms: () => Promise<void>;
-    addRoom: (room: Omit<ChatRoom, 'id'>) => Promise<void>;
+    addRoom: (room: Omit<ChatRoom, 'id' | "roomId">) => Promise<void>;
     setActiveRoom: (id: string | null) => void;
 }
 
