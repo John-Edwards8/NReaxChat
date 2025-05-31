@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { ChatTabProps} from "../../../types/ChatTabs";
 import { useChatRoomStore } from "../../../stores/chatRoomStore";
 import { useAuthStore } from "../../../stores/authStore";
@@ -7,7 +6,7 @@ const ChatListItem = ({
     activeTab,
     search
 }: Pick<ChatTabProps, 'activeTab'> & { search: string }) => {
-    const { rooms, activeRoom, fetchRooms, setActiveRoom } = useChatRoomStore();
+    const { rooms, activeRoom, setActiveRoom } = useChatRoomStore();
     const currentUser = useAuthStore(state => state.currentUser);
 
     const filteredRooms = rooms.filter(room => {
@@ -27,10 +26,6 @@ const ChatListItem = ({
                 return matchesSearch;
         }
     });
-
-    useEffect(() => {
-        fetchRooms();
-    }, [fetchRooms]);
 
     const getDisplayName = (room: typeof rooms[number]) => {
         if (!room.group && currentUser) {

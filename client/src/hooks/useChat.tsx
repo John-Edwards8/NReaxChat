@@ -1,57 +1,43 @@
 import { useEffect, useState, useRef } from "react";
-import api from "../api/axios";
 import { Message } from "../types/Message";
 import { formatMessage } from "../utils/formatMessage";
+import { useAuthStore } from "../stores/authStore";
 
-export function useChat() {
-    const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
-    const [messages, setMessages] = useState<Message[]>([]); 
+const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL as string;
+
+export function useChat(roomId: string) {
+    const [messages, setMessages] = useState<Message[]>([]);
     const ws = useRef<WebSocket | null>(null);
 
     useEffect(() => {
-        api.get('/chat/messages').then(response => {
-            setMessages(
-                response.data.map((msg: Message) => formatMessage(msg))
-        );
-    });
+        if (!roomId) return;
 
-    ws.current = new WebSocket(WEBSOCKET_URL);
-
-    ws.current.onmessage = (event) => {
-        console.log("📩 Получено сообщение:", event.data);
-        try {
-            const data = JSON.parse(event.data);
-            const newMessage = formatMessage(data);
-            setMessages(prevMessages => [...prevMessages, newMessage]);
-        } catch {
-            setMessages(prevMessages => [...prevMessages, {
-                text: event.data,
-                sender: 'other'
-            }]);
-        }
-    }
-
-    ws.current.onerror = (error) => {
-        console.error("WebSocket error:", error);
-    };
-
-    return () => {
         ws.current?.close();
-    };
-    }, [WEBSOCKET_URL]);
 
-    const sendMessage = (message: string) => {
+        setMessages([]);
+
+        const token = useAuthStore.getState().accessToken!;
+        const socketUrl = `${WEBSOCKET_URL}/chat/room/${roomId}?token=${token}`;
+        ws.current = new WebSocket(socketUrl);
+
+        ws.current.onopen = () => console.log("WS connected to", socketUrl);
+        ws.current.onmessage = e => {
+            const raw = JSON.parse(e.data);
+            const msg = formatMessage(raw);
+            setMessages(prev => [...prev, msg]);
+        };
+        ws.current.onerror = err => console.error("WS error", err);
+
+        return () => { ws.current?.close(); };
+    }, [roomId]);
+
+    const sendMessage = (text: string) => {
         if (ws.current?.readyState === WebSocket.OPEN) {
-            const payload = JSON.stringify({
-                sender: 'User1',
-                content: message,
-            });
-            console.log("📤 Отправка сообщения:", payload);
-            ws.current.send(payload);
+            ws.current.send(JSON.stringify({ content: text }));
         } else {
-            console.error("WebSocket is not connected.");
+            console.warn("WS not open yet:", ws.current?.readyState);
         }
-    }
+    };
 
     return { messages, sendMessage };
 }

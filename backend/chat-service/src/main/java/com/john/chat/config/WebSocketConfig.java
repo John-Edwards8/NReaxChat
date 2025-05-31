@@ -22,9 +22,7 @@ public class WebSocketConfig {
 
     @Bean
     public HandlerMapping webSocketMapping() {
-        Map<String, WebSocketHandler> map = Map.of(
-                "/chat/room/{roomId}", privateChatHandler
-        );
+        Map<String, WebSocketHandler> map = Map.of("/room/{roomId}", privateChatHandler);
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setUrlMap(map);
         mapping.setOrder(10);
