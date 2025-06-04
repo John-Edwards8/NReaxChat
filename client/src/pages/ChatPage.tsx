@@ -1,4 +1,3 @@
-// src/pages/ChatPage.tsx
 import { useEffect } from 'react';
 import ChatSidebarLeft from '../components/chat/SidebarLeft/ChatSidebarLeft';
 import Room from '../components/chat/ChatRoom/Room';
@@ -14,7 +13,7 @@ function ChatPage() {
     }, [fetchRooms]);
 
     return (
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex h-screen overflow-hidden gap-3 p-2">
             <ChatSidebarLeft />
             {activeRoom ? <Room {...activeRoom} /> : <Hidden />}
             <ChatSidebarRight />
