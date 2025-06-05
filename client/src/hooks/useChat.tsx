@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Message } from "../types/Message";
 import { formatMessage } from "../utils/formatMessage";
 import { useAuthStore } from "../stores/authStore";
+import { updateMessage } from "../api/messages";
 
 const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL as string;
 
@@ -39,5 +40,19 @@ export function useChat(roomId: string) {
         }
     };
 
-    return { messages, sendMessage };
+    const editMessage = async (id: string, newContent: string) => {
+        try {
+            const response = await updateMessage(id, newContent);
+            const updated = response.data;
+            setMessages(prev =>
+                prev.map(msg =>
+                    msg.id === id ? { ...msg, content: updated.content } : msg
+                )
+            );
+        } catch (err) {
+            console.error("Failed to update message:", err);
+        }
+    };
+
+    return { messages, sendMessage, editMessage };
 }
