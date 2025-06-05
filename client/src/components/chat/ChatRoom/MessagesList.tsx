@@ -7,9 +7,10 @@ interface Props {
     isGroup: boolean;
     setMessage: (val: string) => void;
     setEditingId: (val: string) => void;
+    deleteMessage: (id: string) => void;
 }
 
-const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId }: Props) => (
+const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId, deleteMessage }: Props) => (
     <div className="flex-1 overflow-y-auto p-2 space-y-2 m-1">
         {messages.map((msg) => (
             <MessageBubble
@@ -21,6 +22,7 @@ const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId
                 isGroup={isGroup}
                 setMessage={setMessage}
                 setEditingId={setEditingId}
+                deleteMessage={deleteMessage}
             />
         ))}
     </div>

@@ -7,9 +7,10 @@ type Props = Message & {
     isGroup: boolean;
     setMessage: (val: string) => void;
     setEditingId: (val: string) => void;
+    deleteMessage: (id: string) => void;
 };
 
-const MessageBubble = ({ id, content, sender, currentUser, isGroup, setMessage, setEditingId }: Props) => {
+const MessageBubble = ({ id, content, sender, currentUser, isGroup, setMessage, setEditingId, deleteMessage }: Props) => {
     const isMe = sender === currentUser;
     const { menuOpen, position, handleContextMenu, closeMenu } = useContextMenu();
 
@@ -37,7 +38,7 @@ const MessageBubble = ({ id, content, sender, currentUser, isGroup, setMessage, 
                         onEdit={() => { setMessage(content); setEditingId(id); closeMenu(); }}
                         onForward={() => console.log('Forward')}
                         onReply={() => console.log('Reply')}
-                        onDelete={() => console.log('Delete')}
+                        onDelete={() => { deleteMessage(id); closeMenu(); }}
                     />
                 </div>
             )}

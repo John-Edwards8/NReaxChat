@@ -9,7 +9,7 @@ import { useAuthStore } from "../../../stores/authStore";
 export default function Room({ roomId, name, group, members }: ChatRoom) {
     const [message, setMessage] = useState("");
     const [editingId, setEditingId] = useState<string | null>(null);
-    const { messages, sendMessage, editMessage } = useChat(roomId);
+    const { messages, sendMessage, editMessage, removeMessage } = useChat(roomId);
     const currentUser = useAuthStore((s) => s.currentUser!);
 
     const handleSend = () => {
@@ -37,6 +37,7 @@ export default function Room({ roomId, name, group, members }: ChatRoom) {
                 isGroup={group}
                 setMessage={setMessage}
                 setEditingId={setEditingId}
+                deleteMessage={removeMessage}
             />
             <ChatInput
                 message={message}
