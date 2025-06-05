@@ -8,13 +8,24 @@ import { useAuthStore } from "../../../stores/authStore";
 
 export default function Room({ roomId, name, group, members }: ChatRoom) {
     const [message, setMessage] = useState("");
-    const { messages, sendMessage } = useChat(roomId);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const { messages, sendMessage, editMessage } = useChat(roomId);
     const currentUser = useAuthStore((s) => s.currentUser!);
 
     const handleSend = () => {
         if (!message.trim()) return;
-        sendMessage(message);
+        if (editingId) {
+            editMessage(editingId, message);
+            setEditingId(null);
+        } else {
+            sendMessage(message);
+        }
         setMessage("");
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setMessage('');
     };
 
     return (
@@ -24,11 +35,15 @@ export default function Room({ roomId, name, group, members }: ChatRoom) {
                 messages={messages}
                 currentUser={currentUser}
                 isGroup={group}
+                setMessage={setMessage}
+                setEditingId={setEditingId}
             />
             <ChatInput
                 message={message}
                 setMessage={setMessage}
                 sendMessage={handleSend}
+                editingId={editingId}
+                cancelEdit={cancelEdit}
             />
         </div>
     );

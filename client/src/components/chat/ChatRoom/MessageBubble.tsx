@@ -2,9 +2,14 @@ import MessageContextMenu from "./MessageContextMenu";
 import {Message} from "../../../types/Message";
 import { useContextMenu } from "../../../hooks/useContextMenu";
 
-type Props = Message & { currentUser: string; isGroup: boolean };
+type Props = Message & {
+    currentUser: string;
+    isGroup: boolean;
+    setMessage: (val: string) => void;
+    setEditingId: (val: string) => void;
+};
 
-const MessageBubble = ({ id, content, sender, currentUser, isGroup }: Props) => {
+const MessageBubble = ({ id, content, sender, currentUser, isGroup, setMessage, setEditingId }: Props) => {
     const isMe = sender === currentUser;
     const { menuOpen, position, handleContextMenu, closeMenu } = useContextMenu();
 
@@ -29,7 +34,7 @@ const MessageBubble = ({ id, content, sender, currentUser, isGroup }: Props) => 
                     <MessageContextMenu
                         isMine={isMe}
                         onCopy={() => console.log('Copy')}
-                        onEdit={() => console.log(id)}
+                        onEdit={() => { setMessage(content); setEditingId(id); closeMenu(); }}
                         onForward={() => console.log('Forward')}
                         onReply={() => console.log('Reply')}
                         onDelete={() => console.log('Delete')}
