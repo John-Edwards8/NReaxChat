@@ -34,7 +34,7 @@ const MessageBubble = ({ id, content, sender, currentUser, isGroup, setMessage, 
                 <div className="fixed z-50" style={{ top: position.y, left: position.x }} onClick={closeMenu}>
                     <MessageContextMenu
                         isMine={isMe}
-                        onCopy={() => console.log('Copy')}
+                        onCopy={() => { navigator.clipboard.writeText(content); closeMenu(); }}
                         onEdit={() => { setMessage(content); setEditingId(id); closeMenu(); }}
                         onForward={() => console.log('Forward')}
                         onReply={() => console.log('Reply')}
