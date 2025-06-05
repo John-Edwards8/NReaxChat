@@ -14,6 +14,7 @@ const MessagesList = ({ messages, currentUser, isGroup }: Props) => (
                 key={idx}
                 text={msg.text}
                 sender={msg.sender}
+                timestamp={msg.timestamp}
                 currentUser={currentUser}
                 isGroup={isGroup}
             />
