@@ -1,35 +1,12 @@
-import React, { useEffect, useState } from "react";
 import MessageContextMenu from "./MessageContextMenu";
 import {Message} from "../../../types/Message";
+import { useContextMenu } from "../../../hooks/useContextMenu";
 
 type Props = Message & { currentUser: string; isGroup: boolean };
 
 const MessageBubble = ({text, sender, currentUser, isGroup}: Props) => {
     const isMe = sender === currentUser;
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-
-    const handleContextMenu = (e: React.MouseEvent) => {
-        e.preventDefault();
-        setMenuOpen(true);
-        setMenuPosition({ x: e.clientX, y: e.clientY });
-    };
-
-    useEffect(() => {
-        const handleClickOutside = () => {
-            setMenuOpen(false);
-        };
-
-        if (menuOpen) {
-            window.addEventListener("click", handleClickOutside);
-        }
-
-        return () => {
-            window.removeEventListener("click", handleClickOutside);
-        };
-    }, [menuOpen]);
-
-    const handleCloseMenu = () => setMenuOpen(false);
+    const { menuOpen, position, handleContextMenu, closeMenu } = useContextMenu();
 
     return (
         <div className={`relative flex mb-2 ${isMe ? "justify-end" : "justify-start"}`}
@@ -48,9 +25,7 @@ const MessageBubble = ({text, sender, currentUser, isGroup}: Props) => {
             </div>
 
             {menuOpen && isMe && (
-                <div className="fixed z-50"
-                     style={{ top: menuPosition.y, left: menuPosition.x }}
-                     onClick={handleCloseMenu}>
+                <div className="fixed z-50" style={{ top: position.y, left: position.x }} onClick={closeMenu}>
                     <MessageContextMenu
                         isMine={isMe}
                         onCopy={() => console.log('Copy')}
