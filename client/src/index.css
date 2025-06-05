@@ -2,7 +2,7 @@
 
 body {
     @apply text-white min-h-screen;
-    background: radial-gradient(circle, rgba(56, 108, 221, 1) 0%, rgba(29, 78, 184, 1) 66%, rgba(21, 56, 133, 1) 100%);
+    background: radial-gradient(circle, rgb(58, 114, 235) 10%, rgb(16, 60, 155) 66%, rgb(4, 35, 100) 100%);
 }
 
 @layer utilities {
