@@ -4,7 +4,7 @@ import { useContextMenu } from "../../../hooks/useContextMenu";
 
 type Props = Message & { currentUser: string; isGroup: boolean };
 
-const MessageBubble = ({text, sender, currentUser, isGroup}: Props) => {
+const MessageBubble = ({ id, content, sender, currentUser, isGroup }: Props) => {
     const isMe = sender === currentUser;
     const { menuOpen, position, handleContextMenu, closeMenu } = useContextMenu();
 
@@ -20,7 +20,7 @@ const MessageBubble = ({text, sender, currentUser, isGroup}: Props) => {
                          : "bg-gray-800 rounded-bl-none"
                      }`}
                 >
-                    {text}
+                    {content}
                 </div>
             </div>
 
@@ -29,7 +29,7 @@ const MessageBubble = ({text, sender, currentUser, isGroup}: Props) => {
                     <MessageContextMenu
                         isMine={isMe}
                         onCopy={() => console.log('Copy')}
-                        onEdit={() => console.log('Edit')}
+                        onEdit={() => console.log(id)}
                         onForward={() => console.log('Forward')}
                         onReply={() => console.log('Reply')}
                         onDelete={() => console.log('Delete')}

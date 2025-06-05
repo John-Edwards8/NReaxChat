@@ -9,10 +9,11 @@ interface Props {
 
 const MessagesList = ({ messages, currentUser, isGroup }: Props) => (
     <div className="flex-1 overflow-y-auto p-2 space-y-2 m-1">
-        {messages.map((msg, idx) => (
+        {messages.map((msg) => (
             <MessageBubble
-                key={idx}
-                text={msg.text}
+                key={String(msg.id)}
+                id={msg.id}
+                content={msg.content}
                 sender={msg.sender}
                 currentUser={currentUser}
                 isGroup={isGroup}
