@@ -22,21 +22,22 @@ function LoginPage() {
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!username.trim() && !password.trim()) {
-            setError(errors.missingFields, 'inline', 'all');
+            setError(errors.missingFields, 'inline', 'login');
             return;
         } else if (!username.trim()) {
-            setError(errors.missingUsername, 'inline', 'all');
+            setError(errors.missingUsername, 'inline', 'login');
             return;
         } else if (!password.trim()) {
-            setError(errors.missingPassword, 'inline', 'all');
+            setError(errors.missingPassword, 'inline', 'login');
             return;
         }
         try {
             const credentials = { username, password };
             await login(credentials);
+            setError('', 'inline', 'login');
             navigate('/chat');
         } catch (err) {
-            setError(errors.login.invalid, 'inline', 'all');
+            setError(errors.login.invalid, 'inline', 'login');
         }
     }
 
@@ -70,7 +71,7 @@ function LoginPage() {
                 </div>
 
                 <Button type="submit" value="Login" className="bg-chat-active" />
-                <ErrorMessage field="all" />
+                <ErrorMessage field="login" />
             </form>
         </div>
     );
