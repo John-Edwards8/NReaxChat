@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import { FiLogOut } from "react-icons/fi";
-import ConfirmLogoutModal from "../../modals/ConfirmLogoutModal.tsx";
+import LogoutModal from "../../modals/LogoutModal.tsx";
 
 const Exit: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,7 +22,7 @@ const Exit: React.FC = () => {
                 <FiLogOut className="w-16 h-16 text-blue-base "/>
                 <span className="text-2xl font-semibold">Exit</span>
             </div>
-            <ConfirmLogoutModal isOpen={isModalOpen} onClose={closeModal}/></>
+            <LogoutModal isOpen={isModalOpen} onClose={closeModal}/></>
     );
 };
 
