@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ContextMenuState } from '../types/ContextMenuState';
 
 export function useContextMenu() {
     const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
+    const menuRef = useRef<HTMLDivElement | null>(null);
 
     const openContextMenu = (id: string, e: React.MouseEvent) => {
         e.preventDefault();
@@ -28,5 +29,31 @@ export function useContextMenu() {
         };
     }, [contextMenu]);
 
-    return { contextMenu, openContextMenu, closeContextMenu, };
+    useEffect(() => {
+        if (!contextMenu || !menuRef.current) return;
+
+        const menuEl = menuRef.current;
+        const rect = menuEl.getBoundingClientRect();
+
+        const padding = 10;
+        const winWidth = window.innerWidth;
+        const winHeight = window.innerHeight;
+
+        let newX = contextMenu.x;
+        let newY = contextMenu.y;
+
+        if (contextMenu.x + rect.width + padding > winWidth) {
+            newX = contextMenu.x - rect.width;
+        }
+
+        if (contextMenu.y + rect.height + padding > winHeight) {
+            newY = contextMenu.y - rect.height;
+        }
+
+        if (newX !== contextMenu.x || newY !== contextMenu.y) {
+            setContextMenu({ ...contextMenu, x: newX, y: newY });
+        }
+    }, [contextMenu]);
+
+    return { contextMenu, openContextMenu, closeContextMenu, menuRef };
 }

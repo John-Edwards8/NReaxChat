@@ -12,7 +12,7 @@ interface Props {
 }
 
 const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId, deleteMessage }: Props) => {
-    const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu();
+    const { contextMenu, openContextMenu, closeContextMenu, menuRef } = useContextMenu();
     let lastDate = "";
 
     return (
@@ -48,6 +48,7 @@ const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId
                     contextMenu={contextMenu}
                     openContextMenu={openContextMenu}
                     closeContextMenu={closeContextMenu}
+                    menuRef={menuRef}
                 />
                 </div>
             );

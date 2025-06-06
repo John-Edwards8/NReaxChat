@@ -11,9 +11,10 @@ type Props = Message & {
     contextMenu: { messageId: string; x: number; y: number } | null;
     openContextMenu: (id: string, e: React.MouseEvent) => void;
     closeContextMenu: () => void;
+    menuRef: React.RefObject<HTMLDivElement | null>;
 };
 
-const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, setMessage, setEditingId, deleteMessage, contextMenu, openContextMenu, closeContextMenu }: Props) => {
+const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, setMessage, setEditingId, deleteMessage, contextMenu, openContextMenu, closeContextMenu, menuRef }: Props) => {
     const isMe = sender === currentUser;
     const menuOpen = contextMenu?.messageId === id;
 
@@ -48,7 +49,7 @@ const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, s
             </div>
 
             {menuOpen && isMe && (
-                <div className="fixed z-50" style={{ top: contextMenu.y, left: contextMenu.x }} onClick={closeContextMenu}>
+                <div ref={menuRef} className="fixed z-50" style={{ top: contextMenu.y, left: contextMenu.x }} onClick={closeContextMenu}>
                     <MessageContextMenu
                         isMine={isMe}
                         onCopy={() => { navigator.clipboard.writeText(content); closeContextMenu(); }}
