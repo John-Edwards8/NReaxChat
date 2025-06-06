@@ -1,6 +1,6 @@
 import MessageContextMenu from "./MessageContextMenu";
-import {Message} from "../../../types/Message";
-import { useContextMenu } from "../../../hooks/useContextMenu";
+import { Message } from "../../../types/Message";
+import React from "react";
 
 type Props = Message & {
     currentUser: string;
@@ -8,15 +8,17 @@ type Props = Message & {
     setMessage: (val: string) => void;
     setEditingId: (val: string) => void;
     deleteMessage: (id: string) => void;
+    contextMenu: { messageId: string; x: number; y: number } | null;
+    openContextMenu: (id: string, e: React.MouseEvent) => void;
+    closeContextMenu: () => void;
 };
 
-const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, setMessage, setEditingId, deleteMessage }: Props) => {
+const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, setMessage, setEditingId, deleteMessage, contextMenu, openContextMenu, closeContextMenu }: Props) => {
     const isMe = sender === currentUser;
-    const { menuOpen, position, handleContextMenu, closeMenu } = useContextMenu();
+    const menuOpen = contextMenu?.messageId === id;
 
     return (
-        <div className={`relative flex mb-2 ${isMe ? "justify-end" : "justify-start"}`}
-             onContextMenu={isMe ? handleContextMenu : undefined}>
+        <div className={`relative flex mb-2 ${isMe ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[70%] ${isMe ? "text-right" : "text-left"}`}>
                 <div
                     className={`
@@ -24,6 +26,7 @@ const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, s
                         ${isMe ? "bg-blue-base rounded-br-none" : "bg-gray-800 rounded-bl-none"}
                         flex flex-col
                     `}
+                    onContextMenu={isMe ? (e) => openContextMenu(id, e) : undefined}
                 >
                     {!isMe && isGroup ? (
                         <div className="flex justify-between items-center mb-1 text-xs text-gray-400">
@@ -45,14 +48,14 @@ const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, s
             </div>
 
             {menuOpen && isMe && (
-                <div className="fixed z-50" style={{ top: position.y, left: position.x }} onClick={closeMenu}>
+                <div className="fixed z-50" style={{ top: contextMenu.y, left: contextMenu.x }} onClick={closeContextMenu}>
                     <MessageContextMenu
                         isMine={isMe}
-                        onCopy={() => { navigator.clipboard.writeText(content); closeMenu(); }}
-                        onEdit={() => { setMessage(content); setEditingId(id); closeMenu(); }}
+                        onCopy={() => { navigator.clipboard.writeText(content); closeContextMenu(); }}
+                        onEdit={() => { setMessage(content); setEditingId(id); closeContextMenu(); }}
                         onForward={() => console.log('Forward')}
                         onReply={() => console.log('Reply')}
-                        onDelete={() => { deleteMessage(id); closeMenu(); }}
+                        onDelete={() => { deleteMessage(id); closeContextMenu(); }}
                     />
                 </div>
             )}

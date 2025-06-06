@@ -1,5 +1,6 @@
 import MessageBubble from "./MessageBubble";
 import { Message } from "../../../types/Message";
+import { useContextMenu } from '../../../hooks/useContextMenu';
 
 interface Props {
     messages: Message[];
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId, deleteMessage }: Props) => {
+    const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu();
     let lastDate = "";
 
     return (
@@ -43,6 +45,9 @@ const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId
                     setMessage={setMessage}
                     setEditingId={setEditingId}
                     deleteMessage={deleteMessage}
+                    contextMenu={contextMenu}
+                    openContextMenu={openContextMenu}
+                    closeContextMenu={closeContextMenu}
                 />
                 </div>
             );
