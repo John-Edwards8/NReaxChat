@@ -5,5 +5,6 @@ export function formatMessage(raw: any): Message {
     id: raw.id ?? raw._id,
     content: raw.content ?? raw.text ?? String(raw),
     sender: raw.sender,
+    timestamp: raw.timestamp
   };
 }

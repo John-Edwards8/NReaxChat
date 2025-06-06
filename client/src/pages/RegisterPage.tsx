@@ -16,21 +16,22 @@ function RegisterPage() {
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!username.trim() && !password.trim()) {
-            setError(errors.missingFields, 'inline', 'all');
+            setError(errors.missingFields, 'inline', 'reg');
             return;
         } else if (!username.trim()) {
-            setError(errors.missingUsername, 'inline', 'all');
+            setError(errors.missingUsername, 'inline', 'reg');
             return;
         } else if (!password.trim()) {
-            setError(errors.missingPassword, 'inline', 'all');
+            setError(errors.missingPassword, 'inline', 'reg');
             return;
         }
         try {
             const credentials = { username, password };
             await register(credentials);
+            setError('', 'inline', 'reg');
             navigate('/login', { state: { successMessage: `Success! Welcome ${username}!` } });
         } catch (err) {
-            setError(errors.register.invalid, 'inline', 'all');
+            setError(errors.register.invalid, 'inline', 'reg');
         }
     }
 
@@ -64,7 +65,7 @@ function RegisterPage() {
                 </div>
 
                 <Button type="submit" value="Register" className="bg-chat-active" />
-                <ErrorMessage field="all" />
+                <ErrorMessage field="reg" />
             </form>
         </div>
     );
