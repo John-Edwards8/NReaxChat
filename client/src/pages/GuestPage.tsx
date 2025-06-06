@@ -1,12 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/nreax.svg";
 import Button from '../components/ui/Button';
+import ThemeToggle from "../components/ui/ThemeToggle";
 
 function GuestPage() {
     const navigate = useNavigate();
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
+            <div className="absolute top-4 right-4 z-50">
+                <ThemeToggle />
+            </div>
             <div className="bg-[#0F172A]/50 rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6 text-center">
                 <div className="flex items-center justify-center gap-1">
                     <img src={logo} alt="NReaxChat logo" className="w-20 h-20 rounded-22" />
