@@ -28,3 +28,13 @@ export const register = async (credentials: AuthRequest): Promise<AuthResponse> 
         throw new Error(message);
     }
 }
+
+export const logout = async (): Promise<void> => {
+    try {
+        await api.post("/auth/api/logout");
+    } catch (e) {
+        console.error("Logout error (API):", e);
+    } finally {
+        useAuthStore.getState().clearAuth();
+    }
+}
