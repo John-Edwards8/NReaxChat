@@ -22,7 +22,7 @@ const Button =
     }
 
     if (type === 'context' || typeof value !== 'string') {
-        const baseStyles = 'flex items-center gap-2 px-4 pr-3 py-2 text-base font-medium';
+        const baseStyles = 'flex items-center gap-2 px-4 py-2 text-base font-medium';
         const stateStyles = disabled
             ? 'opacity-40 cursor-not-allowed hover:bg-transparent'
             : 'hover:bg-white/10 transition-colors';
