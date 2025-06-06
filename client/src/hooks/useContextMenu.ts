@@ -1,23 +1,32 @@
 import React, { useEffect, useState } from 'react';
+import { ContextMenuState } from '../types/ContextMenuState';
 
 export function useContextMenu() {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
 
-    const handleContextMenu = (e: React.MouseEvent) => {
+    const openContextMenu = (id: string, e: React.MouseEvent) => {
         e.preventDefault();
-        setMenuOpen(true);
-        setPosition({ x: e.clientX, y: e.clientY });
+        setContextMenu({ messageId: id, x: e.clientX, y: e.clientY });
     };
 
-    const closeMenu = () => setMenuOpen(false);
+    const closeContextMenu = () => setContextMenu(null);
 
     useEffect(() => {
-        if (!menuOpen) return;
-        const handleClickOutside = () => closeMenu();
-        window.addEventListener("click", handleClickOutside);
-        return () => window.removeEventListener("click", handleClickOutside);
-    }, [menuOpen]);
+        const handleClickOutside = () => closeContextMenu();
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === "Escape") closeContextMenu();
+        };
 
-    return { menuOpen, position, handleContextMenu, closeMenu };
+        if (contextMenu) {
+            window.addEventListener("click", handleClickOutside);
+            window.addEventListener("keydown", handleEsc);
+        }
+
+        return () => {
+            window.removeEventListener("click", handleClickOutside);
+            window.removeEventListener("keydown", handleEsc);
+        };
+    }, [contextMenu]);
+
+    return { contextMenu, openContextMenu, closeContextMenu, };
 }
