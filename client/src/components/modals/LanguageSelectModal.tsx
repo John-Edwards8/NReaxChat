@@ -3,13 +3,19 @@ import Modal from '../ui/Modal';
 import { ModalProps } from '../../types/Modal';
 import { FiArrowLeft } from 'react-icons/fi';
 import Button from '../ui/Button';
+import { useI18n } from '../../i18n/I18nContext';
+import { Language } from '../../i18n/translations';
 
-const languages = ['English', 'Ukrainian', 'Polish', 'German', 'Russian'];
+const languages: { code: Language; label: string }[] = [
+    { code: 'en', label: 'English' },
+    { code: 'ua', label: 'Українська' },
+    { code: 'pl', label: 'Polski' },
+    { code: 'de', label: 'Deutsch' },
+    { code: 'ru', label: 'Русский' },
+];
 
-const LanguageSelectModal: React.FC<ModalProps & {
-    currentLanguage: string;
-    onSelectLanguage: (lang: string) => void;
-}> = ({ isOpen, onClose, currentLanguage, onSelectLanguage }) => {
+const LanguageSelectModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+    const { language, setLanguage, t } = useI18n();
     return (
         <Modal
             isOpen={isOpen}
@@ -28,14 +34,14 @@ const LanguageSelectModal: React.FC<ModalProps & {
             </div>
 
             <div className="flex flex-col items-center gap-4">
-                {languages.map((lang) => (
+                {languages.map(({ code, label }) => (
                     <button
-                        key={lang}
-                        onClick={() => onSelectLanguage(lang)}
+                        key={code}
+                        onClick={() => setLanguage(code)}
                         className={`w-40 py-2 rounded-full text-white font-medium shadow-md transition 
-                            ${lang === currentLanguage ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                            ${code === language ? 'bg-white/20' : 'hover:bg-white/10'}`}
                     >
-                        {lang}
+                        {label}
                     </button>
                 ))}
             </div>
