@@ -11,7 +11,7 @@ function GuestPage() {
             <div className="absolute top-4 right-4 z-50">
                 <ThemeToggle />
             </div>
-            <div className="bg-[#0F172A]/50 rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6 text-center">
+            <div className="bg-container rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6 text-center">
                 <div className="flex items-center justify-center gap-1">
                     <img src={logo} alt="NReaxChat logo" className="w-20 h-20 rounded-22" />
                     <h1 className="text-3xl md:text-4xl font-bold">Welcome to NReaxChat</h1>

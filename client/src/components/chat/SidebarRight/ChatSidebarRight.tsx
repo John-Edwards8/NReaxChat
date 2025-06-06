@@ -5,7 +5,7 @@ import Exit from "./Exit";
 
 function ChatSidebarRight() {
     return (
-        <div className="w-[320px] rounded-22 bg-[#0F172A]/50 shadow-[0_4px_12px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
+        <div className="w-[320px] rounded-22 bg-container shadow-[0_4px_12px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
             <AppLogo/>
             <hr className="border-gray-300/30 m-2" />
             <AddRoom />

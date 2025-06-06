@@ -5,12 +5,12 @@ import { usePlaceholder } from "../../hooks/usePlaceholder";
 const getInputClasses = (variant: InputProps['variant'] = 'login') => {
     switch (variant) {
         case 'chat':
-            return 'bg-transparent outline-none placeholder-white';
+            return 'bg-transparent outline-none placeholder-input';
         case 'search':
-            return 'w-full rounded-22 bg-[#1E75BC] placeholder-white px-4 py-2 pl-10 outline-none';
+            return 'w-full rounded-22 bg-input placeholder-input px-4 py-2 pl-10 outline-none';
         case 'login':
         default:
-            return 'w-full bg-blue-base rounded-22 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-chat-active placeholder-white';
+            return 'w-full bg-input rounded-22 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-chat-active placeholder-input';
     }
 }
 
