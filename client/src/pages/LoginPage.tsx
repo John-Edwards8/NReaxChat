@@ -5,7 +5,7 @@ import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
 import { useErrorStore } from "../stores/errorStore";
 import ErrorMessage from "../components/ui/ErrorMessage";
-import { errors } from "../constants/errors";
+import { useI18n } from "../i18n/I18nContext";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -14,6 +14,7 @@ function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const setError = useErrorStore((state) => state.setError);
+    const { t } = useI18n();
     
     useEffect(() => {
         if (successMessage) setError(successMessage, 'nonError');
@@ -22,13 +23,13 @@ function LoginPage() {
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!username.trim() && !password.trim()) {
-            setError(errors.missingFields, 'inline', 'login');
+            setError(t("errors.missingFields"), 'inline', 'login');
             return;
         } else if (!username.trim()) {
-            setError(errors.missingUsername, 'inline', 'login');
+            setError(t("errors.missingUsername"), 'inline', 'login');
             return;
         } else if (!password.trim()) {
-            setError(errors.missingPassword, 'inline', 'login');
+            setError(t("errors.missingPassword"), 'inline', 'login');
             return;
         }
         try {
@@ -37,7 +38,7 @@ function LoginPage() {
             setError('', 'inline', 'login');
             navigate('/chat');
         } catch (err) {
-            setError(errors.login.invalid, 'inline', 'login');
+            setError(t("errors.login.invalid"), 'inline', 'login');
         }
     }
 

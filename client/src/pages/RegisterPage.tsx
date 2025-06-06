@@ -5,24 +5,25 @@ import Button from '../components/ui/Button';
 import Input from "../components/ui/Input";
 import { useErrorStore } from "../stores/errorStore";
 import ErrorMessage from "../components/ui/ErrorMessage";
-import { errors } from "../constants/errors";
+import { useI18n } from "../i18n/I18nContext";
 
 function RegisterPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const setError = useErrorStore((state) => state.setError);
-
+    const { t } = useI18n();
+    
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!username.trim() && !password.trim()) {
-            setError(errors.missingFields, 'inline', 'reg');
+            setError(t("errors.missingFields"), 'inline', 'reg');
             return;
         } else if (!username.trim()) {
-            setError(errors.missingUsername, 'inline', 'reg');
+            setError(t("errors.missingUsername"), 'inline', 'reg');
             return;
         } else if (!password.trim()) {
-            setError(errors.missingPassword, 'inline', 'reg');
+            setError(t("errors.missingPassword"), 'inline', 'reg');
             return;
         }
         try {
@@ -31,7 +32,7 @@ function RegisterPage() {
             setError('', 'inline', 'reg');
             navigate('/login', { state: { successMessage: `Success! Welcome ${username}!` } });
         } catch (err) {
-            setError(errors.register.invalid, 'inline', 'reg');
+            setError(t("errors.register.invalid"), 'inline', 'reg');
         }
     }
 

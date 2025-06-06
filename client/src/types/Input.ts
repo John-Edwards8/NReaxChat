@@ -1,5 +1,5 @@
 import React from "react";
-import { placeholderWords } from "../constants/placeholdersWords";
+import { translations } from "../i18n/translations";
 
 export interface InputProps {
     id: string;
@@ -12,7 +12,7 @@ export interface InputProps {
     className?: string;
     wrapperClassName?: string;
     placeholder?: string;
-    placeholderKey?: keyof typeof placeholderWords;
+    placeholderKey?: keyof typeof translations.en.placeholders;
     variant?: 'login' | 'chat' | 'search';
     placeholderAnimated?: boolean | 'onFocus';
 }

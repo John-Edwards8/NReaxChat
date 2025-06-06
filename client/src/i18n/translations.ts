@@ -21,6 +21,18 @@ export const translations = {
                 invalid: 'Failed to register',
             },
         },
+        placeholders: {
+            username: [
+                "Type your username...",
+                "Start chatting instantly!",
+                "Enter your nickname...",
+            ],
+            password: [
+                "Type your password...",
+                "Use a secure password",
+                "Don't forget it!",
+            ],
+        },
     },
     ru: {
         welcome: 'Добро пожаловать в NReaxChat',
@@ -43,6 +55,18 @@ export const translations = {
             register: {
                 invalid: 'Не удалось зарегистрироваться',
             },
+        },
+        placeholders: {
+            username: [
+                "Введите имя пользователя...",
+                "Начните общение прямо сейчас!",
+                "Укажите ваш ник...",
+            ],
+            password: [
+                "Введите пароль...",
+                "Используйте надежный пароль",
+                "Не забудьте его!",
+            ],
         },
     },
     ua: {
@@ -67,6 +91,18 @@ export const translations = {
                 invalid: 'Не вдалося зареєструватися',
             },
         },
+        placeholders: {
+            username: [
+                "Введіть ім'я користувача...",
+                "Почніть спілкування прямо зараз!",
+                "Вкажіть ваш нік...",
+            ],
+            password: [
+                "Введіть пароль...",
+                "Використовуйте надійний пароль",
+                "Не забудьте його!",
+            ],
+        },
     },
     pl: {
         welcome: 'Witamy w NReaxChat',
@@ -89,6 +125,18 @@ export const translations = {
             register: {
                 invalid: 'Nie udało się zarejestrować',
             },
+        },
+        placeholders: {
+            username: [
+                "Wprowadź nazwę użytkownika...",
+                "Rozpocznij czat już teraz!",
+                "Wprowadź swój pseudonim...",
+            ],
+            password: [
+                "Wprowadź swoje hasło...",
+                "Użyj silnego hasła",
+                "Nie zapomnij go!",
+            ],
         },
     },
     de: {
@@ -113,7 +161,18 @@ export const translations = {
                 invalid: 'Registrierung fehlgeschlagen',
             },
         },
+        placeholders: {
+            username: [
+                "Benutzernamen eingeben…",
+                "Jetzt chatten!",
+                "Nickname eingeben…",
+            ],
+            password: [
+                "Passwort eingeben…",
+                "Sicheres Passwort verwenden",
+                "Nicht vergessen!",
+            ],
+        },
     },
 } as const;
 export type Language = keyof typeof translations;
-export type TranslationKey = string; 
