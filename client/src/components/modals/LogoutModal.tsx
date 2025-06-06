@@ -1,7 +1,7 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import Modal from "../ui/Modal.tsx";
 import {logout} from "../../api/auth.ts";
+import {useNavigate} from "react-router-dom";
 
 interface ConfirmLogoutModalProps {
     isOpen: boolean;
@@ -13,8 +13,7 @@ const LogoutModal: React.FC<ConfirmLogoutModalProps> = ({ isOpen, onClose }) => 
 
     const handleConfirmLogout = async () => {
         try {
-            await logout();
-            navigate("/login");
+            await logout(navigate);
         } catch (err) {
             console.error("Logout failed:", err);
         }

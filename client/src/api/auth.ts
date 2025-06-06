@@ -2,6 +2,7 @@ import api from '../api/axios.ts'
 import { AuthRequest } from "../types/AuthRequest";
 import { AuthResponse } from "../types/AuthResponse";
 import { useAuthStore } from "../stores/authStore";
+import {NavigateFunction} from "react-router-dom";
 
 export const login = async (credentials: AuthRequest): Promise<AuthResponse> => {
     try {
@@ -29,12 +30,15 @@ export const register = async (credentials: AuthRequest): Promise<AuthResponse> 
     }
 }
 
-export const logout = async (): Promise<void> => {
+export const logout = async (navigate?: NavigateFunction): Promise<void> => {
     try {
         await api.post("/auth/api/logout");
     } catch (e) {
         console.error("Logout error (API):", e);
     } finally {
         useAuthStore.getState().clearAuth();
+        if (navigate) {
+            navigate("/");
+        }
     }
 }
