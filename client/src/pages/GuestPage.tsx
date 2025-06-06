@@ -2,17 +2,29 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/nreax.svg";
 import Button from '../components/ui/Button';
 import { GrLanguage } from "react-icons/gr";
+import { useState } from "react";
+import LanguageSelectModal from "../components/modals/LanguageSelectModal";
 
 function GuestPage() {
     const navigate = useNavigate();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [lang, setLang] = useState('English');
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
             <Button
                 type="submit"
-                onClick={() => alert('Settings clicked')}
+                onClick={() => setModalOpen(true)}
                 className="absolute top-4 right-4 rounded-full text-white transition"
                 value={<GrLanguage size={24} />}
+            />
+            <LanguageSelectModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                currentLanguage={lang}
+                onSelectLanguage={(newLang) => {
+                    setLang(newLang);
+                }}
             />
             <div className="bg-[#0F172A]/50 rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6 text-center">
                 <div className="flex items-center justify-center gap-1">
