@@ -9,7 +9,7 @@ const Button =
             ' ' +
             className
         ).trim();
-    
+
         return (
           <button
             disabled={disabled}
@@ -21,12 +21,31 @@ const Button =
         );
     }
 
-        const finalClass = (
-            'bg-blue-base hover-scale w-full py-2 rounded-22 font-semibold transition-all' +
-            (disabled ? ' opacity-50 cursor-not-allowed' : '') +
-            ' ' +
-            className
-        ).trim();
+    if (type === 'context' || typeof value !== 'string') {
+        const baseStyles = 'flex items-center gap-2 px-4 pr-3 py-2 text-base font-medium';
+        const stateStyles = disabled
+            ? 'opacity-40 cursor-not-allowed hover:bg-transparent'
+            : 'hover:bg-white/10 transition-colors';
+
+        const finalClass = `${baseStyles} ${stateStyles} ${className}`.trim();
+
+        return (
+            <button
+                type="button"
+                disabled={disabled}
+                onClick={onClick}
+                className={finalClass}
+            >
+                {value}
+            </button>
+        );
+    }
+
+    const finalClass = (
+        className +
+        ' bg-blue-base hover-scale w-full py-2 rounded-22 font-semibold transition-all' +
+        (disabled ? ' opacity-50 cursor-not-allowed' : '')
+      ).trim();
 
     return (
         <input

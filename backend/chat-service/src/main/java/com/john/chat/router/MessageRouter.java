@@ -8,6 +8,8 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.RequestPredicates.PATCH;
+import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
 
 @Configuration
 public class MessageRouter {
@@ -16,8 +18,9 @@ public class MessageRouter {
     public RouterFunction<ServerResponse> route(MessageHandler messageHandler) {
         return RouterFunctions
             .route(GET("/messages"), messageHandler::getMessages)
-            .andRoute(GET("/messages/room/{roomId}"), messageHandler::getMessagesByRoomId);
-
+            .andRoute(GET("/messages/room/{roomId}"), messageHandler::getMessagesByRoomId)
+            .andRoute(PATCH("/messages/{id}"), messageHandler::updateMessage)
+            .andRoute(DELETE("/messages/{id}"), messageHandler::deleteMessage);
     }
 
 }

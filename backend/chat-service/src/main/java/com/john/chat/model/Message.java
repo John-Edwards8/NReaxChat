@@ -2,6 +2,8 @@ package com.john.chat.model;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,8 +23,10 @@ import lombok.NoArgsConstructor;
 @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "Used safely")
 public class Message {
 	@Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
 
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId roomId;
     private String sender;
     private String content;

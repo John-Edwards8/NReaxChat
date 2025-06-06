@@ -2,6 +2,7 @@ package com.john.chat.handler;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -17,6 +18,8 @@ import com.john.chat.repository.MessageRepository;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 @Service
 public class MessageHandler implements WebSocketHandler {
@@ -59,4 +62,39 @@ public class MessageHandler implements WebSocketHandler {
                 .body(messageRepository.findAllByRoomId(new ObjectId(roomId)), Message.class);
     }
 
+    public Mono<ServerResponse> updateMessage(ServerRequest request) {
+        String id = request.pathVariable("id");
+
+        Mono<Map<String, Object>> changesMono = request.bodyToMono(new ParameterizedTypeReference<>() {});
+
+        return messageRepository.findById(new ObjectId(id))
+                .flatMap(existingMessage ->
+                        changesMono.flatMap(map -> {
+                            if (map.containsKey("content")) {
+                                Object raw = map.get("content");
+                                if (raw instanceof String) {
+                                    existingMessage.setContent((String) raw);
+                                }
+                            }
+
+                            return messageRepository.save(existingMessage);
+                        })
+                )
+                .flatMap(updated -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(updated)
+                )
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+    public Mono<ServerResponse> deleteMessage(ServerRequest request) {
+        String id = request.pathVariable("id");
+
+        return messageRepository.findById(new ObjectId(id))
+                .flatMap(existing ->
+                        messageRepository.delete(existing)
+                                .then(ServerResponse.noContent().build())
+                )
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
 }
