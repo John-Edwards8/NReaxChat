@@ -1,6 +1,7 @@
 import AppLogo from './AppLogo'
 import AddRoom from './AddRoom'
 import Settings from './Settings'
+import Exit from "./Exit";
 
 function ChatSidebarRight() {
     return (
@@ -9,9 +10,11 @@ function ChatSidebarRight() {
             <hr className="border-gray-300/30 m-2" />
             <AddRoom />
             <hr className="border-gray-300/30 m-2" />
-            <div className="mt-auto">
+            <div className="mt-auto mb-2">
                 <hr className="border-gray-300/30 m-2" />
                 <Settings/>
+                <hr className="border-gray-300/30 m-2" />
+                <Exit/>
             </div>
         </div>
     );

@@ -4,9 +4,10 @@ const Button =
     ({type = 'button', value, onClick, className = '', disabled = false,}: ButtonProps) => {
     if (type === 'xbutton') {
         const finalClass = (
-          className +
-          ' text-xl font-bold text-gray-800 hover:text-red-700 transition-colors' +
-          (disabled ? ' opacity-50 cursor-not-allowed' : '')
+            'text-xl font-bold text-gray-800 hover:text-red-700 transition-colors' +
+            (disabled ? ' opacity-50 cursor-not-allowed' : '') +
+            ' ' +
+            className
         ).trim();
 
         return (
