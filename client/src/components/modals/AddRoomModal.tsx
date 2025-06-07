@@ -126,7 +126,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
                             type="button"
                             value={user}
                             onClick={() => toggleUser(user)}
-                            className={`px-3 py-1 text-sm whitespace-nowrap ${selectedMembers.includes(user) ? 'bg-chat-active' : 'bg-blue-base'}`}
+                            className={`px-3 py-1 text-sm whitespace-nowrap ${selectedMembers.includes(user) ? 'bg-chat-active' : 'bg-chat-inactive'}`}
                         />
                         </div>
                     ))}

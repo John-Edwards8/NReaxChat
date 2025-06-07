@@ -10,7 +10,7 @@ const ChatHeader = ({ name, group, members }: ChatRoom) => {
             : name;
 
     return (
-        <div className="flex items-center gap-3 p-2 bg-blue-base">
+        <div className="flex items-center gap-3 p-2 bg-panel">
             <div className="w-12 h-12 rounded-full bg-blue-avatar flex items-center justify-center font-bold">
                 {displayName.slice(0, 2).toUpperCase()}
             </div>
