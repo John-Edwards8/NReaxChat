@@ -116,6 +116,12 @@
         @apply text-[#1E75BC];
     }
 
+    .bg-container-modal {
+        @apply bg-[#DBEAFE]/90;
+    }
+    .dark .bg-container-modal {
+        @apply bg-[#0F172A]/90;
+    }
 
     .shadow-chat {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
