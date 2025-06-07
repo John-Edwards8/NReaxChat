@@ -1,43 +1,59 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/nreax.svg";
 import Button from '../components/ui/Button';
+import { GrLanguage } from "react-icons/gr";
+import { useState } from "react";
+import LanguageSelectModal from "../components/modals/LanguageSelectModal";
+import { useI18n } from "../i18n/I18nContext";
 import ThemeToggle from "../components/ui/ThemeToggle";
 
 function GuestPage() {
     const navigate = useNavigate();
+    const [modalOpen, setModalOpen] = useState(false);
+    const { t } = useI18n();
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
-            <div className="absolute top-4 right-4 z-50">
+            <div className="w-full flex justify-end items-center gap-2 p-4 absolute top-0 right-0 z-50">
                 <ThemeToggle />
+                <Button
+                    type="submit"
+                    onClick={() => setModalOpen(true)}
+                    className="rounded-full transition"
+                    value={<GrLanguage size={24} />}
+                />
             </div>
+            <LanguageSelectModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+            />
             <div className="bg-container rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6 text-center">
                 <div className="flex items-center justify-center gap-1">
                     <img src={logo} alt="NReaxChat logo" className="w-20 h-20 rounded-22" />
-                    <h1 className="text-3xl md:text-4xl font-bold">Welcome to NReaxChat</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold">{t("welcome")}</h1>
                 </div>
 
                 <p className="text-center text-lg max-w-md">
-                    Secure and fast messaging. Connect with people easily.
+                    {t("description")}
                 </p>
 
                 <div className="flex justify-center gap-4">
-                    <Button type="submit" onClick={() => navigate('/login')} value="Login" />
-                    <Button type="submit" onClick={() => navigate('/register')} value="Sign Up" />
+                    <Button type="submit" onClick={() => navigate('/login')} value={t("login")} />
+                    <Button type="submit" onClick={() => navigate('/register')} value={t("signup")} />
                 </div>
 
                 <div className="space-y-1">
                     <div className="flex items-center gap-1">
                         <span className="text-2xl">🔥</span>
-                        <span>Real-time instant messaging</span>
+                        <span>{t("features.realtime")}</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <span className="text-2xl">⚡</span>
-                        <span>Lightning-fast and always responsive</span>
+                        <span>{t("features.fast")}</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <span className="text-2xl">🔒</span>
-                        <span>Secure and private message storage</span>
+                        <span>{t("features.secure")}</span>
                     </div>
                 </div>
             </div>

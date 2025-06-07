@@ -4,30 +4,38 @@ import { ModalProps } from '../../types/Modal';
 import { IoArrowForwardOutline } from "react-icons/io5";
 import UpdateDataModal from '../modals/UpdateDataModal';
 import ChangeThemeModal from '../modals/ChangeThemeModal';
+import { useI18n } from '../../i18n/I18nContext';
+import LanguageSelectModal from './LanguageSelectModal';
 
 const SettingModal: React.FC<ModalProps> = (props) => {
-    const [modalType, setModalType] = useState<null | 'update' | 'theme' >(null);
+    const [modalType, setModalType] = useState<null | 'update' | 'theme' | 'lang'>(null);
+    const { t } = useI18n();
 
     const handleBack = () => setModalType(null);
 
     if (modalType === 'update') return <UpdateDataModal isOpen={true} onClose={handleBack} />;
     if (modalType === 'theme') return <ChangeThemeModal isOpen={true} onClose={handleBack} />;
+    if (modalType === 'lang') return <LanguageSelectModal isOpen={true} onClose={handleBack} />;
 
     const buttonBase =
         "w-full flex items-center justify-between gap-2 px-4 py-2 rounded-22 text-base font-medium " +
         "hover:bg-white/20 transition-colors dark:hover:bg-white/20";
 
-
     return (
-        <Modal {...props} title="Settings" onClose={props.onClose} closeText="">
+        <Modal {...props} title={t("settings")} onClose={props.onClose} closeText="">
             <div className="flex flex-col items-center gap-3">
                 <button className={buttonBase} onClick={() => setModalType('update')}>
-                    <span>Update personal data</span>
+                    <span>{t("modals.title.upadateData")}</span>
                     <IoArrowForwardOutline />
                 </button>
 
                 <button className={buttonBase} onClick={() => setModalType('theme')}>
-                    <span>Change theme</span>
+                    <span>{t("changeTheme")}</span>
+                    <IoArrowForwardOutline />
+                </button>
+
+                <button className={buttonBase} onClick={() => setModalType('lang')}>
+                    <span>{t("changeLang")}</span>
                     <IoArrowForwardOutline />
                 </button>
             </div>

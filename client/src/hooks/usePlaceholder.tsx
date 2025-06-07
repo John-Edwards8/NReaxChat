@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { placeholderWords } from '../constants/placeholdersWords'
+import { useI18n } from '../i18n/I18nContext';
+import { translations } from '../i18n/translations';
 
-export const usePlaceholder = (key: keyof typeof placeholderWords, enabled: boolean = true) => {
-    const words = placeholderWords[key];
-    const [placeholder, setPlaceholder] = useState(words[0]);
+export const usePlaceholder = (key: keyof typeof translations.en.placeholders, enabled: boolean = true) => {
+    const { language } = useI18n();
+    const raw = translations[language as keyof typeof translations]?.placeholders?.[key];
+    const words: string[] = Array.isArray(raw) ? raw : [];
+    const [placeholder, setPlaceholder] = useState<string>(words[0] || '');
     const [currentWord, setCurrentWord] = useState(0);
     const [currentLetter, setCurrentLetter] = useState(0);
 
@@ -29,6 +32,12 @@ export const usePlaceholder = (key: keyof typeof placeholderWords, enabled: bool
 
         return () => clearInterval(interval);
     }, [currentLetter, currentWord, words, enabled]);
+
+    useEffect(() => {
+        setCurrentWord(0);
+        setCurrentLetter(0);
+        setPlaceholder(words[0] || '');
+    }, [language]);
 
     return placeholder;
 };

@@ -1,12 +1,14 @@
 import { useRef } from 'react';
 import { useTabIndicator } from '../../../hooks/useTabIndicator';
 import { ChatTab, ChatTabProps } from '../../../types/ChatTabs';
+import { useI18n } from '../../../i18n/I18nContext';
 
 const ChatSectionHeader = ({ activeTab, setActiveTab}: ChatTabProps) => {
+    const { t } = useI18n();
     const tabs: {key: ChatTab, label: string}[] = [
-        { key: 'all', label: 'All Chats' },
-        { key: 'private', label: 'Private' },
-        { key: 'groups', label: 'Groups' }
+        { key: 'all', label: t("tabs.allChats") },
+        { key: 'private', label: t("tabs.private") },
+        { key: 'groups', label: t("tabs.groups") }
     ];
 
     const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -14,7 +16,7 @@ const ChatSectionHeader = ({ activeTab, setActiveTab}: ChatTabProps) => {
 
     return (
         <div className="text-center m-1">
-            <div className="text-xl font-semibold mb-1">Message</div>
+            <div className="text-xl font-semibold mb-1">{t("message")}</div>
             <div className="flex justify-center">
                 <div className="relative bg-tab rounded-full inline-flex p-1 space-x-1">
                     <div

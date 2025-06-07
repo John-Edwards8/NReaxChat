@@ -8,6 +8,7 @@ import { useUserStore } from '../../stores/userStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useErrorStore } from '../../stores/errorStore';
 import ErrorMessage from '../ui/ErrorMessage';
+import { useI18n } from '../../i18n/I18nContext';
 
 
 const AddRoomModal: React.FC<ModalProps> = (props) => {
@@ -18,6 +19,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const { setError, clearError } = useErrorStore();
     const errorMessage = useErrorStore(s => s.fields.all?.message);
+    const { t } = useI18n();
 
     useEffect(() => {
         fetchUsers();
@@ -44,14 +46,14 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
             : [...selectedMembers, currentUser];
 
         if (members.length === 1) {
-            setError('Please select at least one user', 'inline', 'all');
+            setError(t("errors.oneAtLeast"), 'inline', 'all');
             return;
         }
         
         const isGroup = members.length > 2;
 
         if (isGroup && !roomName.trim()) {
-            setError('Please enter a name for the group chat', 'inline', 'all');
+            setError(t("errors.missingGroupChatName"), 'inline', 'all');
             return;
         }
 
@@ -70,7 +72,7 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
             );
 
             if (duplicate) {
-                setError('Private chat with this user already exists', 'inline', 'all');
+                setError(t("errors.alreadyExists"), 'inline', 'all');
                 return;
             }
         }
@@ -78,10 +80,10 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
         try {
             await addRoom({ name, group: isGroup, members });
             await fetchRooms();
-            setError('Chat successfully added!', 'nonError');
+            setError(t("errors.successfullyAdded"), 'nonError');
             handleClose();
         } catch {
-            setError('Failed to create the chat room. Please try again', 'inline', 'all');
+            setError(t("errors.catchFailed"), 'inline', 'all');
         }
     };
 
@@ -94,27 +96,27 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
     };
 
     return (
-        <Modal {...props} title="Create Chat Room" onSave={handleSave} onClose={handleClose}>
+        <Modal {...props} title={t("modals.title.addroom")} onSave={handleSave} onClose={handleClose}>
             <div className="space-y-4">
                 {selectedMembers.length >= 2 && <Input
                     id="roomName"
-                    label="Room Name"
+                    label={t("modals.label.roomName")}
                     value={roomName}
                     required
                     onChange={(e) => setRoomName(e.target.value)}
                     variant="login"
-                    placeholder="Enter room name..."
+                    placeholder={t("placeholders.modals.addroom.roomName")}
                     wrapperClassName="flex-row items-center gap-2 space-y-0"
                     className="flex-1"
                 />}
 
                 <Input
                     id="search"
-                    label="Search Users"
+                    label={t("modals.label.search")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     variant="login"
-                    placeholder="Search for users..."
+                    placeholder={t("placeholders.modals.addroom.search")}
                     wrapperClassName="flex-row items-center gap-2 space-y-0"
                     className="flex-1"
                 />
@@ -136,10 +138,10 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
             {selectedMembers && !errorMessage && (
                 <p className="text-sm text-center">
                     {selectedMembers.length >= 2
-                        ? 'A group chat will be created.'
+                        ? t("placeholders.modals.addroom.group")
                         : selectedMembers.length === 1
-                            ? 'A private chat will be created.'
-                            : 'Select at least 1 user to create a chat.'}
+                            ? t("placeholders.modals.addroom.chat")
+                            : t("placeholders.modals.addroom.warn")}
                 </p>
             )}
             <ErrorMessage field="all" />

@@ -1,11 +1,13 @@
 import { ChatTabProps} from "../../../types/ChatTabs";
 import { useChatRoomStore } from "../../../stores/chatRoomStore";
 import { useAuthStore } from "../../../stores/authStore";
+import { useI18n } from "../../../i18n/I18nContext";
 
 const ChatListItem = ({
     activeTab,
     search
 }: Pick<ChatTabProps, 'activeTab'> & { search: string }) => {
+    const { t } = useI18n();
     const { rooms, activeRoom, setActiveRoom } = useChatRoomStore();
     const currentUser = useAuthStore(state => state.currentUser);
 
@@ -57,7 +59,7 @@ const ChatListItem = ({
                             <div className="flex flex-col items-start">
                                 <div className="font-semibold">{displayName}</div>
                                 <div className="text-sm text-chat-subtitle">
-                                    {room.group ? 'Group Chat' : 'Private Chat'}
+                                    {room.group ? t("gChat") : t("pChat")}
                                 </div>
                             </div>
                         </li>

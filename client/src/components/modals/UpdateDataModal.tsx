@@ -4,15 +4,16 @@ import Input from "../ui/Input";
 import { ModalProps } from "../../types/Modal";
 import { useErrorStore } from '../../stores/errorStore';
 import ErrorMessage from '../ui/ErrorMessage';
-import { errors } from '../../constants/errors';
+import { useI18n } from '../../i18n/I18nContext';
 
 const UpdateDataModal: React.FC<ModalProps> = (props) => {
     const [username, setUsername] = useState('');
     const { setError, clearAll } = useErrorStore();
+    const { t } = useI18n();
 
     const handleSave = () => {
         console.log('New username: ', username);
-        if (!username) setError(errors.missingUsername, 'inline', 'all');
+        if (!username) setError(t("errors.missingUsername"), 'inline', 'all');
     }
 
     const handleClose = () => {
@@ -22,15 +23,15 @@ const UpdateDataModal: React.FC<ModalProps> = (props) => {
     }
 
     return (
-        <Modal {...props} title="Update personal data" onSave={handleSave} onClose={handleClose}>
+        <Modal {...props} title={t("modals.title.upadateData")} onSave={handleSave} onClose={handleClose}>
             <Input
                 id="text"
-                label="Username"
+                label={t("label.username")}
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 variant="login"
-                placeholder="Type your NEW username"
+                placeholder={t("placeholders.modals.settings.username")}
             />
             <ErrorMessage field="all" />
         </Modal>
