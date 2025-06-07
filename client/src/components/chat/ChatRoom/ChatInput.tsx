@@ -63,7 +63,7 @@ const ChatInput = ({ message, setMessage, sendMessage, editingId, cancelEdit }: 
                     className="hover:opacity-80 transition"
                     onClick={sendMessage}
                 >
-                    <FaPaperPlane className="w-8 h-8"/>
+                    <FaPaperPlane className="w-8 h-8 color-icon"/>
                 </button>
             </div>
         </div>

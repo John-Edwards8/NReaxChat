@@ -123,6 +123,14 @@
         @apply bg-[#0F172A]/90;
     }
 
+    .color-icon {
+        @apply text-[#63B3ED];
+    }
+
+    .dark .color-icon {
+        @apply text-white;
+    }
+
     .shadow-chat {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
