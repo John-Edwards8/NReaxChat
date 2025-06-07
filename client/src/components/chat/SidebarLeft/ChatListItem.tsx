@@ -58,7 +58,7 @@ const ChatListItem = ({
                             </div>
                             <div className="flex flex-col items-start">
                                 <div className="font-semibold">{displayName}</div>
-                                <div className="text-sm text-gray-300">
+                                <div className="text-sm text-chat-subtitle">
                                     {room.group ? t("gChat") : t("pChat")}
                                 </div>
                             </div>
