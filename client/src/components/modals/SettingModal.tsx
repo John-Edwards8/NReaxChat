@@ -23,15 +23,15 @@ const SettingModal: React.FC<ModalProps> = (props) => {
     }
 
     return (
-        <Modal {...props} title="Settings" onSave={handleSave} onClose={handleClose}>
+        <Modal {...props} title={t("modals.title.settings")} onSave={handleSave} onClose={handleClose}>
             <Input
                 id="text"
-                label="Username"
+                label={t("modals.label.text")}
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 variant="login"
-                placeholder="Type your NEW username"
+                placeholder={t("placeholders.modals.settings.username")}
             />
             <ErrorMessage field="all" />
         </Modal>

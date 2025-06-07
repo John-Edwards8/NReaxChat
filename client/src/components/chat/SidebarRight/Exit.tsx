@@ -1,9 +1,11 @@
 import React, {useState} from "react";
 import { FiLogOut } from "react-icons/fi";
 import LogoutModal from "../../modals/LogoutModal.tsx";
+import { useI18n } from "../../../i18n/I18nContext.tsx";
 
 const Exit: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { t } = useI18n();
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -20,7 +22,7 @@ const Exit: React.FC = () => {
                 onClick={openModal}
             >
                 <FiLogOut className="w-16 h-16 text-blue-base "/>
-                <span className="text-2xl font-semibold">Exit</span>
+                <span className="text-2xl font-semibold">{t("exit")}</span>
             </div>
             <LogoutModal isOpen={isModalOpen} onClose={closeModal}/></>
     );

@@ -2,22 +2,27 @@ import React from 'react';
 import ReactModal from 'react-modal';
 import {ModalProps} from '../../types/Modal';
 import Button from './Button';
+import { useI18n } from '../../i18n/I18nContext';
 
 const Modal: React.FC<ModalProps> = ({
                                          isOpen,
                                          onClose,
                                          onSave,
 
-                                         saveText = "Save",
+                                         saveText,
                                          saveClassName = "",
 
-                                         closeText = "Close",
+                                         closeText,
                                          closeClassName = "",
 
                                          title,
                                          titleClassName = '',
                                          children,
                                      }) => {
+    const { t } = useI18n();
+    const defaultSave = t("label.save");
+    const defaultClose = t("label.close");
+    
     return (
         <ReactModal
             isOpen={isOpen}
@@ -40,16 +45,16 @@ const Modal: React.FC<ModalProps> = ({
                 {onSave && (
                     <Button
                         type="button"
-                        value={saveText}
+                        value={saveText ?? defaultSave}
                         onClick={onSave}
                         className={`max-w-[100px] ${saveClassName}`.trim()}
                     />
                 )}
 
-                {closeText !== null && closeText !== "" && (
+                {(closeText ?? defaultClose) !== "" && (
                     <Button
                         type="button"
-                        value={closeText}
+                        value={closeText ?? defaultClose}
                         onClick={onClose}
                         className={`max-w-[100px] ${closeClassName}`.trim()}
                     />

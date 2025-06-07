@@ -1,9 +1,11 @@
+import { useI18n } from "../../../i18n/I18nContext";
 import Input from "../../ui/Input";
 
 const ChatSearchBar = ({ search, setSearch }: {
     search: string;
     setSearch: (value: string) => void;
 }) => {
+    const { t } = useI18n();
     return (
         <div className="px-4 pt-4">
             <div className="relative">
@@ -11,7 +13,7 @@ const ChatSearchBar = ({ search, setSearch }: {
                     id="chat-search"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search..."
+                    placeholder={t("chatSearch")}
                     variant="search"
                 />
                 <svg

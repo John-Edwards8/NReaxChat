@@ -3,6 +3,7 @@ import { FaPaperPlane } from "react-icons/fa";
 import { FiEdit } from 'react-icons/fi';
 import Input from "../../ui/Input";
 import Button from "../../ui/Button";
+import { useI18n } from "../../../i18n/I18nContext";
 
 type HandleInputProps = {
     message: string;
@@ -14,6 +15,7 @@ type HandleInputProps = {
 
 
 const ChatInput = ({ message, setMessage, sendMessage, editingId, cancelEdit }: HandleInputProps) => {
+    const { t } = useI18n();
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
           sendMessage();
@@ -39,7 +41,7 @@ const ChatInput = ({ message, setMessage, sendMessage, editingId, cancelEdit }: 
                 <div className="flex items-center justify-between px-4 py-2 bg-chat-active rounded-t-[22px]">
                     <div className="flex items-center gap-2 font-medium">
                         <FiEdit className="w-4 h-4"/>
-                        <span>Editing message:</span>
+                        <span>{t("editingMess")}</span>
                     </div>
                     <Button
                         type="xbutton"
@@ -52,7 +54,7 @@ const ChatInput = ({ message, setMessage, sendMessage, editingId, cancelEdit }: 
                 <Input
                     id="chat-message"
                     value={message}
-                    placeholder="Type a message..."
+                    placeholder={t("typeMess")}
                     onKeyDown={handleKeyDown}
                     wrapperClassName="flex-1"
                     onChange={(e) => setMessage(e.target.value)}

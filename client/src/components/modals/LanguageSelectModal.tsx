@@ -30,19 +30,19 @@ const LanguageSelectModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                     className="rounded-full text-white transition"
                     value={<FiArrowLeft className="text-white text-xl" />}
                 />
-                <h2 className="text-white text-lg font-semibold">Please choose language</h2>
+                <h2 className="text-white text-lg font-semibold">{t("modals.title.language")}</h2>
             </div>
 
             <div className="flex flex-col items-center gap-4">
                 {languages.map(({ code, label }) => (
-                    <button
+                    <Button
+                        type='context'
+                        value={label}
                         key={code}
                         onClick={() => setLanguage(code)}
-                        className={`w-40 py-2 rounded-full text-white font-medium shadow-md transition 
+                        className={`max-w rounded-full text-white font-medium shadow-md transition 
                             ${code === language ? 'bg-white/20' : 'hover:bg-white/10'}`}
-                    >
-                        {label}
-                    </button>
+                    />
                 ))}
             </div>
         </Modal>

@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { IoMdAddCircleOutline } from 'react-icons/io';
 import AddRoomModal from "../../modals/AddRoomModal";
+import { useI18n } from '../../../i18n/I18nContext';
 
 const AddRoom = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const { t } = useI18n();
 
     return(
         <>
             <div className="flex items-center gap-3 px-4 cursor-pointer" onClick={() => setIsOpen(true)}>
                 <IoMdAddCircleOutline className="w-16 h-16 text-blue-base" />
-                <span className="text-2xl font-semibold">New Room</span>
+                <span className="text-2xl font-semibold">{t("addRoom")}</span>
             </div>
             <AddRoomModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
         </>

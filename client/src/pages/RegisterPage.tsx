@@ -30,7 +30,7 @@ function RegisterPage() {
             const credentials = { username, password };
             await register(credentials);
             setError('', 'inline', 'reg');
-            navigate('/login', { state: { successMessage: `Success! Welcome ${username}!` } });
+            navigate('/login', { state: { successMessage: `${t("successMessage")} ${username}!` } });
         } catch (err) {
             setError(t("errors.register.invalid"), 'inline', 'reg');
         }
@@ -38,12 +38,12 @@ function RegisterPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-3">
-            <h1 className="text-3xl font-bold mb-6">Register to NReaxChat</h1>
+            <h1 className="text-3xl font-bold mb-6">{t("registerTo")}</h1>
             <form onSubmit={submit} className="bg-[#0F172A]/50 rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6">
                 <div className="flex flex-col space-y-1">
                     <Input
                         id="username"
-                        label="Username"
+                        label={t("label.username")}
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholderKey="username"
@@ -55,7 +55,7 @@ function RegisterPage() {
                 <div className="flex flex-col space-y-1">
                     <Input
                         id="password"
-                        label="Password"
+                        label={t("label.password")}
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -65,7 +65,7 @@ function RegisterPage() {
                     />
                 </div>
 
-                <Button type="submit" value="Register" className="bg-chat-active" />
+                <Button type="submit" value={t("label.register")} className="bg-chat-active" />
                 <ErrorMessage field="reg" />
             </form>
         </div>
