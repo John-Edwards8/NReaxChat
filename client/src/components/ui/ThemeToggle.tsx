@@ -12,7 +12,7 @@ const ThemeToggle = () => {
     return (
         <div onClick={toggleTheme} className={`flex items-center gap-2 cursor-pointer select-none transition-transform duration-300 hover:scale-110 ${textColor}`}>
             <span>{isDark ? t("dark") : t("light")}</span>
-            <Icon className={`text-xl`} />
+            <Icon className={`text-2xl`} />
         </div>
     );
 };

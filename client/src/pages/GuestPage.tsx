@@ -14,19 +14,19 @@ function GuestPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4">
-            <Button
-                type="submit"
-                onClick={() => setModalOpen(true)}
-                className="absolute top-4 right-4 rounded-full text-white transition"
-                value={<GrLanguage size={24} />}
-            />
+            <div className="w-full flex justify-end items-center gap-2 p-4 absolute top-0 right-0 z-50">
+                <ThemeToggle />
+                <Button
+                    type="submit"
+                    onClick={() => setModalOpen(true)}
+                    className="rounded-full transition"
+                    value={<GrLanguage size={24} />}
+                />
+            </div>
             <LanguageSelectModal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
             />
-            <div className="absolute top-4 right-8 z-50">
-                <ThemeToggle />
-            </div>
             <div className="bg-container rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6 text-center">
                 <div className="flex items-center justify-center gap-1">
                     <img src={logo} alt="NReaxChat logo" className="w-20 h-20 rounded-22" />
