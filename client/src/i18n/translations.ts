@@ -9,6 +9,10 @@ export const translations = {
             fast: 'Lightning-fast and always responsive',
             secure: 'Secure and private message storage',
         },
+        changeTheme: 'Change theme',
+        pleaseChoose: 'Please choose theme',
+        dark: 'Dark',
+        light: 'Light',
         settings: 'Settings',
         editingMess: 'Editing message:',
         membersText: 'members',
@@ -62,6 +66,7 @@ export const translations = {
         modals: {
             title: {
                 language: 'Please choose language',
+                upadateData: 'Update personal data',
                 settings: 'Settings',
                 logout: 'Logout Account',
                 addroom: 'Create Chat Room',
@@ -113,6 +118,10 @@ export const translations = {
             fast: 'Молниеносно и всегда отзывчиво',
             secure: 'Надёжное и приватное хранение сообщений',
         },
+        changeTheme: 'Изменить тему',
+        pleaseChoose: 'Пожалуйста, выберите тему',
+        dark: 'Тёмная',
+        light: 'Светлая',
         settings: 'Настройки',
         editingMess: 'Редактирование сообщения:',
         membersText: 'участников',
@@ -166,6 +175,7 @@ export const translations = {
         modals: {
             title: {
                 language: 'Пожалуйста, выберите язык',
+                upadateData: 'Обновить личные данные',
                 settings: 'Настройки',
                 logout: 'Выйти из аккаунта',
                 addroom: 'Создать чат',
@@ -217,6 +227,10 @@ export const translations = {
             fast: 'Блискавично швидко та чуйно',
             secure: 'Безпечне зберігання повідомлень',
         },
+        changeTheme: 'Змінити тему',
+        pleaseChoose: 'Будь ласка, виберіть тему',
+        dark: 'Темна',
+        light: 'Світла',
         settings: 'Налаштування',
         editingMess: 'Редагування повідомлення:',
         membersText: 'учасників',
@@ -270,6 +284,7 @@ export const translations = {
         modals: {
             title: {
                 language: 'Будь ласка, оберіть мову',
+                upadateData: 'Оновити особисті дані',
                 settings: 'Налаштування',
                 logout: 'Вийти з акаунту',
                 addroom: 'Створити чат',
@@ -321,6 +336,10 @@ export const translations = {
             fast: 'Błyskawicznie i responsywnie',
             secure: 'Bezpieczne przechowywanie wiadomości',
         },
+        changeTheme: 'Zmień motyw',
+        pleaseChoose: 'Proszę wybrać motyw',
+        dark: 'Ciemny',
+        light: 'Jasny',
         settings: 'Ustawienia',
         editingMess: 'Edycja wiadomości:',
         membersText: 'uczestników',
@@ -374,6 +393,7 @@ export const translations = {
         modals: {
             title: {
                 language: 'Proszę wybrać język',
+                upadateData: 'Zaktualizuj dane osobowe',
                 settings: 'Ustawienia',
                 logout: 'Wyloguj się',
                 addroom: 'Utwórz pokój czatu',
@@ -425,6 +445,10 @@ export const translations = {
             fast: 'Blitzschnell und reaktionsschnell',
             secure: 'Sichere Speicherung von Nachrichten',
         },
+        changeTheme: 'Thema ändern',
+        pleaseChoose: 'Bitte wählen Sie ein Thema',
+        dark: 'Dunkel',
+        light: 'Hell',
         settings: 'Einstellungen',
         editingMess: 'Nachricht wird bearbeitet:',
         membersText: 'Mitglieder',
@@ -478,6 +502,7 @@ export const translations = {
         modals: {
             title: {
                 language: 'Bitte Sprache wählen',
+                upadateData: 'Persönliche Daten aktualisieren',
                 settings: 'Einstellungen',
                 logout: 'Ausloggen',
                 addroom: 'Chatraum erstellen',

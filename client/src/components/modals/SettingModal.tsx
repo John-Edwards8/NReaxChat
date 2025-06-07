@@ -4,9 +4,11 @@ import { ModalProps } from '../../types/Modal';
 import { IoArrowForwardOutline } from "react-icons/io5";
 import UpdateDataModal from '../modals/UpdateDataModal';
 import ChangeThemeModal from '../modals/ChangeThemeModal';
+import { useI18n } from '../../i18n/I18nContext';
 
 const SettingModal: React.FC<ModalProps> = (props) => {
     const [modalType, setModalType] = useState<null | 'update' | 'theme' >(null);
+    const { t } = useI18n();
 
     const handleBack = () => setModalType(null);
 
@@ -18,15 +20,15 @@ const SettingModal: React.FC<ModalProps> = (props) => {
         "hover:bg-white/20 transition-colors dark:hover:bg-white/20";
 
     return (
-        <Modal {...props} title="Settings" onClose={props.onClose} closeText="">
+        <Modal {...props} title={t("settings")} onClose={props.onClose} closeText="">
             <div className="flex flex-col items-center gap-3">
                 <button className={buttonBase} onClick={() => setModalType('update')}>
-                    <span>Update personal data</span>
+                    <span>{t("modals.title.upadateData")}</span>
                     <IoArrowForwardOutline />
                 </button>
 
                 <button className={buttonBase} onClick={() => setModalType('theme')}>
-                    <span>Change theme</span>
+                    <span>{t("changeTheme")}</span>
                     <IoArrowForwardOutline />
                 </button>
             </div>
