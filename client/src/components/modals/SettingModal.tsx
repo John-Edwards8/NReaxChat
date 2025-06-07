@@ -5,15 +5,17 @@ import { IoArrowForwardOutline } from "react-icons/io5";
 import UpdateDataModal from '../modals/UpdateDataModal';
 import ChangeThemeModal from '../modals/ChangeThemeModal';
 import { useI18n } from '../../i18n/I18nContext';
+import LanguageSelectModal from './LanguageSelectModal';
 
 const SettingModal: React.FC<ModalProps> = (props) => {
-    const [modalType, setModalType] = useState<null | 'update' | 'theme' >(null);
+    const [modalType, setModalType] = useState<null | 'update' | 'theme' | 'lang'>(null);
     const { t } = useI18n();
 
     const handleBack = () => setModalType(null);
 
     if (modalType === 'update') return <UpdateDataModal isOpen={true} onClose={handleBack} />;
     if (modalType === 'theme') return <ChangeThemeModal isOpen={true} onClose={handleBack} />;
+    if (modalType === 'lang') return <LanguageSelectModal isOpen={true} onClose={handleBack} />;
 
     const buttonBase =
         "w-full flex items-center justify-between gap-2 px-4 py-2 rounded-22 text-base font-medium " +
@@ -29,6 +31,11 @@ const SettingModal: React.FC<ModalProps> = (props) => {
 
                 <button className={buttonBase} onClick={() => setModalType('theme')}>
                     <span>{t("changeTheme")}</span>
+                    <IoArrowForwardOutline />
+                </button>
+
+                <button className={buttonBase} onClick={() => setModalType('lang')}>
+                    <span>{t("changeLang")}</span>
                     <IoArrowForwardOutline />
                 </button>
             </div>
