@@ -50,7 +50,7 @@ const ChatListItem = ({
                             className={`
                                 flex items-start gap-3 p-3 rounded-22 
                                 cursor-pointer transition hover:opacity-90
-                                ${isActive ? 'bg-chat-active' : 'bg-blue-base'}
+                                ${isActive ? 'bg-chat-active' : 'bg-chat-inactive'}
                             `}
                         >
                             <div className="w-12 h-12 rounded-full bg-blue-avatar flex items-center justify-center font-bold">

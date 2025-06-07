@@ -18,9 +18,9 @@ const ChatSectionHeader = ({ activeTab, setActiveTab}: ChatTabProps) => {
         <div className="text-center m-1">
             <div className="text-xl font-semibold mb-1">{t("message")}</div>
             <div className="flex justify-center">
-                <div className="relative bg-blue-base rounded-full inline-flex p-1 space-x-1">
+                <div className="relative bg-tab rounded-full inline-flex p-1 space-x-1">
                     <div
-                        className="absolute top-1 bottom-1 bg-black rounded-full transition-all duration-300 ease-in-out z-0"
+                        className="absolute top-1 bottom-1 bg-tab-active rounded-full transition-all duration-300 ease-in-out z-0"
                         style={{
                             ...indicatorStyle,
                         }}

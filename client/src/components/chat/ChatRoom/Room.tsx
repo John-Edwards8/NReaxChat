@@ -29,7 +29,7 @@ export default function Room({ roomId, name, group, members }: ChatRoom) {
     };
 
     return (
-        <div className="flex flex-col flex-1 rounded-22 bg-[#0F172A]/50 shadow-[0_4px_12px_rgba(0,0,0,0.5)] overflow-hidden">
+        <div className="flex flex-col flex-1 rounded-22 bg-container shadow-[0_4px_12px_rgba(0,0,0,0.5)] overflow-hidden">
             <ChatHeader roomId={roomId} name={name} group={group} members={members}/>
             <MessagesList
                 messages={messages}

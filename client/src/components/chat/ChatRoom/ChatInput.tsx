@@ -50,7 +50,7 @@ const ChatInput = ({ message, setMessage, sendMessage, editingId, cancelEdit }: 
                     />
                 </div>
             </div>
-            <div className="flex items-center bg-blue-base px-4 py-2">
+            <div className="flex items-center bg-panel px-4 py-2">
                 <Input
                     id="chat-message"
                     value={message}
@@ -65,7 +65,7 @@ const ChatInput = ({ message, setMessage, sendMessage, editingId, cancelEdit }: 
                     className="hover:opacity-80 transition"
                     onClick={sendMessage}
                 >
-                    <FaPaperPlane className="w-8 h-8"/>
+                    <FaPaperPlane className="w-8 h-8 color-icon"/>
                 </button>
             </div>
         </div>

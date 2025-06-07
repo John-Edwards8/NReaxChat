@@ -5,6 +5,7 @@ import { GrLanguage } from "react-icons/gr";
 import { useState } from "react";
 import LanguageSelectModal from "../components/modals/LanguageSelectModal";
 import { useI18n } from "../i18n/I18nContext";
+import ThemeToggle from "../components/ui/ThemeToggle";
 
 function GuestPage() {
     const navigate = useNavigate();
@@ -23,7 +24,10 @@ function GuestPage() {
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
             />
-            <div className="bg-[#0F172A]/50 rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6 text-center">
+            <div className="absolute top-4 right-8 z-50">
+                <ThemeToggle />
+            </div>
+            <div className="bg-container rounded-22 shadow-chat p-6 w-full max-w-sm space-y-6 text-center">
                 <div className="flex items-center justify-center gap-1">
                     <img src={logo} alt="NReaxChat logo" className="w-20 h-20 rounded-22" />
                     <h1 className="text-3xl md:text-4xl font-bold">{t("welcome")}</h1>
