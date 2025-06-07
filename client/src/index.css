@@ -21,10 +21,10 @@
     }
 
     .bg-chat-active {
-        @apply bg-[#60A5FA];
+        @apply bg-[#63B3ED];
     }
     .dark .bg-chat-active {
-        @apply bg-[#3B82F6];
+        @apply bg-[#60A5FA];
     }
 
     .bg-chat-inactive {
@@ -102,16 +102,20 @@
         @apply text-gray-400;
     }
 
-    .bg-date-separator {
+    .bg-separator {
         @apply bg-black/20;
     }
-    .dark .bg-date-separator {
+    .dark .bg-separator {
         @apply bg-white/20;
     }
 
     .text-blue-base {
-        color: #1E75BC;
+        @apply text-[#63B3ED];
     }
+    .dark .text-blue-base {
+        @apply text-[#1E75BC];
+    }
+
 
     .shadow-chat {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
