@@ -81,6 +81,34 @@
         @apply bg-[#5693C4];
     }
 
+    .bg-panel {
+        @apply bg-white;
+    }
+    .dark .bg-panel {
+        @apply bg-[#1E75BC];
+    }
+
+    .bg-message-other {
+        @apply bg-[#D1D5E0];
+    }
+    .dark .bg-message-other {
+        @apply bg-[#1E2939];
+    }
+
+    .text-chat-subtitle {
+        @apply text-black/50;
+    }
+    .dark .text-chat-subtitle {
+        @apply text-gray-400;
+    }
+
+    .bg-date-separator {
+        @apply bg-black/20;
+    }
+    .dark .bg-date-separator {
+        @apply bg-white/20;
+    }
+
     .text-blue-base {
         color: #1E75BC;
     }

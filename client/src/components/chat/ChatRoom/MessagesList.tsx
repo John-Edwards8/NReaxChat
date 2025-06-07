@@ -30,9 +30,9 @@ const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId
                 <div key={String(msg.id)}>
                 {showDateSeparator && (
                     <div className="flex items-center my-4">
-                        <div className="flex-grow h-px bg-white opacity-20" />
-                            <span className="mx-4 text-white text-xs">{dateStr}</span>
-                        <div className="flex-grow h-px bg-white opacity-20" />
+                        <div className="flex-grow h-px bg-date-separator" />
+                            <span className="mx-4 text-xs">{dateStr}</span>
+                        <div className="flex-grow h-px bg-date-separator" />
                     </div>
                 )}
                 <MessageBubble
