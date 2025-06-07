@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/authStore";
+import { extractUsernameFromToken } from "../utils/jwt";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_GATEWAY_URL,
@@ -22,12 +23,21 @@ api.interceptors.response.use(
     res => res,
     async (error) => {
         const originalRequest = error.config;
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry &&
+            !originalRequest.url.includes('/auth/api/refresh')
+        ) {
             originalRequest._retry = true;
             try {
                 const response = await api.post('/auth/api/refresh');
-                useAuthStore.getState().setAccessToken(response.data.accessToken);
-                originalRequest.headers.Authorization = `Bearer ${useAuthStore.getState().accessToken}`;
+                const newAccessToken = response.data.accessToken;
+
+                const user = extractUsernameFromToken(newAccessToken) ?? '';
+                                
+                useAuthStore.getState().setAccessToken(newAccessToken);
+                useAuthStore.getState().setCurrentUser(user); 
+
+                originalRequest.headers = originalRequest.headers || {};
+                originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                 return api(originalRequest);
             } catch (e) {
                 useAuthStore.getState().clearAuth();

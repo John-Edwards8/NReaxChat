@@ -2,13 +2,13 @@ import api from '../api/axios.ts'
 import { AuthRequest } from "../types/AuthRequest";
 import { AuthResponse } from "../types/AuthResponse";
 import { useAuthStore } from "../stores/authStore";
-import {NavigateFunction} from "react-router-dom";
+import { NavigateFunction } from "react-router-dom";
 
 export const login = async (credentials: AuthRequest): Promise<AuthResponse> => {
     try {
         const response = await api.post<AuthResponse>('auth/api/login', credentials);
         const { accessToken, role } = response.data;
-        
+
         useAuthStore.getState().setAccessToken(accessToken);
         useAuthStore.getState().setRole(role);
         useAuthStore.getState().setCurrentUser(credentials.username);
@@ -37,8 +37,6 @@ export const logout = async (navigate?: NavigateFunction): Promise<void> => {
         console.error("Logout error (API):", e);
     } finally {
         useAuthStore.getState().clearAuth();
-        if (navigate) {
-            navigate("/");
-        }
+        if (navigate) navigate("/");
     }
 }
