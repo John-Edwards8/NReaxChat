@@ -4,7 +4,8 @@ import { translations } from '../i18n/translations';
 
 export const usePlaceholder = (key: keyof typeof translations.en.placeholders, enabled: boolean = true) => {
     const { language } = useI18n();
-    const words = translations[language as keyof typeof translations]?.placeholders?.[key] ?? [];
+    const raw = translations[language as keyof typeof translations]?.placeholders?.[key];
+    const words: string[] = Array.isArray(raw) ? raw : [];
     const [placeholder, setPlaceholder] = useState<string>(words[0] || '');
     const [currentWord, setCurrentWord] = useState(0);
     const [currentLetter, setCurrentLetter] = useState(0);
