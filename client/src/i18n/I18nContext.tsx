@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { translations, Language } from './translations';
 
 interface I18nContextProps {
@@ -10,7 +10,23 @@ interface I18nContextProps {
 const I18nContext = createContext<I18nContextProps | undefined>(undefined);
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [language, setLanguage] = useState<Language>('en');
+    const [language, setLanguageState] = useState<Language>('en');
+
+    useEffect(() => {
+        const saved = localStorage.getItem('app-language') as Language;
+        if (saved && translations[saved]) {
+            setLanguageState(saved);
+        } else {
+        const fallback = 'en' as Language;
+        localStorage.setItem('app-language', fallback);
+        setLanguageState(fallback);
+    }
+    }, []);
+
+    const setLanguage = (lang: Language) => {
+        setLanguageState(lang);
+        localStorage.setItem('app-language', lang);
+    };
 
     const t = (key: string): string => {
         const keys = key.split('.');
