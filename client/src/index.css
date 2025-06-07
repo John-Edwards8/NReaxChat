@@ -138,7 +138,7 @@
     background: transparent;
 }
 
-body.dark ::-webkit-scrollbar-thumb {
+html.dark ::-webkit-scrollbar-thumb {
     background: radial-gradient(
             circle,
             rgba(56, 108, 221, 1) 0%,
@@ -148,7 +148,7 @@ body.dark ::-webkit-scrollbar-thumb {
     border-radius: 100vh;
 }
 
-body.dark ::-webkit-scrollbar-thumb:hover {
+html.dark ::-webkit-scrollbar-thumb:hover {
     background: radial-gradient(
             circle,
             rgba(96, 165, 250, 1) 0%,
@@ -157,7 +157,7 @@ body.dark ::-webkit-scrollbar-thumb:hover {
     );
 }
 
-body:not(.dark) ::-webkit-scrollbar-thumb {
+html:not(.dark) ::-webkit-scrollbar-thumb {
     background: radial-gradient(
             circle,
             rgba(219, 234, 254, 1) 0%,
@@ -166,7 +166,7 @@ body:not(.dark) ::-webkit-scrollbar-thumb {
     border-radius: 100vh;
 }
 
-body:not(.dark) ::-webkit-scrollbar-thumb:hover {
+html:not(.dark) ::-webkit-scrollbar-thumb:hover {
     background: radial-gradient(
             circle,
             rgba(147, 197, 253, 1) 10%,
