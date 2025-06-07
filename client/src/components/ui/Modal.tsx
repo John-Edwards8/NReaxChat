@@ -22,7 +22,7 @@ const Modal: React.FC<ModalProps> = ({
         <ReactModal
             isOpen={isOpen}
             onRequestClose={onClose}
-            className="bg-[#0F172A]/90 p-4 rounded-22 max-w-md w-full max-h-[90vh] overflow-y-auto mx-auto mt-24 shadow-chat outline-none"
+            className="bg-container p-4 rounded-22 max-w-md w-full max-h-[90vh] overflow-y-auto mx-auto mt-24 shadow-chat outline-none"
             overlayClassName="fixed inset-0 bg-black/50 flex justify-center items-start z-50"
             ariaHideApp={false}
         >
