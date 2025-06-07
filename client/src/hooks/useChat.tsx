@@ -6,7 +6,7 @@ import { updateMessage, deleteMessage } from "../api/messages";
 
 const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL as string;
 
-export function useChat(roomId: string) {
+const useChat = (roomId: string) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const ws = useRef<WebSocket | null>(null);
 
@@ -65,3 +65,5 @@ export function useChat(roomId: string) {
 
     return { messages, sendMessage, editMessage, removeMessage };
 }
+
+export default useChat;

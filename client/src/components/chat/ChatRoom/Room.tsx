@@ -2,7 +2,7 @@ import ChatHeader from "./ChatHeader";
 import MessagesList from "./MessagesList";
 import ChatInput from "./ChatInput";
 import { useState } from "react";
-import { useChat } from "../../../hooks/useChat";
+import useChat from "../../../hooks/useChat";
 import { ChatRoom } from "../../../types/ChatRoom";
 import { useAuthStore } from "../../../stores/authStore";
 
