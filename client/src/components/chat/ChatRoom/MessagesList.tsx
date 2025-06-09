@@ -1,6 +1,7 @@
 import MessageBubble from "./MessageBubble";
 import { Message } from "../../../types/Message";
 import { useContextMenu } from '../../../hooks/useContextMenu';
+import { formatDateSeparator } from '../../../utils/formatDate'
 
 interface Props {
     messages: Message[];
@@ -18,11 +19,7 @@ const MessagesList = ({ messages, currentUser, isGroup, setMessage, setEditingId
     return (
         <div className="flex-1 overflow-y-auto p-2 space-y-2 m-1">
             {messages.map((msg) => {
-            const dateParts = msg.timestamp.toLocaleString().match(/^(\d{4})-(\d{2})-(\d{2})/)?.slice(1) || "";
-            const dateStr = dateParts.length === 3
-                    ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`
-                    : "";
-
+            const dateStr = formatDateSeparator(msg.timestamp);
             const showDateSeparator = dateStr !== lastDate;
             lastDate = dateStr;
 

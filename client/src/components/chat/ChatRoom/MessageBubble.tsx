@@ -1,6 +1,7 @@
 import MessageContextMenu from "./MessageContextMenu";
 import { Message } from "../../../types/Message";
 import React from "react";
+import { formatTime } from '../../../utils/formatDate';
 
 type Props = Message & {
     currentUser: string;
@@ -33,7 +34,7 @@ const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, s
                         <div className="flex justify-between items-center mb-1 text-xs text-chat-subtitle">
                             <div>{sender}</div>
                             <div className="whitespace-nowrap ml-5">
-                                {timestamp.toLocaleString().match(/\d\d\:\d\d/i)?.[0]}
+                                {formatTime(timestamp)}
                             </div>
                         </div>
                     ) : null}
@@ -41,7 +42,7 @@ const MessageBubble = ({ id, content, sender, timestamp, currentUser, isGroup, s
                         {content}
                         {(!isGroup || isMe) && (
                             <div className="text-chat-subtitle text-xs whitespace-nowrap">
-                                {timestamp.toLocaleString().match(/\d\d\:\d\d/i)?.[0]}
+                                {formatTime(timestamp)}
                             </div>
                         )}
                     </div>
