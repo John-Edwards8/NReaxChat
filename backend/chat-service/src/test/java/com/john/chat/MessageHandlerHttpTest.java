@@ -14,8 +14,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,12 +45,12 @@ class MessageHandlerHttpTest {
         Message m1 = new Message();
         m1.setSender("alice");
         m1.setContent("hello");
-        m1.setTimestamp(LocalDateTime.of(2025, 5, 6, 12, 0));
+        // m1.setTimestamp(LocalDateTime.of(2025, 5, 6, 12, 0));
 
         Message m2 = new Message();
         m2.setSender("bob");
         m2.setContent("hi");
-        m2.setTimestamp(LocalDateTime.of(2025, 5, 6, 12, 1));
+        // m2.setTimestamp(LocalDateTime.of(2025, 5, 6, 12, 1));
 
         Mockito.when(repo.findAll()).thenReturn(Flux.just(m1, m2));
 
@@ -77,7 +75,7 @@ class MessageHandlerHttpTest {
                 .roomId(new ObjectId())
                 .sender("alice")
                 .content("old content")
-                .timestamp(LocalDateTime.of(2025, 5, 6, 12, 0))
+                //.timestamp(LocalDateTime.of(2025, 5, 6, 12, 0))
                 .build();
 
         Message updated = Message.builder()
@@ -132,7 +130,7 @@ class MessageHandlerHttpTest {
                 .roomId(new ObjectId())
                 .sender("bob")
                 .content("to be deleted")
-                .timestamp(LocalDateTime.of(2025, 5, 6, 12, 5))
+                //.timestamp(LocalDateTime.of(2025, 5, 6, 12, 5))
                 .build();
 
         Mockito.when(repo.findById(eq(id))).thenReturn(Mono.just(existing));

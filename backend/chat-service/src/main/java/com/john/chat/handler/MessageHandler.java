@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.john.chat.model.ChatMessage;
 import com.john.chat.model.Message;
 import com.john.chat.repository.MessageRepository;
+import com.john.chat.service.WebSocketSessionRegistry;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,6 +26,8 @@ import java.util.Map;
 public class MessageHandler implements WebSocketHandler {
     @Autowired private MessageRepository messageRepository;
     @Autowired private ObjectMapper objectMapper;
+    @Autowired private WebSocketSessionRegistry sessionRegistry;
+
     public Mono<ServerResponse> getMessages(ServerRequest request) {
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -32,27 +35,30 @@ public class MessageHandler implements WebSocketHandler {
     }
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
-        Flux<WebSocketMessage> incomingMessages = webSocketSession.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .flatMap(raw -> {
-                    try {
-                        Message mess = objectMapper.readValue(raw, Message.class);
-                        return messageRepository.save(mess)
-                                                .thenReturn(mess);
-                    } catch (Exception e) {
-                        return Mono.empty();
-                    }
-                    
-                })
-                .map(savedMessage -> {
-                    try {
-                        String json = objectMapper.writeValueAsString(savedMessage);
-                        return webSocketSession.textMessage(json);
-                    } catch (Exception e) {
-                        return webSocketSession.textMessage("Invalid format");
-                    }
-                });
-        return webSocketSession.send(incomingMessages);
+        String roomId = webSocketSession.getHandshakeInfo().getUri().getQuery().split("=")[1];
+
+        sessionRegistry.register(roomId, webSocketSession);
+
+        Flux<WebSocketMessage> incoming = webSocketSession.receive()
+            .map(WebSocketMessage::getPayloadAsText)
+            .flatMap(raw -> {
+                try {
+                    Message mess = objectMapper.readValue(raw, Message.class);
+                    return messageRepository.save(mess).thenReturn(mess);
+                } catch (Exception e) {
+                    return Mono.empty();
+                }
+            })
+            .map(savedMessage -> {
+                try {
+                    String json = objectMapper.writeValueAsString(savedMessage);
+                    return webSocketSession.textMessage(json);
+                } catch (Exception e) {
+                    return webSocketSession.textMessage("Invalid format");
+                }
+            });
+        return webSocketSession.send(incoming)
+                .doFinally(sig -> sessionRegistry.unregister(webSocketSession));
     }
 
     public Mono<ServerResponse> getMessagesByRoomId(ServerRequest request) {

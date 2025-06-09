@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -79,7 +79,7 @@ public class ChatHandler implements WebSocketHandler {
                                     Message msg = objectMapper.readValue(raw, Message.class);
                                     msg.setRoomId(new ObjectId(roomId));
                                     msg.setSender(user);
-                                    msg.setTimestamp(LocalDateTime.now());
+                                    msg.setTimestamp(Instant.now());
                                     return messageRepo.save(msg)
                                             .doOnNext(sink::tryEmitNext)
                                             .then();

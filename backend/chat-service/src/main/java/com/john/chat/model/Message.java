@@ -1,13 +1,11 @@
 package com.john.chat.model;
 
-import java.time.LocalDateTime;
-
+import java.time.Instant;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +29,5 @@ public class Message {
     private String sender;
     private String content;
     
-   // @Column(updatable = false, insertable = false)
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 }
