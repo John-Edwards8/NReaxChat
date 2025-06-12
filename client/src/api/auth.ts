@@ -3,6 +3,7 @@ import { AuthRequest } from "../types/AuthRequest";
 import { AuthResponse } from "../types/AuthResponse";
 import { useAuthStore } from "../stores/authStore";
 import { NavigateFunction } from "react-router-dom";
+import { generateKeyPair, exportPublicKeyToPem, exportPrivateKeyToLocalStorage } from "../utils/crypto";
 
 export const login = async (credentials: AuthRequest): Promise<AuthResponse> => {
     try {
@@ -12,7 +13,18 @@ export const login = async (credentials: AuthRequest): Promise<AuthResponse> => 
         useAuthStore.getState().setAccessToken(accessToken);
         useAuthStore.getState().setRole(role);
         useAuthStore.getState().setCurrentUser(credentials.username);
-    
+
+        if (!localStorage.getItem("privateKey")) {
+            const keyPair = await generateKeyPair();
+            await exportPrivateKeyToLocalStorage(keyPair.privateKey);
+            const publicKeyPem = await exportPublicKeyToPem(keyPair.publicKey);
+            await api.post("auth/api/public-key", { publicKey: publicKeyPem }, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                }
+            });
+        }
+
         return response.data;
     } catch (error: any) {
         const message = error.response.data || "Login failed";

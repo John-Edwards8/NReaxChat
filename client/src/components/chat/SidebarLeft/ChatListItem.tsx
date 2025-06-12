@@ -41,12 +41,12 @@ const ChatListItem = ({
             <ul className="space-y-2">
                 {filteredRooms.map(room => {
                     const displayName = getDisplayName(room);
-                    const isActive = activeRoom?.name === room.name;
+                    const isActive = activeRoom?.roomId === room.roomId;
 
                     return (
                         <li
-                            key={room.name}
-                            onClick={() => setActiveRoom(room.name)}
+                            key={room.roomId}
+                            onClick={() => setActiveRoom(room.roomId)}
                             className={`
                                 flex items-start gap-3 p-3 rounded-22 
                                 cursor-pointer transition hover:opacity-90

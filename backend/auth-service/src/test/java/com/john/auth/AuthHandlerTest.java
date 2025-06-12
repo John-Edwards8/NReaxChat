@@ -54,7 +54,7 @@ class AuthHandlerTest {
         req.setUsername("u2");
         req.setPassword("pw");
 
-        when(repository.findByUsername("u2")).thenReturn(Mono.just(new User(null, "u2", "wrongHash", "USER")));
+        when(repository.findByUsername("u2")).thenReturn(Mono.just(new User(null, "u2", "wrongHash", "USER", null)));
         when(passwordEncoder.matches("pw", "wrongHash")).thenReturn(false);
 
         client.post().uri("/api/login")
@@ -68,7 +68,7 @@ class AuthHandlerTest {
     void login_shouldReturnAccessAndRefresh_whenGoodCredentials() {
         AuthRequest req = new AuthRequest();
         req.setUsername("u3"); req.setPassword("pw");
-        User user = new User(null, "u3", "hash3", "USER");
+        User user = new User(null, "u3", "hash3", "USER", null);
         when(repository.findByUsername("u3")).thenReturn(Mono.just(user));
         when(passwordEncoder.matches("pw", "hash3")).thenReturn(true);
         when(jwtUtil.generateAccessToken("u3", "USER")).thenReturn("access3");
@@ -88,8 +88,8 @@ class AuthHandlerTest {
 
     @Test
     void getAllUsers_shouldReturnListOfUserDTOs() {
-        User u1 = new User(ObjectId.get(), "alice", "hash", "ROLE_USER");
-        User u2 = new User(ObjectId.get(), "bob",   "hash", "ROLE_ADMIN");
+        User u1 = new User(ObjectId.get(), "alice", "hash", "ROLE_USER", null);
+        User u2 = new User(ObjectId.get(), "bob",   "hash", "ROLE_ADMIN", null);
         UserDTO d1 = new UserDTO(u1.getUsername(), u1.getRole());
         UserDTO d2 = new UserDTO(u2.getUsername(), u2.getRole());
 
@@ -108,7 +108,7 @@ class AuthHandlerTest {
 
     @Test
     void getUser_shouldReturnUser_whenExists() {
-        when(repository.findByUsername("zz")).thenReturn(Mono.just(new User(null, "zz", "h", "USER")));
+        when(repository.findByUsername("zz")).thenReturn(Mono.just(new User(null, "zz", "h", "USER", null)));
 
         client.get().uri("/api/users/zz")
                 .exchange()
@@ -131,8 +131,8 @@ class AuthHandlerTest {
         AuthRequest req = new AuthRequest();
         req.setUsername("u4");
         req.setPassword("newpw");
-        User existing = new User(null, "u4", "oldhash", "ROLE_USER");
-        User updated = new User(null, "u4", "newhash", "ROLE_USER");
+        User existing = new User(null, "u4", "oldhash", "ROLE_USER", null);
+        User updated = new User(null, "u4", "newhash", "ROLE_USER", null);
 
         when(repository.findByUsername("u4")).thenReturn(Mono.just(existing));
         when(passwordEncoder.encode("newpw")).thenReturn("newhash");
@@ -153,7 +153,7 @@ class AuthHandlerTest {
 
     @Test
     void deleteUser_shouldReturnNoContent_whenExists() {
-        User existing = new User(null, "u5", "h", "USER");
+        User existing = new User(null, "u5", "h", "USER", null);
         when(repository.findByUsername("u5")).thenReturn(Mono.just(existing));
         when(repository.delete(existing)).thenReturn(Mono.empty());
 
