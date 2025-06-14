@@ -11,4 +11,5 @@ public class UserWithKeyDTO {
     private String username;
     private String role;
     private String publicKey;
+    private String privateKey;
 }

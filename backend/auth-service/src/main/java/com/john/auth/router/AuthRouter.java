@@ -23,6 +23,7 @@ public class AuthRouter {
 				.andRoute(GET("/api/users").and(accept(APPLICATION_JSON)), handler::getAllUsers)
 				.andRoute(GET("/api/users/{username}").and(accept(APPLICATION_JSON)), handler::getUser)
 				.andRoute(GET("/api/users/{username}/key").and(accept(APPLICATION_JSON)), handler::getUserWithKey)
+				.andRoute(GET("/api/users/{username}/public-key").and(accept(APPLICATION_JSON)), handler::getUserPublicKey)
 				.andRoute(PATCH("/api/users/{username}").and(accept(APPLICATION_JSON)), handler::updateUser)
 				.andRoute(DELETE("/api/users/{username}"), handler::deleteUser);
 	}

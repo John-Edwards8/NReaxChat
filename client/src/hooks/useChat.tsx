@@ -50,8 +50,6 @@ const useChat = (roomId: string) => {
                         Authorization: `Bearer ${token}`,
                     }
                 });
-                console.log("encryptedKeys =", response.data.encryptedKeys);
-
                 const encryptedKey = response.data.encryptedKeys?.[currentUser];
                 if (encryptedKey) {
                     const decryptedKey = await decryptRoomKey(encryptedKey);
@@ -59,7 +57,6 @@ const useChat = (roomId: string) => {
                 } else {
                     console.warn("No encrypted key found for current user in this room");
                 }
-
             } catch (err) {
                 console.error("Failed to fetch/decrypt AES key for room:", err);
             }

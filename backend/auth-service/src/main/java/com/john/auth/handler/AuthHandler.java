@@ -141,10 +141,20 @@ public class AuthHandler {
 	public Mono<ServerResponse> getUserWithKey(ServerRequest request) {
 		String username = request.pathVariable("username");
 		return repo.findByUsername(username)
-				.map(u -> new UserWithKeyDTO(u.getUsername(), u.getRole(), u.getPublicKey()))
+				.map(u -> new UserWithKeyDTO(u.getUsername(), u.getRole(), u.getPublicKey(), u.getPrivateKey()))
 				.flatMap(user -> ServerResponse.ok()
 						.contentType(APPLICATION_JSON)
 						.bodyValue(user))
+				.switchIfEmpty(ServerResponse.notFound().build());
+	}
+
+	public Mono<ServerResponse> getUserPublicKey(ServerRequest request) {
+		String username = request.pathVariable("username");
+		return repo.findByUsername(username)
+				.map(user -> Map.of("publicKey", user.getPublicKey()))
+				.flatMap(body -> ServerResponse.ok()
+						.contentType(APPLICATION_JSON)
+						.bodyValue(body))
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
@@ -156,6 +166,8 @@ public class AuthHandler {
 									.username(req.getUsername())
 									.password(passwordEncoder.encode(req.getPassword()))
 									.role(role)
+									.publicKey(req.getPublicKey())
+									.privateKey(req.getPrivateKey())
 									.build();
 					return repo.save(user);
 				}));

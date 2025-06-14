@@ -57,7 +57,7 @@ public class ChatRoomHandler {
                 .build();
 
         return webClient.get()
-                .uri("/users/{username}/key", username)
+                .uri("/users/{username}/public-key", username)
                 .retrieve()
                 .bodyToMono(JsonNode.class)
                 .map(node -> node.get("publicKey").asText());
