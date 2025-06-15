@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from '../ui/Modal';
+import Button from '../ui/Button';
 import { ModalProps } from '../../types/Modal';
 import { IoArrowForwardOutline } from "react-icons/io5";
 import UpdateDataModal from '../modals/UpdateDataModal';
@@ -17,27 +18,42 @@ const SettingModal: React.FC<ModalProps> = (props) => {
     if (modalType === 'theme') return <ChangeThemeModal isOpen={true} onClose={handleBack} />;
     if (modalType === 'lang') return <LanguageSelectModal isOpen={true} onClose={handleBack} />;
 
-    const buttonBase =
-        "w-full flex items-center justify-between gap-2 px-4 py-2 rounded-22 text-base font-medium " +
-        "hover:bg-white/20 transition-colors dark:hover:bg-white/20";
-
     return (
         <Modal {...props} title={t("settings")} onClose={props.onClose} closeText="">
             <div className="flex flex-col items-center gap-3">
-                <button className={buttonBase} onClick={() => setModalType('update')}>
-                    <span>{t("modals.title.upadateData")}</span>
-                    <IoArrowForwardOutline />
-                </button>
-
-                <button className={buttonBase} onClick={() => setModalType('theme')}>
-                    <span>{t("changeTheme")}</span>
-                    <IoArrowForwardOutline />
-                </button>
-
-                <button className={buttonBase} onClick={() => setModalType('lang')}>
-                    <span>{t("changeLang")}</span>
-                    <IoArrowForwardOutline />
-                </button>
+                <Button
+                    type="context"
+                    className="btn-modal-hover w-full justify-between rounded-22"
+                    onClick={() => setModalType('update')}
+                    value={
+                        <span className="flex w-full items-center justify-between">
+                        {t("modals.title.upadateData")}
+                            <IoArrowForwardOutline/>
+                        </span>
+                    }
+                />
+                <Button
+                    type="context"
+                    className="btn-modal-hover w-full justify-between rounded-22"
+                    onClick={() => setModalType('theme')}
+                    value={
+                        <span className="flex w-full items-center justify-between">
+                        {t("changeTheme")}
+                            <IoArrowForwardOutline/>
+                        </span>
+                    }
+                />
+                <Button
+                    type="context"
+                    className="btn-modal-hover w-full justify-between rounded-22"
+                    onClick={() => setModalType('lang')}
+                    value={
+                        <span className="flex w-full items-center justify-between">
+                        {t("changeLang")}
+                            <IoArrowForwardOutline/>
+                        </span>
+                    }
+                />
             </div>
         </Modal>
     );

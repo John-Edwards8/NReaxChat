@@ -142,6 +142,20 @@
     .hover-scale {
         @apply hover:scale-105 transition-transform;
     }
+
+    .btn-modal {
+        @apply bg-[#D1D5E0];
+    }
+    .dark .btn-modal {
+        @apply bg-white/20;
+    }
+
+    .btn-modal-hover:hover {
+        @apply bg-black/5;
+    }
+    .dark .btn-modal-hover:hover {
+        @apply bg-white/10;
+    }
 }
 
 ::-webkit-scrollbar {
