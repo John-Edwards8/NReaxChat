@@ -3,4 +3,5 @@ export type Message = {
     content: string;
     sender: string;
     timestamp: Date;
+    type?: "NEW" | "EDIT" | "DELETE";
 };

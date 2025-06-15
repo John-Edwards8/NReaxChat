@@ -3,7 +3,6 @@ import axios from "axios";
 import { Message } from "../types/Message";
 import { formatMessage } from "../utils/formatMessage";
 import { useAuthStore } from "../stores/authStore";
-import { updateMessage, deleteMessage } from "../api/messages";
 import { decryptRoomKey } from "../utils/crypto";
 import { encryptWithKey, decryptWithKey } from "../utils/crypto";
 import api from "../api/axios";
@@ -90,9 +89,21 @@ const useChat = (roomId: string) => {
 
         ws.current.onmessage = e => {
             const raw = JSON.parse(e.data);
+
+            if (raw.type === "DELETE") {
+                setMessages(prev => prev.filter(msg => msg.id !== raw.id));
+                return;
+            }
+
             const { cipher, iv } = JSON.parse(raw.content);
             raw.content = decryptWithKey(cipher, iv, roomKey);
             const msg = formatMessage(raw);
+
+            if (raw.type === "EDIT") {
+                setMessages(prev => prev.map(m => m.id === msg.id ? msg : m));
+                return;
+            }
+
             setMessages(prev => [...prev, msg]);
             lastMessageIdRef.current = msg.id;
         };
@@ -136,30 +147,19 @@ const useChat = (roomId: string) => {
     };
 
     const editMessage = async (id: string, newContent: string) => {
-        try {
-            if (!roomKey) throw new Error("No roomKey available for encryption");
+        if (ws.current?.readyState === WebSocket.OPEN && roomKey) {
             const { cipher, iv } = encryptWithKey(newContent, roomKey);
-            const encrypted = JSON.stringify({ cipher, iv });
-            const response = await updateMessage(id, encrypted);
-            const updated = response.data;
-            const parsed = JSON.parse(updated.content);
-            const decrypted = decryptWithKey(parsed.cipher, parsed.iv, roomKey);
-            setMessages(prev =>
-                prev.map(msg =>
-                    msg.id === id ? { ...msg, content: decrypted } : msg
-                )
-            );
-        } catch (err) {
-            console.error("Failed to update message:", err);
+            ws.current.send(JSON.stringify({
+                type: "EDIT", id, content: JSON.stringify({ cipher, iv })
+            }));
         }
     };
 
     const removeMessage = async (id: string) => {
-        try {
-            await deleteMessage(id);
-            setMessages(prev => prev.filter(msg => msg.id !== id));
-        } catch (err) {
-            console.error("Failed to delete message:", err);
+        if (ws.current?.readyState === WebSocket.OPEN) {
+            ws.current.send(JSON.stringify({
+                type: "DELETE", id
+            }));
         }
     };
 
