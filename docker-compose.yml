@@ -37,6 +37,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       SPRING_DATA_MONGODB_URI: ${MONGODB_URI}
       SPRING_DATA_MONGODB_DATABASE: ${MONGODB_DATABASE}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL}
     networks:
       - backend
   frontend:
