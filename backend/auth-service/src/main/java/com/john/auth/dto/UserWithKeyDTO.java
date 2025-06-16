@@ -5,11 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class AuthRequest {
+@NoArgsConstructor
+public class UserWithKeyDTO {
     private String username;
-    private String password;
+    private String role;
     private String publicKey;
     private String privateKey;
 }

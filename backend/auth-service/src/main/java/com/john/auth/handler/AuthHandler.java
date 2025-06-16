@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import com.john.auth.dto.AuthRequest;
 import com.john.auth.dto.UserDTO;
+import com.john.auth.dto.UserWithKeyDTO;
 import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
 import com.john.auth.security.JwtUtil;
@@ -99,7 +100,21 @@ public class AuthHandler {
 							.bodyValue(Collections.singletonMap("accessToken", newAccess));
 				})
 				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing refreshToken cookie"));
-	}	
+	}
+
+	public Mono<ServerResponse> savePublicKey(ServerRequest request) {
+		String username = jwtUtil.getUsernameFromToken(request.headers().firstHeader("Authorization").substring(7));
+		return request.bodyToMono(Map.class)
+				.flatMap(body -> {
+					String publicKey = (String) body.get("publicKey");
+					return repo.findByUsername(username)
+							.flatMap(user -> {
+								user.setPublicKey(publicKey);
+								return repo.save(user);
+							});
+				})
+				.then(ServerResponse.ok().build());
+	}
 
 	private UserDTO toDTO(User u) {
 		return new UserDTO(u.getUsername(), u.getRole());
@@ -123,6 +138,26 @@ public class AuthHandler {
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
+	public Mono<ServerResponse> getUserWithKey(ServerRequest request) {
+		String username = request.pathVariable("username");
+		return repo.findByUsername(username)
+				.map(u -> new UserWithKeyDTO(u.getUsername(), u.getRole(), u.getPublicKey(), u.getPrivateKey()))
+				.flatMap(user -> ServerResponse.ok()
+						.contentType(APPLICATION_JSON)
+						.bodyValue(user))
+				.switchIfEmpty(ServerResponse.notFound().build());
+	}
+
+	public Mono<ServerResponse> getUserPublicKey(ServerRequest request) {
+		String username = request.pathVariable("username");
+		return repo.findByUsername(username)
+				.map(user -> Map.of("publicKey", user.getPublicKey()))
+				.flatMap(body -> ServerResponse.ok()
+						.contentType(APPLICATION_JSON)
+						.bodyValue(body))
+				.switchIfEmpty(ServerResponse.notFound().build());
+	}
+
 	private Mono<User> createUser(AuthRequest req, String role) {
 		return repo.findByUsername(req.getUsername())
 				.flatMap(existing -> Mono.<User>error(new IllegalStateException("User exists")))
@@ -131,6 +166,8 @@ public class AuthHandler {
 									.username(req.getUsername())
 									.password(passwordEncoder.encode(req.getPassword()))
 									.role(role)
+									.publicKey(req.getPublicKey())
+									.privateKey(req.getPrivateKey())
 									.build();
 					return repo.save(user);
 				}));

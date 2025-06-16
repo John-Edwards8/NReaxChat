@@ -23,27 +23,29 @@ const LanguageSelectModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             title=""
             closeText=""
         >
-            <div className="flex items-center gap-2 mb-6">
-                <Button
-                    type="submit"
-                    onClick={onClose}
-                    className="rounded-full transition"
-                    value={<FiArrowLeft className="text-xl" />}
-                />
-                <h2 className="text-lg font-semibold">{t("modals.title.language")}</h2>
-            </div>
-
-            <div className="flex flex-col items-center gap-4">
-                {languages.map(({ code, label }) => (
+            <div className="flex flex-col items-center justify-center gap-6">
+                <div className="relative w-full flex items-center justify-center">
                     <Button
-                        type='context'
-                        value={label}
-                        key={code}
-                        onClick={() => setLanguage(code)}
-                        className={`max-w rounded-full font-medium shadow-md transition 
-                            ${code === language ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                        type="submit"
+                        onClick={onClose}
+                        className="rounded-full transition btn-modal-hover"
+                        value={<FiArrowLeft className="text-xl" />}
                     />
-                ))}
+                    <h2 className="text-lg font-semibold text-center w-full">{t("modals.title.language")}</h2>
+                </div>
+
+                <div className="flex flex-col items-center gap-4">
+                    {languages.map(({ code, label }) => (
+                        <Button
+                            type='context'
+                            value={label}
+                            key={code}
+                            onClick={() => setLanguage(code)}
+                            className={`max-w rounded-full font-medium shadow-md transition 
+                            ${code === language ? 'btn-modal' : 'btn-modal-hover'}`}
+                        />
+                    ))}
+                </div>
             </div>
         </Modal>
     );

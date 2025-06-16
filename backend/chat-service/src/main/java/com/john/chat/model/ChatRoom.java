@@ -1,7 +1,7 @@
 package com.john.chat.model;
 
 import java.util.List;
-
+import java.util.Map;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,4 +23,5 @@ public class ChatRoom {
     private String name;
     private boolean isGroup;
     private List<String> members;
+    private Map<String, String> encryptedKeys;
 }

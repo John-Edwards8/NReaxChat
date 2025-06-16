@@ -15,8 +15,8 @@ export const useChatRoomStore = create<ChatRoomStore>((set, get) => ({
     rooms: [],
     activeRoom: null,
 
-    setActiveRoom: (name) => {
-        const room = get().rooms.find(r => r.name === name) || null;
+    setActiveRoom: (roomId) => {
+        const room = get().rooms.find(r => r.roomId === roomId) || null;
         set({ activeRoom: room });
     },
 

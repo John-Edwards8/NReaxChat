@@ -1,9 +1,11 @@
 package com.john.chat.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.john.chat.jwt.JwtUtil;
 import com.john.chat.model.Message;
+import com.john.chat.model.MessageType;
 import com.john.chat.repository.ChatRoomRepository;
 import com.john.chat.repository.MessageRepository;
 import lombok.AllArgsConstructor;
@@ -76,14 +78,54 @@ public class ChatHandler implements WebSocketHandler {
                             .map(WebSocketMessage::getPayloadAsText)
                             .flatMap(raw -> {
                                 try {
-                                    Message msg = objectMapper.readValue(raw, Message.class);
-                                    msg.setRoomId(new ObjectId(roomId));
-                                    msg.setSender(user);
-                                    msg.setTimestamp(Instant.now());
-                                    return messageRepo.save(msg)
-                                            .doOnNext(sink::tryEmitNext)
-                                            .then();
-                                } catch (JsonProcessingException e) {
+                                    JsonNode node = objectMapper.readTree(raw);
+                                    String typeStr = node.has("type") ? node.get("type").asText() : "new";
+                                    MessageType type = MessageType.from(typeStr);
+                                    switch (type) {
+                                        case NEW:
+                                            Message msg = objectMapper.treeToValue(node, Message.class);
+                                            msg.setRoomId(new ObjectId(roomId));
+                                            msg.setSender(user);
+                                            msg.setTimestamp(Instant.now());
+                                            return messageRepo.save(msg)
+                                                    .doOnNext(saved -> {
+                                                        saved.setType(MessageType.NEW);
+                                                        sink.tryEmitNext(saved);
+                                                    })
+                                                    .then();
+                                        case EDIT:
+                                            String editId = node.get("id").asText();
+                                            String newContent = node.get("content").asText();
+                                            return messageRepo.findById(new ObjectId(editId))
+                                                    .flatMap(existing -> {
+                                                        existing.setContent(newContent);
+                                                        return messageRepo.save(existing);
+                                                    })
+                                                    .doOnNext(updated -> {
+                                                        updated.setType(MessageType.EDIT);
+                                                        sink.tryEmitNext(updated);
+                                                    })
+                                                    .then();
+
+                                        case DELETE:
+                                            String deleteId = node.get("id").asText();
+                                            return messageRepo.findById(new ObjectId(deleteId))
+                                                    .flatMap(toDelete ->
+                                                            messageRepo.delete(toDelete)
+                                                                    .then(Mono.defer(() -> {
+                                                                        Message deleted = new Message();
+                                                                        deleted.setId(toDelete.getId());
+                                                                        deleted.setRoomId(toDelete.getRoomId());
+                                                                        deleted.setSender(toDelete.getSender());
+                                                                        deleted.setType(MessageType.DELETE);
+                                                                        sink.tryEmitNext(deleted);
+                                                                        return Mono.empty();
+                                                                    }))
+                                                    );
+                                        default:
+                                            return Mono.empty();
+                                    }
+                                } catch (Exception e) {
                                     return Mono.empty();
                                 }
                             })

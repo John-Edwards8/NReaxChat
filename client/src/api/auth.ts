@@ -3,6 +3,7 @@ import { AuthRequest } from "../types/AuthRequest";
 import { AuthResponse } from "../types/AuthResponse";
 import { useAuthStore } from "../stores/authStore";
 import { NavigateFunction } from "react-router-dom";
+import { generateKeyPair, exportPublicKeyToPem, exportPrivateKeyToPem, savePrivateKeyToLocalStorage, importPrivateKeyFromPem } from "../utils/crypto";
 
 export const login = async (credentials: AuthRequest): Promise<AuthResponse> => {
     try {
@@ -12,7 +13,15 @@ export const login = async (credentials: AuthRequest): Promise<AuthResponse> => 
         useAuthStore.getState().setAccessToken(accessToken);
         useAuthStore.getState().setRole(role);
         useAuthStore.getState().setCurrentUser(credentials.username);
-    
+
+        if (!localStorage.getItem("privateKey")) {
+            const userWithKey = await api.get(`/auth/api/users/${credentials.username}/key`)
+            const { privateKey: privateKeyPem } = userWithKey.data;
+            if (!privateKeyPem) throw new Error("Private key not found");
+            const privateKey = await importPrivateKeyFromPem(privateKeyPem);
+            await savePrivateKeyToLocalStorage(privateKey);
+        }
+
         return response.data;
     } catch (error: any) {
         const message = error.response.data || "Login failed";
@@ -22,7 +31,14 @@ export const login = async (credentials: AuthRequest): Promise<AuthResponse> => 
 
 export const register = async (credentials: AuthRequest): Promise<AuthResponse> => {
     try {
-        const response = await api.post<AuthResponse>('auth/api/register', credentials);
+        const { username, password } = credentials;
+        const keyPair = await generateKeyPair();
+        const publicKeyPem = await exportPublicKeyToPem(keyPair.publicKey);
+        const privateKeyPem = await exportPrivateKeyToPem(keyPair.privateKey);
+        await savePrivateKeyToLocalStorage(keyPair.privateKey);
+        const response = await api.post<AuthResponse>('auth/api/register', {
+            username, password, publicKey: publicKeyPem, privateKey: privateKeyPem
+        });
         return response.data;
     } catch (error: any) {
         const message = error.response.data || "Registration failed";
@@ -36,6 +52,7 @@ export const logout = async (navigate?: NavigateFunction): Promise<void> => {
     } catch (e) {
         console.error("Logout error (API):", e);
     } finally {
+        localStorage.removeItem("privateKey");
         useAuthStore.getState().clearAuth();
         if (navigate) navigate("/");
     }
