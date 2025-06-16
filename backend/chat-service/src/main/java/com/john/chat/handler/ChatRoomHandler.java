@@ -24,6 +24,8 @@ import lombok.AllArgsConstructor;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 import org.bson.types.ObjectId;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -35,8 +37,8 @@ import reactor.core.publisher.Mono;
 @Service
 @AllArgsConstructor
 @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "Used safely")
-public class ChatRoomHandler {
-
+public class ChatRoomHandler {    
+    private final WebClient webClient;
     private final ChatRoomRepository chatRoomRepository;
     private final JwtUtil jwtUtil;
 
@@ -51,17 +53,20 @@ public class ChatRoomHandler {
     }
 
     public Mono<String> getPublicKey(String username, String accessToken) {
-        WebClient webClient = WebClient.builder()
-                .baseUrl("http://gateway:8080/auth/api")
-                .defaultHeader("Authorization", "Bearer " + accessToken)
-                .build();
-
         return webClient.get()
                 .uri("/users/{username}/public-key", username)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
+                .onStatus(HttpStatusCode::isError, response ->
+                        response.bodyToMono(String.class)
+                                .flatMap(body ->
+                                        Mono.error(new RuntimeException("Error from client-service: " + body))
+                                )
+                )
                 .bodyToMono(JsonNode.class)
                 .map(node -> node.get("publicKey").asText());
     }
+
 
     public Mono<ServerResponse> getAllChatRooms(ServerRequest request) {
         Flux<ChatRoomDTO> allChatRooms = chatRoomRepository.findAll()
