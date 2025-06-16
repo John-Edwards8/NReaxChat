@@ -29,7 +29,9 @@ const useChat = (roomId: string) => {
                     Authorization: `Bearer ${token}`,
                 }
             });
-            const newMessages: Message[] = response.data;
+            const newMessages: Message[] = Array.isArray(response.data)
+                ? response.data.map(formatMessage)
+                : [];
             if (newMessages.length > 0) {
                 setMessages(prev => [...prev, ...newMessages]);
                 lastMessageIdRef.current = newMessages[newMessages.length - 1].id;
@@ -163,7 +165,7 @@ const useChat = (roomId: string) => {
         }
     };
 
-    return { messages, sendMessage, editMessage, removeMessage };
+    return { messages, sendMessage, editMessage, removeMessage, roomKey };
 }
 
 export default useChat;
