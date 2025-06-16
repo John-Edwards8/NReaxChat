@@ -5,7 +5,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
@@ -105,7 +104,11 @@ public class AuthHandler {
 	}
 
 	public Mono<ServerResponse> savePublicKey(ServerRequest request) {
-		String username = jwtUtil.getUsernameFromToken(Objects.requireNonNull(request.headers().firstHeader("Authorization")).substring(7));
+		String rawHeader = request.headers().firstHeader("Authorization");
+		if (rawHeader == null || !rawHeader.startsWith("Bearer ")) {
+			return ServerResponse.status(401).bodyValue("Missing or invalid Authorization header");
+		}
+		String username = jwtUtil.getUsernameFromToken(rawHeader.substring(7));
 		return request.bodyToMono(Map.class)
 				.flatMap(body -> {
 					String publicKey = (String) body.get("publicKey");
