@@ -5,6 +5,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
+
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -103,7 +105,7 @@ public class AuthHandler {
 	}
 
 	public Mono<ServerResponse> savePublicKey(ServerRequest request) {
-		String username = jwtUtil.getUsernameFromToken(request.headers().firstHeader("Authorization").substring(7));
+		String username = jwtUtil.getUsernameFromToken(Objects.requireNonNull(request.headers().firstHeader("Authorization")).substring(7));
 		return request.bodyToMono(Map.class)
 				.flatMap(body -> {
 					String publicKey = (String) body.get("publicKey");
