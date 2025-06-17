@@ -52,7 +52,8 @@ public class AuthHandler {
 							String at = jwtUtil.generateAccessToken(u.getUsername(), role);
 							String rt = jwtUtil.generateRefreshToken(u.getUsername(), role);
 
-							boolean isLocal = req.uri().getHost().equals("localhost") || req.uri().getHost().equals("127.0.0.1");
+							String host = req.uri().getHost();
+							boolean isLocal = host != null && (host.equals("localhost") || host.equals("127.0.0.1"));
 
 							ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", rt)
 									.httpOnly(true)
