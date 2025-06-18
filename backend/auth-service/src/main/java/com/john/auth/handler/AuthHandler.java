@@ -77,8 +77,13 @@ public class AuthHandler {
 	}
 
 	public Mono<ServerResponse> logout(ServerRequest req) {
+		String host = req.uri().getHost();
+		boolean isLocal = host != null && (host.equals("localhost") || host.equals("127.0.0.1"));
+
 		ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
 				.httpOnly(true)
+				.secure(!isLocal)
+				.sameSite(isLocal ? "Strict" : "None")
 				.path("/auth/api")
 				.maxAge(Duration.ZERO)
 				.build();
