@@ -1,9 +1,11 @@
 package com.john.chat.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.john.chat.jwt.JwtUtil;
 import com.john.chat.model.Message;
+import com.john.chat.model.MessageType;
 import com.john.chat.repository.ChatRoomRepository;
 import com.john.chat.repository.MessageRepository;
 import lombok.AllArgsConstructor;
@@ -13,12 +15,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
 import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,17 +38,14 @@ public class ChatHandler implements WebSocketHandler {
     @Override
     @NonNull
     public Mono<Void> handle(WebSocketSession session) {
-        String auth = session.getHandshakeInfo().getHeaders().getFirst("Authorization");
-        if (auth == null || !auth.startsWith("Bearer ")) {
-            return session.send(Mono.just(session.textMessage("Missing or invalid Authorization header"))).then();
+        String token = UriComponentsBuilder.fromUri(session.getHandshakeInfo().getUri())
+                .build()
+                .getQueryParams()
+                .getFirst("token");
+        if (token == null || !jwtUtil.validateToken(token)) {
+            return session.send(Mono.just(session.textMessage("Invalid token"))).then();
         }
-
-        String token = auth.substring(7);
-        if (!jwtUtil.validateToken(token)) {
-            return session.send(Mono.just(session.textMessage("Invalid or expired token"))).then();
-        }
-
-        String username = jwtUtil.getUsernameFromToken(token);
+        String user = jwtUtil.getUsernameFromToken(token);
 
         String path = session.getHandshakeInfo().getUri().getPath();
         String roomId = path.substring(path.lastIndexOf('/') + 1);
@@ -53,46 +53,79 @@ public class ChatHandler implements WebSocketHandler {
         return roomRepo.findById(new ObjectId(roomId))
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Chat room not found")))
                 .flatMap(room -> {
-                    if (!room.isGroup()) {
-                        if (room.getMembers() == null || room.getMembers().size() != 2) {
-                            return Mono.error(new IllegalStateException(
-                                    "Invalid private chat configuration: must have exactly 2 members"));
-                        }
-                    } else if (room.getMembers() == null || room.getMembers().size() < 3) {
-                        return Mono.error(new IllegalStateException(
-                                "Invalid group chat configuration: need at least 3 members"));
+                    if (room.getMembers() == null
+                            || room.getMembers().stream().noneMatch(m -> m.equals(user))) {
+                        return Mono.error(new AccessDeniedException("No access"));
                     }
 
-                    if (room.getMembers().stream().noneMatch(username::equals)) {
-                        return Mono.error(new AccessDeniedException("You are not a member of this chat"));
-                    }
-
-                    Sinks.Many<Message> sink = sinks.computeIfAbsent(roomId,
-                            id -> Sinks.many().multicast().directAllOrNothing());
-
-                    Flux<WebSocketMessage> toClient = Flux.concat(
-                            messageRepo.findAllByRoomId(new ObjectId(roomId))
-                                    .map(this::toJsonText)
-                                    .map(session::textMessage),
-                            sink.asFlux()
-                                    .map(this::toJsonText)
-                                    .map(session::textMessage)
+                    Sinks.Many<Message> sink = sinks.computeIfAbsent(
+                            roomId,
+                            id -> Sinks.many().multicast().directAllOrNothing()
                     );
 
-                    Mono<Void> send = session.send(toClient);
+                    Flux<WebSocketMessage> history = messageRepo
+                            .findAllByRoomId(new ObjectId(roomId))
+                            .map(this::toJson)
+                            .map(session::textMessage);
+
+                    Flux<WebSocketMessage> live = sink.asFlux()
+                            .map(this::toJson)
+                            .map(session::textMessage);
+
+                    Mono<Void> send = session.send(history.concatWith(live));
 
                     Mono<Void> receive = session.receive()
                             .map(WebSocketMessage::getPayloadAsText)
                             .flatMap(raw -> {
                                 try {
-                                    Message msg = objectMapper.readValue(raw, Message.class);
-                                    msg.setRoomId(new ObjectId(roomId));
-                                    msg.setTimestamp(LocalDateTime.now());
-                                    msg.setSender(username);
-                                    return messageRepo.save(msg)
-                                            .doOnNext(sink::tryEmitNext)
-                                            .then();
-                                } catch (JsonProcessingException e) {
+                                    JsonNode node = objectMapper.readTree(raw);
+                                    String typeStr = node.has("type") ? node.get("type").asText() : "new";
+                                    MessageType type = MessageType.from(typeStr);
+                                    switch (type) {
+                                        case NEW:
+                                            Message msg = objectMapper.treeToValue(node, Message.class);
+                                            msg.setRoomId(new ObjectId(roomId));
+                                            msg.setSender(user);
+                                            msg.setTimestamp(Instant.now());
+                                            return messageRepo.save(msg)
+                                                    .doOnNext(saved -> {
+                                                        saved.setType(MessageType.NEW);
+                                                        sink.tryEmitNext(saved);
+                                                    })
+                                                    .then();
+                                        case EDIT:
+                                            String editId = node.get("id").asText();
+                                            String newContent = node.get("content").asText();
+                                            return messageRepo.findById(new ObjectId(editId))
+                                                    .flatMap(existing -> {
+                                                        existing.setContent(newContent);
+                                                        return messageRepo.save(existing);
+                                                    })
+                                                    .doOnNext(updated -> {
+                                                        updated.setType(MessageType.EDIT);
+                                                        sink.tryEmitNext(updated);
+                                                    })
+                                                    .then();
+
+                                        case DELETE:
+                                            String deleteId = node.get("id").asText();
+                                            return messageRepo.findById(new ObjectId(deleteId))
+                                                    .flatMap(toDelete ->
+                                                            messageRepo.delete(toDelete)
+                                                                    .then(Mono.defer(() -> {
+                                                                        Message deleted = new Message();
+                                                                        deleted.setId(toDelete.getId());
+                                                                        deleted.setRoomId(toDelete.getRoomId());
+                                                                        deleted.setSender(toDelete.getSender());
+                                                                        deleted.setType(MessageType.DELETE);
+                                                                        sink.tryEmitNext(deleted);
+                                                                        return Mono.empty();
+                                                                    }))
+                                                    );
+                                        default:
+                                            return Mono.empty();
+                                    }
+                                } catch (Exception e) {
                                     return Mono.empty();
                                 }
                             })
@@ -105,7 +138,7 @@ public class ChatHandler implements WebSocketHandler {
                 );
     }
 
-    private String toJsonText(Message msg) {
+    private String toJson(Message msg) {
         try {
             return objectMapper.writeValueAsString(msg);
         } catch (JsonProcessingException e) {

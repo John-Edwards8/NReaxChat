@@ -4,17 +4,21 @@ import com.john.chat.model.Message;
 import com.john.chat.handler.MessageHandler;
 import com.john.chat.repository.MessageRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.john.chat.service.WebSocketSessionRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.reactive.socket.HandshakeInfo;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.net.URI;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -28,6 +32,7 @@ class MessageHandlerWebSocketTest {
     ObjectMapper objectMapper;
     MessageHandler handler;
     WebSocketSession session;
+    WebSocketSessionRegistry sessionRegistry;
 
     @BeforeEach
     void setup() {
@@ -36,11 +41,17 @@ class MessageHandlerWebSocketTest {
         repo = mock(MessageRepository.class);
         objectMapper = new ObjectMapper();
         handler = new MessageHandler();
+        sessionRegistry = mock(WebSocketSessionRegistry.class);
 
         ReflectionTestUtils.setField(handler, "messageRepository", repo);
         ReflectionTestUtils.setField(handler, "objectMapper", objectMapper);
+        ReflectionTestUtils.setField(handler, "sessionRegistry", sessionRegistry);
 
         session = mock(WebSocketSession.class);
+        HandshakeInfo hi = mock(HandshakeInfo.class);
+
+        when(hi.getUri()).thenReturn(URI.create("ws://test/endpoint?roomId=room123"));
+        when(session.getHandshakeInfo()).thenReturn(hi);
     }
 
     @Test
@@ -73,5 +84,7 @@ class MessageHandlerWebSocketTest {
 
         verify(repo).save(any(Message.class));
         verify(session).textMessage(incomingJson);
+        verify(sessionRegistry).register("room123", session);
+        verify(sessionRegistry).unregister(session);
     }
 }

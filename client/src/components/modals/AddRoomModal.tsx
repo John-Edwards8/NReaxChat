@@ -6,14 +6,20 @@ import Button from '../ui/Button';
 import { useChatRoomStore } from '../../stores/chatRoomStore';
 import { useUserStore } from '../../stores/userStore';
 import { useAuthStore } from '../../stores/authStore';
+import { useErrorStore } from '../../stores/errorStore';
+import ErrorMessage from '../ui/ErrorMessage';
+import { useI18n } from '../../i18n/I18nContext';
 
 
 const AddRoomModal: React.FC<ModalProps> = (props) => {
-    const { fetchRooms, addRoom } = useChatRoomStore();
+    const { fetchRooms, addRoom, rooms } = useChatRoomStore();
     const { users, fetchUsers } = useUserStore();
     const [roomName, setRoomName] = useState('');
     const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const { setError, clearError } = useErrorStore();
+    const errorMessage = useErrorStore(s => s.fields.all?.message);
+    const { t } = useI18n();
 
     useEffect(() => {
         fetchUsers();
@@ -39,79 +45,106 @@ const AddRoomModal: React.FC<ModalProps> = (props) => {
             ? selectedMembers
             : [...selectedMembers, currentUser];
 
-        if (members.length === 1) return;
+        if (members.length === 1) {
+            setError(t("errors.oneAtLeast"), 'inline', 'all');
+            return;
+        }
         
         const isGroup = members.length > 2;
 
-        if (isGroup && !roomName) return;
+        if (isGroup && !roomName.trim()) {
+            setError(t("errors.missingGroupChatName"), 'inline', 'all');
+            return;
+        }
 
         const name = members.length === 2
             ? members.find(m => m !== currentUser) || currentUser
             : roomName;
         
-        await addRoom({ name, group: isGroup, members });
-        await fetchRooms();
-        
-        handleClose();
+        if (!isGroup) {
+            const otherUser = members.find(m => m !== currentUser)!;
+
+            const duplicate = rooms.find(room =>
+                !room.group &&
+                room.members.length === 2 &&
+                room.members.includes(currentUser) &&
+                room.members.includes(otherUser)
+            );
+
+            if (duplicate) {
+                setError(t("errors.alreadyExists"), 'inline', 'all');
+                return;
+            }
+        }
+
+        try {
+            await addRoom({ name, group: isGroup, members });
+            await fetchRooms();
+            setError(t("errors.successfullyAdded"), 'nonError');
+            handleClose();
+        } catch {
+            setError(t("errors.catchFailed"), 'inline', 'all');
+        }
     };
 
     const handleClose = () => {
         setRoomName('');
         setSearchQuery('');
         setSelectedMembers([]);
+        clearError('all');
         props.onClose();
     };
 
     return (
-        <Modal {...props} title="Create Chat Room" onSave={handleSave} onClose={handleClose}>
+        <Modal {...props} title={t("modals.title.addroom")} onSave={handleSave} onClose={handleClose}>
             <div className="space-y-4">
                 {selectedMembers.length >= 2 && <Input
                     id="roomName"
-                    label="Room Name"
+                    label={t("modals.label.roomName")}
                     value={roomName}
                     required
                     onChange={(e) => setRoomName(e.target.value)}
                     variant="login"
-                    placeholder="Enter room name..."
+                    placeholder={t("placeholders.modals.addroom.roomName")}
                     wrapperClassName="flex-row items-center gap-2 space-y-0"
                     className="flex-1"
                 />}
 
                 <Input
                     id="search"
-                    label="Search Users"
+                    label={t("modals.label.search")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     variant="login"
-                    placeholder="Search for users..."
+                    placeholder={t("placeholders.modals.addroom.search")}
                     wrapperClassName="flex-row items-center gap-2 space-y-0"
                     className="flex-1"
                 />
 
                 <div className="flex flex-wrap gap-2 max-h-[220px] overflow-y-auto overflow-x-hidden border rounded-22 p-2">
                     {filteredUsers.map(user => (
-                        <div className="inline-block">
+                        <div key={user} className="inline-block">
                         <Button
-                            key={user}
                             type="button"
                             value={user}
                             onClick={() => toggleUser(user)}
-                            className={`px-3 py-1 text-sm whitespace-nowrap ${selectedMembers.includes(user) ? 'bg-chat-active' : 'bg-blue-base'}`}
+                            className={`px-3 py-1 text-sm whitespace-nowrap ${selectedMembers.includes(user) ? 'bg-chat-active' : 'bg-chat-inactive'}`}
                         />
                         </div>
                     ))}
                 </div>
             </div>
 
-            {selectedMembers && (
+            {selectedMembers && !errorMessage && (
                 <p className="text-sm text-center">
                     {selectedMembers.length >= 2
-                        ? 'A group chat will be created.'
+                        ? t("placeholders.modals.addroom.group")
                         : selectedMembers.length === 1
-                            ? 'A private chat will be created.'
-                            : 'Select at least 1 user to create a chat.'}
+                            ? t("placeholders.modals.addroom.chat")
+                            : t("placeholders.modals.addroom.warn")}
                 </p>
             )}
+            <ErrorMessage field="all" />
         </Modal>
     );
 };

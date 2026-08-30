@@ -16,7 +16,7 @@ spring:
             allowedMethods:
               - GET
               - POST
-              - PUT
+              - PATCH
               - DELETE
               - OPTIONS
             allowedHeaders:
@@ -30,7 +30,6 @@ spring:
             - Path=/auth/**
           filters:
             - StripPrefix=1
-            - PreserveHostHeader
 
         - id: chat-service
           uri: ${CHAT_URL}
@@ -38,4 +37,3 @@ spring:
             - Path=/chat/**
           filters:
             - StripPrefix=1
-            - PreserveHostHeader

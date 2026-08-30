@@ -21,6 +21,8 @@ public class User {
 	private String username;
 	private String password;
 	private String role;
+	private String publicKey;
+	private String privateKey;
 
 	@Override
 	public String toString() {

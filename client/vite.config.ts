@@ -2,8 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from "@tailwindcss/vite";
 
-
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
       react(),
@@ -12,4 +10,20 @@ export default defineConfig({
   define: {
     global: {},
   },
+    server: {
+        proxy: {
+            '/chat/messages/room': {
+                target: 'http://localhost:8080',
+                changeOrigin: true,
+            },
+            '/chat/api': {
+                target: 'http://localhost:8080',
+                changeOrigin: true,
+            },
+            '/auth/api': {
+                target: 'http://localhost:8080',
+                changeOrigin: true,
+            }
+        }
+    }
 })

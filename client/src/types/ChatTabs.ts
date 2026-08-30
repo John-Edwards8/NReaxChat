@@ -1,4 +1,4 @@
-export type ChatTab = 'all' | 'groups';
+export type ChatTab = 'all' | 'private' | 'groups';
 
 export interface ChatTabProps {
     activeTab: ChatTab;

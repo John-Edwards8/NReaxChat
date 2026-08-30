@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
+
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +14,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import com.john.auth.dto.AuthRequest;
 import com.john.auth.dto.UserDTO;
+import com.john.auth.dto.UserWithKeyDTO;
 import com.john.auth.model.User;
 import com.john.auth.repos.AuthRepository;
 import com.john.auth.security.JwtUtil;
@@ -50,10 +52,14 @@ public class AuthHandler {
 							String at = jwtUtil.generateAccessToken(u.getUsername(), role);
 							String rt = jwtUtil.generateRefreshToken(u.getUsername(), role);
 
+							String host = req.uri().getHost();
+							boolean isLocal = host != null && (host.equals("localhost") || host.equals("127.0.0.1"));
+
 							ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", rt)
 									.httpOnly(true)
+									.secure(!isLocal)
 									.path("/auth/api")
-									.sameSite("Strict")
+									.sameSite(isLocal ? "Strict" : "None")
 									.maxAge(Duration.ofDays(7))
 									.build();
 
@@ -71,8 +77,13 @@ public class AuthHandler {
 	}
 
 	public Mono<ServerResponse> logout(ServerRequest req) {
+		String host = req.uri().getHost();
+		boolean isLocal = host != null && (host.equals("localhost") || host.equals("127.0.0.1"));
+
 		ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
 				.httpOnly(true)
+				.secure(!isLocal)
+				.sameSite(isLocal ? "Strict" : "None")
 				.path("/auth/api")
 				.maxAge(Duration.ZERO)
 				.build();
@@ -99,7 +110,25 @@ public class AuthHandler {
 							.bodyValue(Collections.singletonMap("accessToken", newAccess));
 				})
 				.switchIfEmpty(ServerResponse.badRequest().bodyValue("Missing refreshToken cookie"));
-	}	
+	}
+
+	public Mono<ServerResponse> savePublicKey(ServerRequest request) {
+		String rawHeader = request.headers().firstHeader("Authorization");
+		if (rawHeader == null || !rawHeader.startsWith("Bearer ")) {
+			return ServerResponse.status(401).bodyValue("Missing or invalid Authorization header");
+		}
+		String username = jwtUtil.getUsernameFromToken(rawHeader.substring(7));
+		return request.bodyToMono(Map.class)
+				.flatMap(body -> {
+					String publicKey = (String) body.get("publicKey");
+					return repo.findByUsername(username)
+							.flatMap(user -> {
+								user.setPublicKey(publicKey);
+								return repo.save(user);
+							});
+				})
+				.then(ServerResponse.ok().build());
+	}
 
 	private UserDTO toDTO(User u) {
 		return new UserDTO(u.getUsername(), u.getRole());
@@ -123,6 +152,26 @@ public class AuthHandler {
 				.switchIfEmpty(ServerResponse.notFound().build());
 	}
 
+	public Mono<ServerResponse> getUserWithKey(ServerRequest request) {
+		String username = request.pathVariable("username");
+		return repo.findByUsername(username)
+				.map(u -> new UserWithKeyDTO(u.getUsername(), u.getRole(), u.getPublicKey(), u.getPrivateKey()))
+				.flatMap(user -> ServerResponse.ok()
+						.contentType(APPLICATION_JSON)
+						.bodyValue(user))
+				.switchIfEmpty(ServerResponse.notFound().build());
+	}
+
+	public Mono<ServerResponse> getUserPublicKey(ServerRequest request) {
+		String username = request.pathVariable("username");
+		return repo.findByUsername(username)
+				.map(user -> Map.of("publicKey", user.getPublicKey()))
+				.flatMap(body -> ServerResponse.ok()
+						.contentType(APPLICATION_JSON)
+						.bodyValue(body))
+				.switchIfEmpty(ServerResponse.notFound().build());
+	}
+
 	private Mono<User> createUser(AuthRequest req, String role) {
 		return repo.findByUsername(req.getUsername())
 				.flatMap(existing -> Mono.<User>error(new IllegalStateException("User exists")))
@@ -131,6 +180,8 @@ public class AuthHandler {
 									.username(req.getUsername())
 									.password(passwordEncoder.encode(req.getPassword()))
 									.role(role)
+									.publicKey(req.getPublicKey())
+									.privateKey(req.getPrivateKey())
 									.build();
 					return repo.save(user);
 				}));

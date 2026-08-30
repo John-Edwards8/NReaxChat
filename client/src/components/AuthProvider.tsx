@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { useAuthStore } from "../stores/authStore";
+import { extractUsernameFromToken } from "../utils/jwt";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [initialized, setInitialized] = useState(false);
+    const setAccessToken = useAuthStore(state => state.setAccessToken);
+    const setCurrentUser = useAuthStore(state => state.setCurrentUser);
+    const clearAuth = useAuthStore(state => state.clearAuth);
 
     useEffect(() => {
         const tryRefresh = async () => {
             try {
                 const response = await api.post('/auth/api/refresh');
-                useAuthStore.getState().setAccessToken(response.data.accessToken);
+                const accessToken = response.data.accessToken;
+                const user = extractUsernameFromToken(accessToken) ?? '';
+                setAccessToken(accessToken);
+                setCurrentUser(user); 
             } catch {
-                useAuthStore.getState().clearAuth();
+                clearAuth();
             } finally {
                 setInitialized(true);
             }
