@@ -22,5 +22,4 @@ public class MessageRouter {
             .andRoute(PATCH("/messages/{id}"), messageHandler::updateMessage)
             .andRoute(DELETE("/messages/{id}"), messageHandler::deleteMessage);
     }
-
 }
