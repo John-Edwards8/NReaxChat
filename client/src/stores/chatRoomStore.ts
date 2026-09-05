@@ -8,6 +8,7 @@ interface ChatRoomStore {
     activeRoom: ChatRoom | null;
     fetchRooms: () => Promise<void>;
     addRoom: (room: Omit<ChatRoom, 'id' | "roomId">) => Promise<void>;
+    receiveRoom: (room: ChatRoom) => void;
     setActiveRoom: (id: string | null) => void;
 }
 
@@ -47,5 +48,12 @@ export const useChatRoomStore = create<ChatRoomStore>((set, get) => ({
         } catch (err) {
             console.error('Failed to create chat room', err);
         }
+    },
+    receiveRoom: (room) => {
+        set((state) => {
+            const alreadyExists = state.rooms.some(r => r.roomId === room.roomId);
+            if (alreadyExists) return state;
+            return { rooms: [...state.rooms, room] };
+        });
     },
 }));

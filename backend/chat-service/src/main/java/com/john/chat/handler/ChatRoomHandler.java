@@ -13,12 +13,15 @@ import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.john.chat.dto.ChatRoomDTO;
 import com.john.chat.dto.ChatRoomInfo;
 import com.john.chat.dto.CreateChatRoomRequest;
 import com.john.chat.jwt.JwtUtil;
 import com.john.chat.model.ChatRoom;
 import com.john.chat.repository.ChatRoomRepository;
+import com.john.chat.service.WebSocketSessionRegistry;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -40,6 +43,8 @@ import reactor.core.publisher.Mono;
 public class ChatRoomHandler {    
     private final WebClient webClient;
     private final ChatRoomRepository chatRoomRepository;
+    private final WebSocketSessionRegistry sessionRegistry;
+    private final ObjectMapper objectMapper;
     private final JwtUtil jwtUtil;
 
     private ChatRoomDTO toChatRoomDTO(ChatRoom chatRoom) {
@@ -152,13 +157,16 @@ public class ChatRoomHandler {
                                         newRoom.setGroup(req.isGroup());
                                         newRoom.setEncryptedKeys(encryptedKeys);
                                         return chatRoomRepository.save(newRoom)
-                                                .flatMap(savedRoom -> ServerResponse
-                                                        .created(request.uriBuilder()
-                                                                .path("/api/chatrooms/{id}")
-                                                                .build(savedRoom.getId()))
-                                                        .contentType(APPLICATION_JSON)
-                                                        .bodyValue(toChatRoomDTO(savedRoom))
-                                                );
+                                                .flatMap(savedRoom -> {
+                                                    ChatRoomDTO dto = toChatRoomDTO(savedRoom);
+                                                    broadcastRoomCreated(dto);
+                                                    return ServerResponse
+                                                            .created(request.uriBuilder()
+                                                                    .path("/api/chatrooms/{id}")
+                                                                    .build(savedRoom.getId()))
+                                                            .contentType(APPLICATION_JSON)
+                                                            .bodyValue(dto);
+                                                });
                                     });
                         }))
                 );
@@ -222,5 +230,17 @@ public class ChatRoomHandler {
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
                 .replaceAll("\\s", "");
+    }
+    
+    private void broadcastRoomCreated(ChatRoomDTO dto) {
+        try {
+            var json = objectMapper.createObjectNode();
+            json.put("type", "CHAT_ROOM_CREATED");
+            json.set("data", objectMapper.valueToTree(dto));
+            String payload = objectMapper.writeValueAsString(json);
+            dto.getMembers().forEach(username -> sessionRegistry.sendToUser(username, payload));
+        } catch (Exception e) {
+            
+        }
     }
 }

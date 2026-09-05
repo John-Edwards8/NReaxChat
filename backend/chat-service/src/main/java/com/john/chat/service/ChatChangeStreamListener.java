@@ -51,13 +51,14 @@ public class ChatChangeStreamListener {
         switch (type) {
             case INSERT -> {
                 Message msg = evt.getBody();
+                if (msg == null || msg.getRoomId() == null) return;                
                 roomId = msg.getRoomId().toString();
                 payload = createPayload("insert", msg);
                 sendToRoom(roomId, payload);
             }
             case UPDATE, REPLACE -> {
                 Message msg = evt.getBody();
-                if (msg == null) return;
+                if (msg == null || msg.getRoomId() == null) return;
                 roomId = msg.getRoomId().toString();
                 payload = createPayload("update", msg);
                 sendToRoom(roomId, payload);

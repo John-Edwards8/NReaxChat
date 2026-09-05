@@ -3,6 +3,8 @@ package com.john.chat.config;
 import java.util.Map;
 
 import com.john.chat.handler.ChatHandler;
+import com.john.chat.handler.UserChannelHandler;
+
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,10 +20,14 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 public class WebSocketConfig {
 
     private ChatHandler privateChatHandler;
+    private UserChannelHandler userChannelHandler;
 
     @Bean
     public HandlerMapping webSocketMapping() {
-        Map<String, WebSocketHandler> map = Map.of("/room/{roomId}", privateChatHandler);
+    	Map<String, WebSocketHandler> map = Map.of(
+    		    "/room/{roomId}", privateChatHandler,
+    		    "/user/{username}", userChannelHandler
+    		);
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setUrlMap(map);
         mapping.setOrder(10);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { useAuthStore } from "../stores/authStore";
 import { extractUsernameFromToken } from "../utils/jwt";
+import { useUserChannel } from "../hooks/useUserChannel";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [initialized, setInitialized] = useState(false);
@@ -25,6 +26,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         };
         tryRefresh();
     }, []);
+
+    useUserChannel();
 
     if (!initialized) {
         return (
