@@ -15,7 +15,6 @@ import javax.crypto.spec.PSource;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.john.chat.dto.ChatRoomDTO;
-import com.john.chat.dto.ChatRoomInfo;
 import com.john.chat.dto.CreateChatRoomRequest;
 import com.john.chat.jwt.JwtUtil;
 import com.john.chat.model.ChatRoom;
@@ -108,10 +107,10 @@ public class ChatRoomHandler {
 
         String userId = jwtUtil.getUsernameFromToken(token);
 
-        Flux<ChatRoomInfo> rooms = chatRoomRepository
+        Flux<ChatRoomDTO> rooms = chatRoomRepository
                 .findByMembersContaining(userId)
                 .map(room -> {
-                    ChatRoomInfo info = new ChatRoomInfo();
+                    ChatRoomDTO info = new ChatRoomDTO();
                     info.setRoomId(room.getId().toHexString());
                     info.setName(room.getName());
                     info.setGroup(room.isGroup());
@@ -122,7 +121,7 @@ public class ChatRoomHandler {
 
         return ServerResponse.ok()
                 .contentType(APPLICATION_JSON)
-                .body(rooms, ChatRoomInfo.class);
+                .body(rooms, ChatRoomDTO.class);
     }
 
     public Mono<ServerResponse> createChatRoom(ServerRequest request) {

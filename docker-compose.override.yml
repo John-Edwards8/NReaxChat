@@ -43,6 +43,7 @@ services:
       - ./backend/chat-service/src:/app/src
       - ./backend/chat-service/target/classes:/app/target/classes
       - ~/.m2:/root/.m2
+    command: ["mvn", "spring-boot:run", "-Dspring-boot.run.fork=false"]
     environment:
       SPRING_DATA_MONGODB_URI: ${MONGODB_URI}
       SPRING_DATA_MONGODB_DATABASE: ${MONGODB_DATABASE}
