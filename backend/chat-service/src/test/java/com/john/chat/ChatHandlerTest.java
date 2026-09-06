@@ -10,6 +10,8 @@ import com.john.chat.handler.ChatHandler;
 import com.john.chat.model.Message;
 import com.john.chat.repository.ChatRoomRepository;
 import com.john.chat.repository.MessageRepository;
+import com.john.chat.service.WebSocketSessionRegistry;
+
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,8 @@ public class ChatHandlerTest {
         roomRepo = mock(ChatRoomRepository.class);
         jwtUtil = mock(JwtUtil.class);
         ObjectMapper objectMapper = new ObjectMapper();
-        handler = new ChatHandler(messageRepo, roomRepo, jwtUtil, objectMapper);
+        WebSocketSessionRegistry sessionRegistry = new WebSocketSessionRegistry();
+        handler = new ChatHandler(messageRepo, roomRepo, jwtUtil, objectMapper, sessionRegistry);
     }
 
     private WebSocketMessage firstMessageFrom(Object publisher) {

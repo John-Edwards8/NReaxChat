@@ -8,4 +8,5 @@ import reactor.core.publisher.Flux;
 
 public interface MessageRepository extends ReactiveMongoRepository<Message, ObjectId> {
     Flux<Message> findAllByRoomId(ObjectId roomId);
+    Flux<Message> findAllByRoomIdAndDeletedNot(ObjectId roomId, boolean deleted);
 }

@@ -8,6 +8,8 @@ import com.john.chat.model.Message;
 import com.john.chat.model.MessageType;
 import com.john.chat.repository.ChatRoomRepository;
 import com.john.chat.repository.MessageRepository;
+import com.john.chat.service.WebSocketSessionRegistry;
+
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.lang.NonNull;
@@ -22,8 +24,6 @@ import reactor.core.publisher.Sinks;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @AllArgsConstructor
@@ -33,7 +33,7 @@ public class ChatHandler implements WebSocketHandler {
     private final ChatRoomRepository roomRepo;
     private final JwtUtil jwtUtil;
     private final ObjectMapper objectMapper;
-    private final Map<String, Sinks.Many<Message>> sinks = new ConcurrentHashMap<>();
+    private final WebSocketSessionRegistry sessionRegistry;
 
     @Override
     @NonNull
@@ -58,18 +58,14 @@ public class ChatHandler implements WebSocketHandler {
                         return Mono.error(new AccessDeniedException("No access"));
                     }
 
-                    Sinks.Many<Message> sink = sinks.computeIfAbsent(
-                            roomId,
-                            id -> Sinks.many().multicast().directAllOrNothing()
-                    );
+                    Sinks.Many<String> outboundSink = sessionRegistry.register(roomId, session);
 
                     Flux<WebSocketMessage> history = messageRepo
                             .findAllByRoomId(new ObjectId(roomId))
                             .map(this::toJson)
                             .map(session::textMessage);
 
-                    Flux<WebSocketMessage> live = sink.asFlux()
-                            .map(this::toJson)
+                    Flux<WebSocketMessage> live = outboundSink.asFlux()
                             .map(session::textMessage);
 
                     Mono<Void> send = session.send(history.concatWith(live));
@@ -87,12 +83,7 @@ public class ChatHandler implements WebSocketHandler {
                                             msg.setRoomId(new ObjectId(roomId));
                                             msg.setSender(user);
                                             msg.setTimestamp(Instant.now());
-                                            return messageRepo.save(msg)
-                                                    .doOnNext(saved -> {
-                                                        saved.setType(MessageType.NEW);
-                                                        sink.tryEmitNext(saved);
-                                                    })
-                                                    .then();
+                                            return messageRepo.save(msg).then();
                                         case EDIT:
                                             String editId = node.get("id").asText();
                                             String newContent = node.get("content").asText();
@@ -100,28 +91,16 @@ public class ChatHandler implements WebSocketHandler {
                                                     .flatMap(existing -> {
                                                         existing.setContent(newContent);
                                                         return messageRepo.save(existing);
-                                                    })
-                                                    .doOnNext(updated -> {
-                                                        updated.setType(MessageType.EDIT);
-                                                        sink.tryEmitNext(updated);
-                                                    })
-                                                    .then();
+                                                    }).then();
 
                                         case DELETE:
                                             String deleteId = node.get("id").asText();
                                             return messageRepo.findById(new ObjectId(deleteId))
-                                                    .flatMap(toDelete ->
-                                                            messageRepo.delete(toDelete)
-                                                                    .then(Mono.defer(() -> {
-                                                                        Message deleted = new Message();
-                                                                        deleted.setId(toDelete.getId());
-                                                                        deleted.setRoomId(toDelete.getRoomId());
-                                                                        deleted.setSender(toDelete.getSender());
-                                                                        deleted.setType(MessageType.DELETE);
-                                                                        sink.tryEmitNext(deleted);
-                                                                        return Mono.empty();
-                                                                    }))
-                                                    );
+                                            		.flatMap(existing -> {
+                                                        existing.setDeleted(true);
+                                                        return messageRepo.save(existing);
+                                                    })
+                                                    .then();
                                         default:
                                             return Mono.empty();
                                     }

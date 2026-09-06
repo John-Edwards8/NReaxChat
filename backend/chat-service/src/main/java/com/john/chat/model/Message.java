@@ -31,6 +31,8 @@ public class Message {
     private String content;
     
     private Instant timestamp;
+    
+    private boolean deleted;
 
     @Transient
     private MessageType type;
